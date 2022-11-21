@@ -1,0 +1,97 @@
+<div class="main border border-dark">
+    <div class="row m-2">
+        <div class="col-md-3 align-self-center mb-2 ">
+            <div class="text-underline">Alta de nuevo ticket</div>
+        </div>
+        <div class="col-md-2 align-self-center text-center ms-auto mb-2">
+            <button type="button" class="options-button" [disabled]="createTicketForm.invalid || uploadingFile" (click)="createTicket()">
+                <img title="check_icon" class="options-images" src="assets/images/check_icon.png">
+            </button>
+            <button type="button" class="options-button">
+                <img title="clear_icon" class="options-images" src="assets/images/broom_icon.svg" (click)="showConfirmModal('Limpiar formulario?', 'clear')">
+            </button>
+            <button type="button" class="options-button" routerLink="/tickets/list">
+                <img title="back-button" class="options-images" src="assets/images/back_icon.svg">
+            </button>
+        </div>
+    </div>
+
+    <form [formGroup]="createTicketForm" method="post">
+        <div class="row m-0 ticket-background border-top border-dark">
+            <div class="col-md-2 align-self-center mb-2">
+                <label for="gestor">Gestor</label>
+                <select class="form-select" formControlName="manager" name="gestor">
+                            <option value="" selected hidden disabled></option>
+                            <option *ngFor="let manager of managers" value="{{manager.username}}">{{manager.name}}</option>
+                </select>
+            </div> 
+            <div class="col-md-2 align-self-center mb-2">
+                <label for="prioridad">Prioridad</label>
+                <select class="form-select" formControlName="priority" name="prioridad">
+                            <option value="1" selected>BAJA</option>
+                            <option value="2">MEDIA</option>
+                            <option value="3">ALTA</option>
+                            <option value="4">URGENTE</option>
+                </select>
+            </div> 
+            <div class="col-md-2 align-self-center mb-2">
+                <label for="user">Usuario</label>
+                <select class="form-select" formControlName="username" name="user">
+                    <option value="{{current_user.username}}" selected>{{current_user.name}}</option>
+                    <option *ngFor="let user of users" value="{{user.username}}">{{user.name}}</option>
+        </select>
+            </div>
+            <div class="col-md-6 align-self-center mb-2">
+                <label class="col-md-12" for="file">F.Adjunto</label>
+                <input [disabled]="uploadingFile" class="form-control d-inline w-75" type="file" id="file" (change)="onChangeFile($event)">
+                <span *ngIf="uploadingFile" class="loader ms-2 align-middle"></span>
+                <span *ngIf="uploadingFile" class="ms-2 align-middle">Loading File</span>
+                <img *ngIf="fileUpload" class='file-uploaded-check-img ms-2 align-middle' src="../../assets/images/check_icon_green.svg">
+                <span *ngIf="fileUpload" class="ms-2 align-middle text-success">Archivo subido</span>
+            </div>
+        </div>
+
+        <div class="row m-0 ticket-background">
+            <div class="col-md-3 align-self-center mb-2">
+                <label for="category">Categoria</label>
+                <select class="form-select" formControlName="category" name="category">
+                    <option value="GRAL" selected>General</option>
+                </select>
+            </div>
+            <div class="col-md-9 align-self-center mb-2">
+                <label for="title">Título</label>
+                <input type="text" name="title" class="form-control" formControlName="title"> 
+            </div>
+        </div>
+    
+        <div class="row m-0">
+            <div class="col-md-3 p-0 ticket-background text-center">
+                <div class="col-md-12 tickets_options border border-dark" routerLink="/tickets/list"><h3>Resumen Tickets I.T</h3></div>
+                <div class="col-md-12 tickets_options border border-dark"><h3>Búsqueda Casos</h3></div>
+                <div class="col-md-12 tickets_options border border-dark"><h3>Manuales</h3></div>
+            </div>
+            <div class="col-md-9 p-2 border border-dark">
+                <div class="col-md-12 h-100">
+                    <div class="col-md-12 align-self-center mb-2">
+                        <label for="description" class="text-primary">Descripción</label>
+                        <textarea name="description" class="form-control p-3 border-secondary" formControlName="description" rows="7"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div> 
+    </form>
+</div>
+
+
+<!-- Modal -->
+
+<div class="modal fade" id="confirmModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm" id="confirmModalContent"> 
+    </div>
+</div>
+
+
+
+
+
+

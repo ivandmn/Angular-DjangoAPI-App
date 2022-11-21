@@ -1,0 +1,20 @@
+Requisitos Previos:
+	-Tener instalado python
+	-Tener instalado angular
+	-Tener instalado node
+
+PASOS:
+1- Abrir carpeta "backend" en Visual Studio Code -> Le pondremos un nombre temporal de "VSCBackend" para entenderlo mejor
+2- Abrir carpeta "frontend" en una nueva pestaña de Visual Studio Code -> Le pondremos un nombre temporal de "VSCFrontend" para entenderlo mejor
+3- Ir a la pestaña de Visual Studio Code que hemos llamado "VSBackend"
+3- Abrir terminal en "VSCBackend" y ejecutar la instrucción para instalar las dependencias del backend:
+	pip install -r "requirements.txt"
+4- En la carpeta backend hay un archivo llamado ".env" abrir en "VSBackend" y cambiar el valor de "SERVER = ?" a "SERVER = SSBD"
+4- En "VSBackend" escribir el comando  -> python manage.py runserver
+5- Ir a la pestaña de Visual Studio Code que hemos llamado "VSCFrontend"
+6- Abrir el terminal en "VSCFrontend" y ejecutar la instrucción:
+	ng serve --open
+7- Ir al navegador y escribir como direccion "localhost:4200"
+8- Entorno de desarrollo creado!
+	
+	

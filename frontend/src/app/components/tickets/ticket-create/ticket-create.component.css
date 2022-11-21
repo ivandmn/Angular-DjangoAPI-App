@@ -1,0 +1,64 @@
+.ticket-background{
+    background-color: #68c5ed;
+}
+
+label{
+    margin-right: 5px;
+}
+
+.tickets_options{
+    transition-duration: 0.4s;
+    padding: 20px;
+    cursor: pointer;
+}
+
+.tickets_options:hover{
+    background-color: #1fbcff;
+}
+
+.options-images{
+    height: 35px;
+    width: auto;
+}
+
+.options-button{
+    margin: 10px;
+}
+
+.text-underline{
+    -moz-text-decoration-line: underline;
+    text-decoration-line: underline;
+    -moz-text-decoration-color: blue;
+    text-decoration-color: blue;
+    color:blue;
+    cursor: pointer;
+}
+
+.file-uploaded-check-img{
+    height: 25px;
+    width: auto;
+}
+
+.loader {
+    width: 20px;
+    height: 20px;
+    border: 2px solid grey;
+    border-bottom-color: transparent;
+    border-radius: 50%;
+    display: inline-block;
+    box-sizing: border-box;
+    animation: rotation 1s linear infinite;
+}
+
+@keyframes rotation {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+} 
+
+
+
+

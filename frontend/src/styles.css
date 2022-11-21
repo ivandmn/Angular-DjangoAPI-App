@@ -1,0 +1,21 @@
+@font-face{
+  font-family: 'Quicksand';
+  src: url('./assets/fonts/Quicksand/Quicksand-Regular.otf')
+}
+
+* {
+  font-family: 'Quicksand', sans-serif !important;
+}
+
+html, body{
+  height: 100%;
+  width: 100%;
+}
+
+body {
+  background-color: aliceblue;
+}
+
+.toast-top-center {
+  top: 10px !important;
+}

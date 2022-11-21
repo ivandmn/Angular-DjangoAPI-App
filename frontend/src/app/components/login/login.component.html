@@ -1,0 +1,80 @@
+<div class="modal">
+  <div id="formLogin" class="modal-content animate">
+    <form [formGroup]="loginForm" (ngSubmit)="login()" method="post">
+      <div class="container">
+        <label for="usr"><b>Username</b></label>
+        <input name="usr" type="text" class="inputsForm" class="form-control" formControlName="username" placeholder="Enter Username">
+  
+        <label for="psw"><b>Password</b></label>
+        <input name="psw" type="password" autocomplete="on" class="inputsForm" class="form-control" formControlName="password" placeholder="Enter Password">
+          
+        <button type="submit" [disabled]="loginForm.invalid" *ngIf="loginForm.valid" class="submitButton">Login</button>
+        <button type="submit" [disabled]="loginForm.invalid" *ngIf="loginForm.invalid" class="submitButtonDisabled">Login</button>
+        <div *ngIf="error_login_msg">
+          <p class="text-danger">{{error_login_msg}}</p>
+        </div>
+        <label>
+          <input type="checkbox" checked="checked" name="remember"> Remember me
+        </label>
+      </div>
+      <div class="container">
+        <button type="button" (click)="location.back()" class="cancelbtn text-white">Cancel</button>
+        <span class="psw">Forgot <a (click)="show('forgotPassword')" class="forgotPasswordBtn">password?</a></span>
+      </div>
+    </form>
+  </div>
+  
+  <div id="forgotPassword" class="modal-content">
+    <form [formGroup]="forgotPasswordForm" (ngSubmit)="validateEmail()" method="post">
+    <div class="container">
+      <label for="email"><b>Email</b></label>
+      <input type="email" class="form-control" class="inputsForm" formControlName="email" placeholder="Enter email" name="email">
+      <button type="submit" [disabled]="forgotPasswordForm.invalid" *ngIf="forgotPasswordForm.valid" class="submitButton">Send Email</button>
+      <button type="submit" [disabled]="forgotPasswordForm.invalid" *ngIf="forgotPasswordForm.invalid" class="submitButtonDisabled">Send Email</button>
+      <div *ngIf="error_email_msg">
+        <p class="text-danger">{{error_email_msg}}</p>
+      </div>
+    </div>
+    <div class="container">
+      <button type="button" (click)="show('formLogin')" class="cancelbtn text-white">Go Back</button>
+      <span class="psw" *ngIf="button_reset_key"><a (click)="show('validateResetPassKey')" class="forgotPasswordBtn">Validate Key</a></span>
+    </div>
+    
+    </form>
+  </div>
+  
+  <div id="validateResetPassKey" class="modal-content">
+    <form [formGroup]="validateResetKeyForm" (ngSubmit)="validateResetKey()" method="post">
+    <div class="container">
+      <label for="ResetPassKey"><b>Reset Key</b></label>
+      <input type="text" class="form-control" class="inputsForm" formControlName="key" placeholder="Enter key" name="ResetPassKey">
+      <button type="submit" [disabled]="validateResetKeyForm.invalid" *ngIf="validateResetKeyForm.valid" class="submitButton">Validate Key</button>
+      <button type="submit" [disabled]="validateResetKeyForm.invalid" *ngIf="validateResetKeyForm.invalid" class="submitButtonDisabled">Validate Key</button>
+      <div *ngIf="error_key_msg">
+        <p class="text-danger">{{error_key_msg}}</p>
+      </div>
+    </div>
+    <div class="container">
+      <button type="button" (click)="show('forgotPassword')" class="cancelbtn text-white">Go Back</button>
+    </div>
+    </form>
+  </div>
+  
+  <div id="changePasswordForm" class="modal-content">
+    <form [formGroup]="changePasswordForm" (ngSubmit)="changePassword()" method="post">
+    <div class="container">
+      <label for="password"><b>New Password</b></label>
+      <input type="password" class="form-control" class="inputsForm" formControlName="password" placeholder="Enter new password" name="password">
+      <button type="submit" [disabled]="changePasswordForm.invalid" *ngIf="changePasswordForm.valid" class="submitButton">Change Password</button>
+      <button type="submit" [disabled]="changePasswordForm.invalid" *ngIf="changePasswordForm.invalid" class="submitButtonDisabled">Change Password</button>
+      <div *ngIf="error_newPassword_msg">
+        <p class="text-danger">{{error_newPassword_msg}}</p>
+      </div>
+    </div>
+    <div class="container">
+      <button type="button" (click)="show('validateResetPassKey')" class="cancelbtn text-white">Go Back</button>
+    </div>
+    </form>
+  </div>
+</div>
+  

@@ -1,0 +1,224 @@
+.main{
+    width: 100%;
+    min-height: 815px;
+}
+
+.back-button{
+    height: 35px;
+    width: auto;
+}
+
+.header-span{
+    color: blue;
+    font-weight: bold;
+}
+
+.header-text{
+    font-size: 16px;
+}
+
+.header-title{
+    font-size: 30px;
+    font-weight: bold;
+}
+
+#ticket-container{
+    background-color: #68c5ed;
+    min-height: 550px;
+    max-height: 550px;
+}
+
+#ticket-w-container{
+    min-height: 27%;
+}
+
+
+.right {
+    position: relative;
+    background: white;
+    text-align: right;
+    margin: 5px;
+    margin-right: 20px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    float: right;
+  }
+  
+.right::before {
+    content: '';
+    position: absolute;
+    visibility: visible;
+    top: -1px;
+    right: -10px;
+    border: 10px solid transparent;
+    border-top: 10px solid #ccc;
+  }
+  
+.right::after {
+    content: '';
+    position: absolute;
+    visibility: visible;
+    top: 0px;
+    right: -8px;
+    border: 10px solid transparent;
+    border-top: 10px solid white;
+    clear: both;
+}
+
+
+.time-msg-right{
+    display: flex;
+    flex-direction: row;
+    margin-left: 10px;
+    margin-bottom: 10px;
+    color:gray;
+    font-size: 11px;
+    text-decoration: none;
+}
+
+.time-used-msg-right{
+    margin-bottom: 0px;
+    margin-left: auto;
+    margin-right: 10px;
+}
+
+.user-msg-right{
+    display: flex;
+    flex-direction: row-reverse;
+    margin-top: 10px;
+    margin-right: 10px;
+    margin-bottom: 0px;
+    color: blue;
+    font-size: 14px;
+    text-align: start;
+    word-wrap: break-word; 
+}
+
+.msg-right{
+    display: flex;
+    flex-direction: row-reverse;
+    margin: 10px;
+    margin-top: 15px;
+    text-align: start;
+    word-wrap: break-word; 
+}
+
+.file-msg-right{
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 30px;
+    width: auto;
+    margin-left: 10px;
+    margin-top: 10px;
+    cursor: pointer;
+}
+
+.left{
+    position: relative;
+    background: white;
+    text-align: left;
+    margin: 5px;
+    margin-left: 20px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    float: left;
+}
+
+.left::before {
+    content: '';
+    position: absolute;
+    visibility: visible;
+    top: -1px;
+    left: -10px;
+    border: 10px solid transparent;
+    border-top: 10px solid #ccc;
+}
+
+.left::after {
+    content: '';
+    position: absolute;
+    visibility: visible;
+    top: 0px;
+    left: -8px;
+    border: 10px solid transparent;
+    border-top: 10px solid white;
+    clear: both;
+}
+
+.time-msg-left{
+    display: flex;
+    flex-direction: row-reverse;
+    margin-right: 10px;
+    margin-bottom: 10px;
+    color:gray;
+    font-size: 11px;
+    text-decoration: none;
+}
+
+.time-used-msg-left{
+    margin-bottom: 0px;
+    margin-right: auto;
+    margin-left: 10px;
+}
+
+.user-msg-left{
+    display: flex;
+    flex-direction: row;
+    margin-top: 10px;
+    margin-left: 10px;
+    margin-bottom: 0px;
+    color: blue;
+    font-size: 14px;
+}
+
+.msg-left{
+    display: flex;
+    flex-direction: row;
+    margin: 10px;
+    margin-top: 15px;
+}
+
+.file-msg-left{
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 30px;
+    width: auto;
+    margin-right: 10px;
+    margin-top: 10px;
+    cursor: pointer;
+}
+
+.file-uploaded-check-img{
+    height: 25px;
+    width: auto;
+}
+
+.loader {
+    width: 20px;
+    height: 20px;
+    border: 2px solid grey;
+    border-bottom-color: transparent;
+    border-radius: 50%;
+    display: inline-block;
+    box-sizing: border-box;
+    animation: rotation 1s linear infinite;
+}
+
+@keyframes rotation {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+} 
+
+
+
+
+
+
+
+

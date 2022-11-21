@@ -1,0 +1,81 @@
+<div class="main border border-dark">
+    <div class="border-bottom border-dark">
+        <div class="row m-2">
+            <div class="col-xl-2">
+                <span class="header-span header-text">Caso: </span>
+                <span class="header-text">{{ticket.code}}</span>
+            </div>
+            <div class="col-xl-2">
+                <span class="header-span header-text">Fecha: </span>
+                <span class="header-text">{{ticket.date | ddMmYYYYDate}}</span>
+            </div>
+            <div class="col-xl-2">
+                <span class="header-span header-text align-middle">Tiempo: </span>
+                <span class="header-text align-middle">{{ticket.time}}</span>
+            </div>
+            <div class="col-xl-6">
+                <span class="header-span header-text align-middle">Título: </span>
+                <span class="header-text align-middle">{{ticket.title}}</span>
+            </div>
+        </div>
+        <div class="row m-2">
+            <div class="col-lg-4">
+                <form [formGroup]="managerSelect">
+                    <label for="gestor">Gestor</label>
+                    <select class="form-select d-inline w-75 ms-2" id="managerForm" formControlName="manager" title="gestor" name="gestor" (change)=changeTicketManager()>
+                        <option *ngFor="let manager of managers" [value]="manager.username" [selected]="ticket.manager == manager.username?true:false">{{manager.name}}</option>
+                    </select>
+                </form>
+            </div>
+            <div class="col-lg-2 text-end ms-auto">
+                <button type="button" class="me-2" *ngIf="ticket.state == 'A'">
+                    <img title="cerrar_ticket" class="back-button" value="Cerrar Ticket" (click)="closeTicket()" src="assets/images/unlock.png">
+                </button>
+                <button type="button" *ngIf="ticket.state == 'C'" class="me-2">
+                    <img title="reabrir_ticket" class="back-button" value="Reabrir Ticket" (click)="openTicket()" src="assets/images/lock.png">
+                </button>
+                <button type="button" routerLink="/tickets/list">
+                    <img title="back-button" class="back-button" src="assets/images/back_icon.svg">
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="border border-dark m-2 overflow-auto" #scrollMe [scrollTop]="scrollMe.scrollHeight" id="ticket-container">
+        <div class="col-9" *ngFor="let message of ticket_messages" [ngClass]="{'right': message.type == 'P', 'left': message.type == 'R'}">
+            <p [ngClass]="{'user-msg-left': message.type == 'R'}" *ngIf="message.type == 'R'">{{user_response}}</p>
+            <p [ngClass]="{'user-msg-right': message.type == 'P'}" *ngIf="message.type == 'P'">{{user_question}}</p>
+            <p [ngClass]="{'msg-right': message.type == 'P', 'msg-left': message.type == 'R'}">{{message.text1 + message.text2 + message.text3}}</p>
+            <a [ngClass]="{'time-msg-right': message.type == 'P', 'time-msg-left': message.type == 'R'}">{{message.date | ddMmYyyyHHMMDate}} <p *ngIf="message.time != '00:00:00'" [ngClass]="{'time-used-msg-right': message.type == 'P', 'time-used-msg-left': message.type == 'R'}">{{message.time}}</p></a>
+            <img *ngIf="message.file" src="../../assets/images/file.png" [ngClass]="{'file-msg-right': message.type == 'P', 'file-msg-left': message.type == 'R'}" (click)="getFile(message.file)">
+        </div>
+    </div>
+    <div class="row m-2" id="ticket-w-container">
+        <form [formGroup]="sendTicketMsgForm" method="post" class="row mh-100" (ngSubmit)="sendNewMessage()">
+            <div class="col-md-7 p-0">
+                <textarea class="h-100 col-md-12 w-100 p-2" formControlName="msg"></textarea>
+            </div> 
+            <div class="col-md-5 p-0">
+                <div class="col-md-12 m-2">
+                    <label for="file col-md-12">F.Adjunto</label>
+                    <div class="col-md-12">
+                        <input [disabled]="uploadingFile" class="form-control d-inline w-75" type="file" id="file" (change)="onChangeFile($event)">
+                        <span *ngIf="uploadingFile" class="loader ms-2 align-middle"></span>
+                        <span *ngIf="uploadingFile" class="ms-2 align-middle">Loading File</span>
+                        <img *ngIf="fileUpload" class='file-uploaded-check-img ms-2 align-middle' src="../../assets/images/check_icon_green.svg">
+                        <span *ngIf="fileUpload" class="ms-2 align-middle text-success">Archivo subido</span>
+                    </div>
+
+                </div>
+                    
+                <div class="col-md-12 m-2">
+                    <label class="col-md-6 text-start" *ngIf="user.rol == 'admin'"><input formControlName="validation" type="checkbox"> Validación</label>
+                    <label class="col-md-6 ps-2 text-end" *ngIf="user.rol == 'admin'"><input formControlName="time" type=time> Tiempo (HH/MM)</label>
+                </div>
+                <div class="col-md-12 m-2">
+                    <input class="col-md-12" type="submit" value="Enviar" [disabled]="(sendTicketMsgForm.controls['msg'].invalid && sendTicketMsgForm.controls['file'].invalid) || sendTicketMsgForm.controls['msg'].value.length > 765 || uploadingFile">
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

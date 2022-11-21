@@ -1,0 +1,7 @@
+Django
+djangorestframework
+django-smtp-ssl
+django-cors-headers
+python-decouple
+mssql-django
+pyjwt

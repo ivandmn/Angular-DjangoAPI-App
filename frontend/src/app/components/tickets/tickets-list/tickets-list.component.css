@@ -1,0 +1,49 @@
+.main{
+    min-height: 700px;
+}
+
+.ticket-background{
+    background-color: #68c5ed;
+}
+
+.bg-ticket-blue{
+    background-color: #68c5ed;
+
+}
+
+label{
+    margin-right: 5px;
+}
+
+th{
+    padding: 0;
+}
+
+td{
+    padding: 4px;
+}
+
+.tickets_options{
+    transition-duration: 0.4s;
+    padding: 20px;
+    cursor: pointer;
+}
+
+.tickets_options:hover{
+    background-color: #1fbcff;
+}
+
+.back-button{
+    height: 35px;
+    width: auto;
+}
+
+.text-underline{
+    -moz-text-decoration-line: underline;
+    text-decoration-line: underline;
+    -moz-text-decoration-color: blue;
+    text-decoration-color: blue;
+    color:blue;
+    cursor: pointer;
+}
+
