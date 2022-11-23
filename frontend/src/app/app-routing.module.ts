@@ -12,7 +12,6 @@ import { TicketsCreateComponent } from './components/tickets/ticket-create/ticke
 import { TicketsTicketComponent } from './components/tickets/ticket-ticket/ticket-ticket.component';
 
 const routes: Routes = [
-   { path: '', redirectTo: '/home', pathMatch: 'full' },
    { path: 'log-in', component: LoginComponent, canActivate: [AuthNegationGuard]},
    { path: 'home', component: HomeComponent},
    { path: 'user-profile', component: UserProfileComponent, canActivate: [AuthGuard]},

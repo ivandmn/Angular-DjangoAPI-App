@@ -63,18 +63,21 @@ export class TicketsTicketComponent implements OnInit, AfterViewChecked  {
   
 
   ngOnInit(): void {
+    
     //Get current user info
     this.current_user = this.authService.getUserInfo();
 
     //Get ticket code from cookie if cookie exist
-    this.ticketService.getTicketCodeFromCookies()
-    this.t_code = this.ticketService.t_code;
+    this.t_code = this.ticketService.getTicketCodeFromCookies()
+
+    //Get ticket info
+    this.getTicketInfo()
 
     //Get current managers
     this.getManagers()
 
     //Get ticket header info
-    this.getTicketInfo()
+    
     //Get tickets messages
     this.getTicketMessages()
   }

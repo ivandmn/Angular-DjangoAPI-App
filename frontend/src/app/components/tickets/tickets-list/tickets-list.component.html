@@ -57,28 +57,30 @@
                     </tr>
                     <ng-container *ngIf="current_user.rol == 'user'">
                         <tr *ngFor="let ticket of tickets" class="text-center border-bottom border-dark" role="button" (click)="getTicketL(ticket.code)">
-                            <td class='text-underline' [ngClass]="{'bg-ticket-blue': ticket.validation == -1}">{{ticket.code}}</td>
-                            <td [ngClass]="{'bg-ticket-blue': ticket.validation == -1}">{{ticket.date | ddMmYyyyHHMMDate}}</td>
-                            <td [ngClass]="{'bg-ticket-blue': ticket.validation == -1}">{{ticket.title}}</td>
-                            <td [ngClass]="{'bg-ticket-blue': ticket.validation == -1}">{{ticket.user}}</td>
-                            <td [ngClass]="{'bg-ticket-blue': ticket.validation == -1}">{{ticket.manager}}</td>
-                            <td [ngClass]="{'bg-ticket-blue': ticket.validation == -1}">{{ticket.category}}</td>
-                            <td [ngClass]="{'bg-ticket-blue': ticket.validation == -1}">{{ticket.priority}}</td>
-                            <td [ngClass]="{'bg-ticket-blue': ticket.validation == -1}">{{ticket.position}}</td>
-                            <td [ngClass]="{'bg-ticket-blue': ticket.validation == -1}">{{ticket.time}}</td>
+                            <td class='text-underline' [ngClass]="{'bg-ticket-blue': ticket.validation == -1, 'font-weight-bold': (ticket.viewed == 0 && ticket.validation == -1 && ticket.last_response_type == 'P') || (ticket.viewed == 0 && ticket.validation == 0 && ticket.last_response_type != 'P')}">{{ticket.code}}</td>
+                            <td [ngClass]="{'bg-ticket-blue': ticket.validation == -1, 'font-weight-bold': (ticket.viewed == 0 && ticket.validation == -1 && ticket.last_response_type != 'P') || (ticket.viewed == 0 && ticket.validation == 0 && ticket.last_response_type != 'P')}">{{ticket.date | ddMmYyyyHHMMDate}}</td>
+                            <td [ngClass]="{'bg-ticket-blue': ticket.validation == -1, 'font-weight-bold': (ticket.viewed == 0 && ticket.validation == -1 && ticket.last_response_type != 'P') || (ticket.viewed == 0 && ticket.validation == 0 && ticket.last_response_type != 'P')}">{{ticket.title}}</td>
+                            <td [ngClass]="{'bg-ticket-blue': ticket.validation == -1, 'font-weight-bold': (ticket.viewed == 0 && ticket.validation == -1 && ticket.last_response_type != 'P') || (ticket.viewed == 0 && ticket.validation == 0 && ticket.last_response_type != 'P')}">{{ticket.user}}</td>
+                            <td [ngClass]="{'bg-ticket-blue': ticket.validation == -1, 'font-weight-bold': (ticket.viewed == 0 && ticket.validation == -1 && ticket.last_response_type != 'P') || (ticket.viewed == 0 && ticket.validation == 0 && ticket.last_response_type != 'P')}">{{ticket.manager}}</td>
+                            <td [ngClass]="{'bg-ticket-blue': ticket.validation == -1, 'font-weight-bold': (ticket.viewed == 0 && ticket.validation == -1 && ticket.last_response_type != 'P') || (ticket.viewed == 0 && ticket.validation == 0 && ticket.last_response_type != 'P')}">{{ticket.category}}</td>
+                            <td [ngClass]="{'bg-ticket-blue': ticket.validation == -1, 'font-weight-bold': (ticket.viewed == 0 && ticket.validation == -1 && ticket.last_response_type != 'P') || (ticket.viewed == 0 && ticket.validation == 0 && ticket.last_response_type != 'P')}">{{ticket.priority}}</td>
+                            <td [ngClass]="{'bg-ticket-blue': ticket.validation == -1, 'font-weight-bold': (ticket.viewed == 0 && ticket.validation == -1 && ticket.last_response_type != 'P') || (ticket.viewed == 0 && ticket.validation == 0 && ticket.last_response_type != 'P')}">{{ticket.position}}</td>
+                            <td [ngClass]="{'bg-ticket-blue': ticket.validation == -1, 'font-weight-bold': (ticket.viewed == 0 && ticket.validation == -1 && ticket.last_response_type != 'P') || (ticket.viewed == 0 && ticket.validation == 0 && ticket.last_response_type != 'P')}">{{ticket.time}}</td>
+                            <td *ngIf="((ticket.viewed == 0 && ticket.validation == -1 && ticket.last_response_type == 'P') || (ticket.viewed == 0 && ticket.validation == 0 && ticket.last_response_type != 'P'))" class="text-dark p-0 align-middle" [ngClass]="{'font-weight-bold': (ticket.viewed == 0 && ticket.validation == -1 && ticket.last_response_type == 'P') || (ticket.viewed == 0 && ticket.validation == 0 && ticket.last_response_type != 'P')}">¡NUEVO MENSAJE!</td>
                         </tr>
                     </ng-container>
                     <ng-container *ngIf="current_user.rol == 'admin'">
                         <tr *ngFor="let ticket of tickets" class="text-center border-bottom border-dark" role="button" (click)="getTicketL(ticket.code)">
-                            <td class='text-underline' [ngClass]="{'bg-ticket-blue': ticket.validation == 0}">{{ticket.code}}</td>
-                            <td [ngClass]="{'bg-ticket-blue': ticket.validation == 0}">{{ticket.date | ddMmYyyyHHMMDate}}</td>
-                            <td [ngClass]="{'bg-ticket-blue': ticket.validation == 0}">{{ticket.title}}</td>
-                            <td [ngClass]="{'bg-ticket-blue': ticket.validation == 0}">{{ticket.user}}</td>
-                            <td [ngClass]="{'bg-ticket-blue': ticket.validation == 0}">{{ticket.manager}}</td>
-                            <td [ngClass]="{'bg-ticket-blue': ticket.validation == 0}">{{ticket.category}}</td>
-                            <td [ngClass]="{'bg-ticket-blue': ticket.validation == 0}">{{ticket.priority}}</td>
-                            <td [ngClass]="{'bg-ticket-blue': ticket.validation == 0}">{{ticket.position}}</td>
-                            <td [ngClass]="{'bg-ticket-blue': ticket.validation == 0}">{{ticket.time}}</td>
+                            <td class='text-underline' [ngClass]="{'bg-ticket-blue': ticket.validation == 0, 'font-weight-bold': ticket.viewed == 0 && ticket.validation == 0 && ticket.last_response_type != 'R'}">{{ticket.code}}</td>
+                            <td [ngClass]="{'bg-ticket-blue': ticket.validation == 0, 'font-weight-bold': ticket.viewed == 0 && ticket.validation == 0 && ticket.last_response_type != 'R'}">{{ticket.date | ddMmYyyyHHMMDate}}</td>
+                            <td [ngClass]="{'bg-ticket-blue': ticket.validation == 0, 'font-weight-bold': ticket.viewed == 0 && ticket.validation == 0 && ticket.last_response_type != 'R'}">{{ticket.title}}</td>
+                            <td [ngClass]="{'bg-ticket-blue': ticket.validation == 0, 'font-weight-bold': ticket.viewed == 0 && ticket.validation == 0 && ticket.last_response_type != 'R'}">{{ticket.user}}</td>
+                            <td [ngClass]="{'bg-ticket-blue': ticket.validation == 0, 'font-weight-bold': ticket.viewed == 0 && ticket.validation == 0 && ticket.last_response_type != 'R'}">{{ticket.manager}}</td>
+                            <td [ngClass]="{'bg-ticket-blue': ticket.validation == 0, 'font-weight-bold': ticket.viewed == 0 && ticket.validation == 0 && ticket.last_response_type != 'R'}">{{ticket.category}}</td>
+                            <td [ngClass]="{'bg-ticket-blue': ticket.validation == 0, 'font-weight-bold': ticket.viewed == 0 && ticket.validation == 0 && ticket.last_response_type != 'R'}">{{ticket.priority}}</td>
+                            <td [ngClass]="{'bg-ticket-blue': ticket.validation == 0, 'font-weight-bold': ticket.viewed == 0 && ticket.validation == 0 && ticket.last_response_type != 'R'}">{{ticket.position}}</td>
+                            <td [ngClass]="{'bg-ticket-blue': ticket.validation == 0, 'font-weight-bold': ticket.viewed == 0 && ticket.validation == 0 && ticket.last_response_type != 'R'}">{{ticket.time}}</td>
+                            <td *ngIf="(ticket.viewed == 0 && ticket.validation == 0 && ticket.last_response_type != 'R')" class="text-dark p-0 align-middle" [ngClass]="{'font-weight-bold': ticket.viewed == 0 && ticket.validation == 0 && ticket.last_response_type != 'R'}">¡NUEVO MENSAJE!</td>
                         </tr>
                     </ng-container>
                 </thead>

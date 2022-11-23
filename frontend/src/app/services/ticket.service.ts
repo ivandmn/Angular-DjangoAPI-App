@@ -49,6 +49,10 @@ export class TicketService {
     return this.http.post<any>(`${this.ROOT_URL}/tickets/create-ticket`, ticket, this.request_options);
   }
 
+  changeTicketStateViewed(ticket_code: number | null, username: string | null){
+    return this.http.post<any>(`${this.ROOT_URL}/tickets/change-ticket-viewed-state`, {t_code: ticket_code, user_name: username}, this.request_options);
+  }
+
   closeTicket(t_code: number | null){
     return this.http.post<any>(`${this.ROOT_URL}/tickets/close-ticket`, {'t_code': t_code}, this.request_options);
   }
@@ -62,10 +66,16 @@ export class TicketService {
   }
 
   getTicketCodeFromCookies(){
-    let t_code= this.CookieService.check('t_code');
-    if (t_code == true){
-      this.t_code = Number(this.CookieService.get('t_code'))
-    } 
+    let ticket_code= this.CookieService.check('t_code');
+    if (ticket_code == true){
+      let t_code = Number(this.CookieService.get('t_code'))
+      this.t_code = t_code
+    }
+    return this.t_code
+  }
+
+  saveTicketCodeInCookies(t_code: number | null) {
+    this.CookieService.set('t_code', t_code!.toString())
   }
 
   saveFilterOptionsInCookies(options: any){

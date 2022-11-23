@@ -12,5 +12,7 @@ export class TicketH {
     position!: number | null; //Posición ticket
     time!: Time | null; //tiempo empleado por el gestor en el ticket
     validation!: number | null; //validacion 0 si le toca responder al gestor 1 si le toca responder al usuario
+    viewed!: number | null; //Es para saber si la persona ha abierto el mensaje
+    last_response_type!: string | null; //Variable para saber de quien es el ulimo mensaje
 }
 

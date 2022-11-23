@@ -118,7 +118,7 @@ def get_tickets(ticket_options: dict) -> list[dict[str, Any]] | list:
         result_query: list[db.SsAdmCasosH] = db.SsAdmCasosH.objects.filter(**final_options).order_by('-prioridad', 'f_alta')
         index = 1
         for row in result_query:
-            result.append({'code': row.code, 'date': row.f_alta, 'title': row.titulo, 'user': row.usuario, 'manager': row.gestor, 'category': category_tickets_hash_map[row.categoria], 'priority': priority_tickets_hash_map[row.prioridad], 'state': row.estado, 'position':  index, 'time': row.tiempo, 'validation': row.validacion})
+            result.append({'code': row.code, 'date': row.f_alta, 'title': row.titulo, 'user': row.usuario, 'manager': row.gestor, 'category': category_tickets_hash_map[row.categoria], 'priority': priority_tickets_hash_map[row.prioridad], 'state': row.estado, 'position':  index, 'time': row.tiempo, 'validation': row.validacion, 'viewed': row.viewed, 'last_response_type': get_most_recent_message(row.code)})
             index = index + 1
         return result
     except Exception as e:
@@ -137,7 +137,7 @@ def get_ticket(t_code: int) -> dict[str, Any] | None:
     """
     try: 
         result_query: db.SsAdmCasosH = db.SsAdmCasosH.objects.filter(code=t_code).first()
-        result: dict[str, Any] = {'code': result_query.code, 'date': result_query.f_alta, 'title': result_query.titulo, 'user': result_query.usuario, 'manager': result_query.gestor, 'priority': result_query.prioridad, 'state': result_query.estado, 'time': result_query.tiempo, 'validation': result_query.validacion}
+        result: dict[str, Any] = {'code': result_query.code, 'date': result_query.f_alta, 'title': result_query.titulo, 'user': result_query.usuario, 'manager': result_query.gestor, 'priority': result_query.prioridad, 'state': result_query.estado, 'time': result_query.tiempo, 'validation': result_query.validacion, 'viewed': result_query.viewed}
         return result
     except Exception as e:
         print("An exception occurred - " + format(e))
@@ -248,7 +248,8 @@ def create_ticket(ticket: dict) -> bool:
             'categoria': ticket['category'],
             'estado': 'A', 
             'proceso': 1, 
-            'validacion': 0
+            'validacion': 0,
+            'viewed': 0
         }
         #Insert ticket header in DB
         tH = db.SsAdmCasosH(**parsed_ticket_H)
@@ -338,6 +339,9 @@ def create_ticket_msg(ticket_msg: dict) -> bool:
         # Insert ticket line in DB
         tL = db.SsAdmCasosL(**parsed_ticket_L)
         tL.save()
+
+        #Update ticket to no viewed
+        db.SsAdmCasosH.objects.filter(code=ticket_code).update(viewed = 0)
         
         #Refresh validation
         validation: int = ticket_msg.get('validation')
@@ -352,6 +356,31 @@ def create_ticket_msg(ticket_msg: dict) -> bool:
         print("An exception occurred - " + format(e))
         return False
     
+def change_ticket_viewed_state(t_code: int) -> int:
+    """
+    Change ticket viewed state - Change ticket to viewed state
+
+    Returns:
+        int - 1 if updated, 0 if not
+    """
+    try:
+        rows_updated: int = db.SsAdmCasosH.objects.filter(code=t_code).update(viewed = 1)
+        return rows_updated
+    except Exception as e:
+        print("An exception occurred - " + format(e))
+        return 0
+
+def get_most_recent_message(t_code: int) -> int:
+    try: 
+        max_code: dict = db.SsAdmCasosL.objects.filter(u_docentry = t_code).aggregate(Max('code'))
+        if(max_code.get('code__max')):
+            recent_message: db.SsAdmCasosL | None = db.SsAdmCasosL.objects.filter(u_docentry = t_code, code = max_code.get('code__max')).first()
+            result: str = recent_message.tipo
+            return result
+    except Exception as e: 
+        print("An exception occurred - " + format(e))
+        return None
+        
 
 def resfresh_ticket_time(t_code: int, time: datetime.time) -> int:
     """

@@ -11,3 +11,16 @@ SET email = TRIM(email)
 2. Change Type of column
 
 ALTER TABLE [SS_SQL_HANA].[dbo].[SS_USER] ALTER COLUMN email nvarchar(60)
+
+
+----------------------------------------------------------------------------------------------------
+
+ALTER TABLE [SS_SQL_HANA].[dbo].[SS_Adm_Casos_H]
+ADD viewed int
+
+UPDATE [SS_SQL_HANA].[dbo].[SS_Adm_Casos_H]
+SET viewed  = 1
+
+
+1 -> visto 
+0 -> no visto

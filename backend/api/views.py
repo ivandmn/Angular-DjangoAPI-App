@@ -171,14 +171,10 @@ def get_ticket(request: HttpRequest):
             #Get parsed content of request body
             request_data: dict = request.data
             t_code: int | None = request_data.get('t_code')
-            print('hola')
-            
-            if(t_code):
+            if(t_code != None):
                 ticket = utils_db.get_ticket(t_code)
                 #Return success to client and set cookie with current ticket
-                response: Response = Response(data=ticket, status=status.HTTP_200_OK, template_name='api.html')
-                response.set_cookie('t_code',  t_code)
-                return response
+                return Response(data=ticket, status=status.HTTP_200_OK, template_name='api.html')
             else:
                 return Response(data={'state': 'Invalid request syntax'}, status=status.HTTP_400_BAD_REQUEST, template_name='api.html') 
     except Exception as e:
@@ -196,7 +192,7 @@ def get_tickets_msgs(request: HttpRequest):
             #Get parsed content of request body
             request_data: dict = request.data
             t_code: int | None = request_data.get('t_code')
-            if(t_code):
+            if(t_code != None):
                 ticket = utils_db.get_ticket_msgs(t_code)
                 #Return success to client
                 return Response(data=ticket, status=status.HTTP_200_OK, template_name='api.html')
@@ -233,6 +229,38 @@ def create_ticket(request: HttpRequest):
             #Get parsed content of request body
             request_data: dict = request.data
             utils_db.create_ticket(request_data)
+            return Response(data={'state': 'success'}, status=status.HTTP_200_OK, template_name='api.html')
+    except Exception as e:
+        print("An exception occurred - " + format(e))
+        return Response(data={'state':'Server Error'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR, template_name='api.html')
+
+@api_view(['POST'])
+def change_ticket_viewed_state(request: HttpRequest):
+    try:
+        if not auth.is_authenticated(request):
+            response = Response(data={'state':'Authentication failed'}, status=status.HTTP_401_UNAUTHORIZED, template_name='api.html') 
+            response.set_cookie('access_token', '', 0)
+            return response
+        else:
+            #Get parsed content of request body
+            request_data: dict = request.data
+            t_code = request_data.get('t_code')
+            username = request_data.get('user_name')
+            ticket: dict = utils_db.get_ticket(t_code)
+            if(ticket.get('validation') == 0):
+                print('gestor le toca resp')
+                type_recent_message: dict = utils_db.get_most_recent_message(t_code)
+                if(username == ticket.get('manager') and type_recent_message != 'R'):
+                    print('gestor ha visto el mensaje')
+                    utils_db.change_ticket_viewed_state(t_code)
+                if(username == ticket.get('user') and type_recent_message == 'R'):
+                    print('usuario ha visto el mensaje')
+                    utils_db.change_ticket_viewed_state(t_code)
+            if(ticket.get('validation') == -1):
+                print('usuario le toca resp')
+                if(username == ticket.get('user')):
+                    print('usuario ha visto el mensje')
+                    utils_db.change_ticket_viewed_state(t_code)
             return Response(data={'state': 'success'}, status=status.HTTP_200_OK, template_name='api.html')
     except Exception as e:
         print("An exception occurred - " + format(e))
@@ -282,9 +310,10 @@ def change_ticket_manager(request: HttpRequest):
         else:
             #Get parsed content of request body
             request_data: dict = request.data
+            print(request_data)
             t_code = request_data.get('t_code')
             new_manager = request_data.get('manager')
-            updated: int = utils_db.change_ticket_manager(t_code, new_manager, template_name='api.html')
+            updated: int = utils_db.change_ticket_manager(t_code, new_manager)
             return Response(data={'state': 'success'}, status=status.HTTP_200_OK, template_name='api.html')
     except Exception as e:
         print("An exception occurred - " + format(e))

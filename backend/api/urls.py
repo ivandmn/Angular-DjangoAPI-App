@@ -15,6 +15,7 @@ urlpatterns = [
     path('tickets/get-ticket', views.get_ticket),
     path('tickets/get-ticket-msgs', views.get_tickets_msgs),
     path('tickets/create-ticket-msg', views.create_ticket_msg),
+    path('tickets/change-ticket-viewed-state', views.change_ticket_viewed_state),
     path('tickets/close-ticket', views.close_ticket),
     path('tickets/open-ticket', views.open_ticket),
     path('tickets/upload-file', views.upload_file),

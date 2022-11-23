@@ -6,6 +6,10 @@
     min-height: 727px !important;
 }
 
+.font-weight-bold{
+    font-weight: bold;
+}
+
 
 label{
     margin-right: 5px;

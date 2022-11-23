@@ -21,6 +21,7 @@ class SsAdmCasosH(models.Model):
     estado = models.CharField(max_length=1, db_collation='Modern_Spanish_CI_AS', blank=True, null=True)
     proceso = models.IntegerField(blank=True, null=True)
     validacion = models.IntegerField(blank=True, null=True)
+    viewed = models.IntegerField(blank=True, null=True)
 
     class Meta:
         managed = False

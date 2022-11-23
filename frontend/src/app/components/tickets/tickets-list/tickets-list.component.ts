@@ -72,14 +72,22 @@ export class TicketsListComponent implements OnInit {
   }
 
   getTicketL(code_ticket_h: number | null): void{
-    this.ticketService.t_code = code_ticket_h
-    this.router.navigateByUrl('tickets/ticket')
+    this.ticketService.saveTicketCodeInCookies(code_ticket_h)
+    this.ticketService.changeTicketStateViewed(code_ticket_h, this.current_user.username).subscribe({
+      next: (response: any) => {
+        this.router.navigateByUrl('tickets/ticket')
+      },
+      error: (err: any) => {},
+      complete: () => {}
+    });
+
   }
 
   getTickets(): void {
     this.ticketService.getTickets(this.ticketsListForm.getRawValue()).subscribe({
       next: (response: any) => {
         this.tickets = response
+        console.log(response)
       },
       error: (err: any) => {},
       complete: () => {}
