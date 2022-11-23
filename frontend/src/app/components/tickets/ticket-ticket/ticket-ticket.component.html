@@ -41,7 +41,7 @@
         </div>
     </div>
 
-    <div class="border border-dark m-2 overflow-auto" #scrollMe [scrollTop]="scrollMe.scrollHeight" id="ticket-container">
+    <div class="border border-dark m-2 overflow-auto" #scrollChat [scrollTop]="ticket_messages.length == 0 ? 0: scrollChat.scrollHeight" id="ticket-container">
         <div class="col-9" *ngFor="let message of ticket_messages" [ngClass]="{'right': message.type == 'P', 'left': message.type == 'R'}">
             <p [ngClass]="{'user-msg-left': message.type == 'R'}" *ngIf="message.type == 'R'">{{user_response}}</p>
             <p [ngClass]="{'user-msg-right': message.type == 'P'}" *ngIf="message.type == 'P'">{{user_question}}</p>
@@ -53,7 +53,7 @@
     <div class="row m-2" id="ticket-w-container">
         <form [formGroup]="sendTicketMsgForm" method="post" class="row mh-100" (ngSubmit)="sendNewMessage()">
             <div class="col-md-7 p-0">
-                <textarea class="h-100 col-md-12 w-100 p-2" formControlName="msg"></textarea>
+                <textarea id="message-textarea-container" class="h-100 col-md-12 w-100 p-2" formControlName="msg"></textarea>
             </div> 
             <div class="col-md-5 p-0">
                 <div class="col-md-12 m-2">
@@ -69,8 +69,8 @@
                 </div>
                     
                 <div class="col-md-12 m-2">
-                    <label class="col-md-6 text-start" *ngIf="user.rol == 'admin'"><input formControlName="validation" type="checkbox"> Validación</label>
-                    <label class="col-md-6 ps-2 text-end" *ngIf="user.rol == 'admin'"><input formControlName="time" type=time> Tiempo (HH/MM)</label>
+                    <label class="col-md-6 text-start" *ngIf="current_user.rol == 'admin'"><input formControlName="validation" type="checkbox"> Validación</label>
+                    <label class="col-md-6 ps-2 text-end" *ngIf="current_user.rol == 'admin'"><input formControlName="time" type=time> Tiempo (HH/MM)</label>
                 </div>
                 <div class="col-md-12 m-2">
                     <input class="col-md-12" type="submit" value="Enviar" [disabled]="(sendTicketMsgForm.controls['msg'].invalid && sendTicketMsgForm.controls['file'].invalid) || sendTicketMsgForm.controls['msg'].value.length > 765 || uploadingFile">

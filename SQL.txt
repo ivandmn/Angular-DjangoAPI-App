@@ -1,0 +1,13 @@
+1. Remove Spaces
+
+Update 
+	[SS_SQL_HANA].[dbo].[SS_USER]
+SET email = LTRIM(RTRIM(email))
+
+Update 
+	[SS_SQL_HANA].[dbo].[SS_USER]
+SET email = TRIM(email)
+
+2. Change Type of column
+
+ALTER TABLE [SS_SQL_HANA].[dbo].[SS_USER] ALTER COLUMN email nvarchar(60)

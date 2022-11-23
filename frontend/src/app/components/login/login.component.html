@@ -2,24 +2,20 @@
   <div id="formLogin" class="modal-content animate">
     <form [formGroup]="loginForm" (ngSubmit)="login()" method="post">
       <div class="container">
-        <label for="usr"><b>Username</b></label>
-        <input name="usr" type="text" class="inputsForm" class="form-control" formControlName="username" placeholder="Enter Username">
+        <label for="usr"><b>Usuario</b></label>
+        <input name="usr" type="text" class="inputsForm" class="form-control" formControlName="username" placeholder="Escriba el usuario">
   
-        <label for="psw"><b>Password</b></label>
-        <input name="psw" type="password" autocomplete="on" class="inputsForm" class="form-control" formControlName="password" placeholder="Enter Password">
+        <label for="psw"><b>Contraseña</b></label>
+        <input name="psw" type="password" autocomplete="on" class="inputsForm" class="form-control" formControlName="password" placeholder="Escribe la contraseña">
           
-        <button type="submit" [disabled]="loginForm.invalid" *ngIf="loginForm.valid" class="submitButton">Login</button>
-        <button type="submit" [disabled]="loginForm.invalid" *ngIf="loginForm.invalid" class="submitButtonDisabled">Login</button>
+        <button type="submit" [disabled]="loginForm.invalid || disable_button" [ngClass]="{'submitButton': loginForm.valid, 'submitButtonDisabled': loginForm.invalid, 'button-no-clickable': disable_button}">{{text_button}}</button>
         <div *ngIf="error_login_msg">
           <p class="text-danger">{{error_login_msg}}</p>
         </div>
-        <label>
-          <input type="checkbox" checked="checked" name="remember"> Remember me
-        </label>
       </div>
       <div class="container">
-        <button type="button" (click)="location.back()" class="cancelbtn text-white">Cancel</button>
-        <span class="psw">Forgot <a (click)="show('forgotPassword')" class="forgotPasswordBtn">password?</a></span>
+        <button type="button" (click)="location.back()" class="cancelbtn text-white">Cancelar</button>
+        <span class="psw">Has olvidado <a (click)="show('forgotPassword')" class="forgotPasswordBtn">la contraseña?</a></span>
       </div>
     </form>
   </div>
@@ -28,16 +24,15 @@
     <form [formGroup]="forgotPasswordForm" (ngSubmit)="validateEmail()" method="post">
     <div class="container">
       <label for="email"><b>Email</b></label>
-      <input type="email" class="form-control" class="inputsForm" formControlName="email" placeholder="Enter email" name="email">
-      <button type="submit" [disabled]="forgotPasswordForm.invalid" *ngIf="forgotPasswordForm.valid" class="submitButton">Send Email</button>
-      <button type="submit" [disabled]="forgotPasswordForm.invalid" *ngIf="forgotPasswordForm.invalid" class="submitButtonDisabled">Send Email</button>
+      <input type="email" class="form-control" class="inputsForm" formControlName="email" placeholder="Escribe el email" name="email">
+      <button type="submit" [disabled]="forgotPasswordForm.invalid || disable_button" [ngClass]="{'submitButton': forgotPasswordForm.valid, 'submitButtonDisabled': forgotPasswordForm.invalid, 'button-no-clickable': disable_button}">{{text_button}}</button>
       <div *ngIf="error_email_msg">
         <p class="text-danger">{{error_email_msg}}</p>
       </div>
     </div>
     <div class="container">
-      <button type="button" (click)="show('formLogin')" class="cancelbtn text-white">Go Back</button>
-      <span class="psw" *ngIf="button_reset_key"><a (click)="show('validateResetPassKey')" class="forgotPasswordBtn">Validate Key</a></span>
+      <button type="button" (click)="show('formLogin')" class="cancelbtn text-white">Cancelar</button>
+      <span class="psw" *ngIf="button_reset_key"><a (click)="show('validateResetPassKey')" class="forgotPasswordBtn">Validar código</a></span>
     </div>
     
     </form>
@@ -46,10 +41,9 @@
   <div id="validateResetPassKey" class="modal-content">
     <form [formGroup]="validateResetKeyForm" (ngSubmit)="validateResetKey()" method="post">
     <div class="container">
-      <label for="ResetPassKey"><b>Reset Key</b></label>
-      <input type="text" class="form-control" class="inputsForm" formControlName="key" placeholder="Enter key" name="ResetPassKey">
-      <button type="submit" [disabled]="validateResetKeyForm.invalid" *ngIf="validateResetKeyForm.valid" class="submitButton">Validate Key</button>
-      <button type="submit" [disabled]="validateResetKeyForm.invalid" *ngIf="validateResetKeyForm.invalid" class="submitButtonDisabled">Validate Key</button>
+      <label for="ResetPassKey"><b>Clave de restablecimiento</b></label>
+      <input type="text" class="form-control" class="inputsForm" formControlName="key" placeholder="Escribe la clave" name="ResetPassKey">
+      <button type="submit" [disabled]="validateResetKeyForm.invalid || disable_button" [ngClass]="{'submitButton': validateResetKeyForm.valid, 'submitButtonDisabled': validateResetKeyForm.invalid, 'button-no-clickable': disable_button}">{{text_button}}</button>
       <div *ngIf="error_key_msg">
         <p class="text-danger">{{error_key_msg}}</p>
       </div>
@@ -63,10 +57,9 @@
   <div id="changePasswordForm" class="modal-content">
     <form [formGroup]="changePasswordForm" (ngSubmit)="changePassword()" method="post">
     <div class="container">
-      <label for="password"><b>New Password</b></label>
-      <input type="password" class="form-control" class="inputsForm" formControlName="password" placeholder="Enter new password" name="password">
-      <button type="submit" [disabled]="changePasswordForm.invalid" *ngIf="changePasswordForm.valid" class="submitButton">Change Password</button>
-      <button type="submit" [disabled]="changePasswordForm.invalid" *ngIf="changePasswordForm.invalid" class="submitButtonDisabled">Change Password</button>
+      <label for="password"><b>Nueva Contraseña</b></label>
+      <input type="password" class="form-control" class="inputsForm" formControlName="password" placeholder="Escribe una contraseña nueva" name="password">
+      <button type="submit" [disabled]="changePasswordForm.invalid || disable_button" [ngClass]="{'submitButton': changePasswordForm.valid, 'submitButtonDisabled': changePasswordForm.invalid, 'button-no-clickable': disable_button}">{{text_button}}</button>
       <div *ngIf="error_newPassword_msg">
         <p class="text-danger">{{error_newPassword_msg}}</p>
       </div>

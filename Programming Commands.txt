@@ -1,0 +1,75 @@
+GIT COMMANDS
+
+0. Configuration
+	git config --global user.name "Name"
+	git config --global user.email Email
+1. Start repository
+	git init
+2. Add files to repository
+	git add *
+3. Commit
+	git commit -m "message"
+4. Connect to Remote
+	git remote add origin "remote-repository"
+5. Git Clone
+	git clone "remote/local-repository"
+6. Git Push
+	git push -u origin master
+7. Git Pull
+	git pull
+8.Check Status
+	git status
+
+
+LARAVEL COMMANDS
+
+0. Install
+	composer global require laravel/installer
+1. Create New Project: 
+	laravel new project
+2. Init Project
+	php artisan serve
+
+DJANGO COMMANDS
+
+0. Install
+	python -m pip install Django
+1. Create project
+	python -m django startproject "project_name"
+2. Create app
+	python -m django startapp "app_name"
+3. Add models of existing database
+	python manage.py inspectdb > app/models.py
+4. Make migrations from models.py
+	python manage.py makemigrations
+5. Migrate
+	python manage.py migrate
+6. Create superuser
+	python manage.py createsuperuser
+7. Open Server in localhost
+	python manage.py runserver
+
+ANGULAR COMMANDS
+
+0. Install
+	npm install -g @angular/cli
+1. Create project
+	ng new project_name
+2. Generate Component
+	ng generate component "c_name"
+3. Generate Service
+	ng generate service "s_name"
+4. Generate Pipe
+	ng generate pipe "p_name"
+5. Generate Interceptor
+	ng generate interceptor "i_name"
+6. Generate Class
+	ng generate class "class_name" --type=model
+7. Generate Guard
+	ng generate guard "g_name"
+8. Open Server in local host
+	ng serve --open
+9. Build Project
+	ng build --configuration production --aot --build-optimizer
+
+

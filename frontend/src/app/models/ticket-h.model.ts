@@ -6,6 +6,7 @@ export class TicketH {
     title!: string | null; //titulo ticket
     user!: string | null; // usuario ticket
     manager!: string | null; //gestor ticket
+    category!: string | null //categoria ticket
     priority!: string | null; //prioridad ticket
     state!: string | null; //estado ticket (A o C)
     position!: number | null; //Posición ticket

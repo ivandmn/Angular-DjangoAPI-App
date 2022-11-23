@@ -65,19 +65,17 @@ export class TicketService {
     let t_code= this.CookieService.check('t_code');
     if (t_code == true){
       this.t_code = Number(this.CookieService.get('t_code'))
-    } else {
-      this.t_code = null
-    }
+    } 
   }
 
   saveFilterOptionsInCookies(options: any){
-    this.CookieService.set('ticket_filter_options', options)
+    this.CookieService.set('ticket_filter_options', JSON.stringify(options))
   }
 
-  getFilterOptionsFromCookies(){
+  getFilterOptionsFromCookies() {
     let cookieExist = this.CookieService.check('ticket_filter_options');
     if(cookieExist){
-      return this.CookieService.get('ticket_filter_options')
+      return JSON.parse(this.CookieService.get('ticket_filter_options'))
     } else {
       return null
     }

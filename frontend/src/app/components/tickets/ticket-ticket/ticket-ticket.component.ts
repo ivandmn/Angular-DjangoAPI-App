@@ -1,4 +1,5 @@
-import { Component, OnInit, AfterContentInit, AfterViewInit } from '@angular/core';
+import { Component, OnInit, AfterViewChecked } from '@angular/core';
+import { ChangeDetectorRef } from '@angular/core';
 import { TicketService } from 'src/app/services/ticket.service';
 import { AuthService } from 'src/app/services/auth.service';
 import { FileService } from 'src/app/services/file.service';
@@ -7,14 +8,16 @@ import { FormGroup, Validators, FormControl } from '@angular/forms';
 import { TicketH } from 'src/app/models/ticket-h.model';
 import { TicketL } from 'src/app/models/ticket-l.model';
 import { User } from 'src/app/models/user.model';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-tickets-ticket',
   templateUrl: './ticket-ticket.component.html',
   styleUrls: ['./ticket-ticket.component.css']
 })
-export class TicketsTicketComponent implements OnInit {
-  user: User = new User()
+export class TicketsTicketComponent implements OnInit, AfterViewChecked  {
+
+  current_user: User = new User()
 
   t_code: number | null = null;
 
@@ -52,43 +55,62 @@ export class TicketsTicketComponent implements OnInit {
 
 
 
-  constructor(private authService: AuthService, private ticketService: TicketService, private router: Router, private fileService: FileService) { }
+  constructor(private authService: AuthService, private ticketService: TicketService, private router: Router, private fileService: FileService, private cdRef : ChangeDetectorRef, private toastrService: ToastrService) { }
+
+  ngAfterViewChecked(){
+    this.cdRef.detectChanges();
+  }
+  
 
   ngOnInit(): void {
-    this.user = this.authService.getUserInfo();
-    this.t_code = this.ticketService.t_code
+    //Get current user info
+    this.current_user = this.authService.getUserInfo();
 
+    //Get ticket code from cookie if cookie exist
+    this.ticketService.getTicketCodeFromCookies()
+    this.t_code = this.ticketService.t_code;
+
+    //Get current managers
     this.getManagers()
 
+    //Get ticket header info
     this.getTicketInfo()
-
+    //Get tickets messages
     this.getTicketMessages()
   }
 
   sendNewMessage(){
-    if(this.user.rol == 'admin'){
+    //If current_user is admin and validation check box is selected set validation to -1
+    if(this.current_user.rol == 'admin'){
       if(this.sendTicketMsgForm.get('validation')?.value){
+        this.sendTicketMsgForm.controls['validation'].setValue(-1)
+      //If validation checkbox was not selected set validation to 0
       } else {
         this.sendTicketMsgForm.controls['validation'].setValue(0)
       } 
+      //If current_user is not admin set always validation to 0
     } else{
       this.sendTicketMsgForm.controls['validation'].setValue(0)
     }
 
+    //Set ticket code
     let msgObject = this.sendTicketMsgForm.value
     msgObject['t_code'] = this.t_code
 
-    if(this.user_question == this.user.username){
+    //Set type of message
+    if(this.user_question == this.current_user.username){
       msgObject['type'] = 'P'
     } else {
       msgObject['type'] = 'R'
     }
 
+    //Send new message
     this.createTicketMessage(msgObject)
 
   }
 
   getTicketInfo(): void {
+    //Get ticket info
     this.ticketService.getTicket(this.t_code).subscribe({
       next: (response: any) => {
         this.ticket = response
@@ -111,9 +133,11 @@ export class TicketsTicketComponent implements OnInit {
   }
 
   getTicketMessages(): void {
+    //Get all ticket messages
     this.ticketService.getTicketMessages(this.t_code).subscribe({
       next: (response: any) => {
         this.ticket_messages = response
+        this.cdRef.detectChanges();
       },
       error: (err: any) => {
         switch(err.status){
@@ -129,17 +153,21 @@ export class TicketsTicketComponent implements OnInit {
   }
 
   createTicketMessage(msg: object): void {
+    //Create ticket message
     this.ticketService.createTicketMessage(msg).subscribe({
       next: (response: any) => {
+        this.toastrService.toastrConfig.timeOut = 2000
+        this.toastrService.toastrConfig.positionClass = 'toast-top-center'
+        this.toastrService.success('Mensaje de ticket enviado')
         this.sendTicketMsgForm.reset({time: "00:00", validation: false, file: '', msg: ''})
         this.getTicketMessages()
       },
       error: (err: any) => {
         switch(err.status){
-          case 401: { 
-            break;
-          }
           default: {
+            this.toastrService.toastrConfig.timeOut = 2000
+            this.toastrService.toastrConfig.positionClass = 'toast-top-center'
+            this.toastrService.error('No se ha podido enviar el mensaje')
           }
         }
       },
@@ -150,6 +178,9 @@ export class TicketsTicketComponent implements OnInit {
   closeTicket(): void {
     this.ticketService.closeTicket(this.t_code).subscribe({
       next: (response: any) => {
+        this.toastrService.toastrConfig.timeOut = 2000
+        this.toastrService.toastrConfig.positionClass = 'toast-top-center'
+        this.toastrService.success('Se ha cerrado el ticket')
         this.ticket.state = 'C'
       },
       error: (err: any) => {
@@ -168,6 +199,9 @@ export class TicketsTicketComponent implements OnInit {
   openTicket(): void {
     this.ticketService.openTicket(this.t_code).subscribe({
       next: (response: any) => {
+        this.toastrService.toastrConfig.timeOut = 2000
+        this.toastrService.toastrConfig.positionClass = 'toast-top-center'
+        this.toastrService.success('Se ha reabierto el ticket')
         this.ticket.state = 'A'
       },
       error: (err: any) => {

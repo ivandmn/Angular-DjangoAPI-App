@@ -9,10 +9,6 @@ import { AppRoutingModule } from './app-routing.module';
 import { ToastrModule } from 'ngx-toastr';
 import { CookieService } from 'ngx-cookie-service';
 
-//JQuery & Bootstrap
-import * as $ from "jquery";
-import * as bootstrap from 'bootstrap';
-
 //Pipes
 import { DdMmYYYYDatePipe } from './date-pipes/dd-mm-yyyy-date.pipe';
 import { DdMmYyyyHHMMDatePipe } from './date-pipes/dd-mm-yyyy-hh-mm-date.pipe';
@@ -26,6 +22,10 @@ import { UserProfileComponent } from './components/user-profile/user-profile.com
 import { TicketsListComponent } from './components/tickets/tickets-list/tickets-list.component';
 import { TicketsCreateComponent } from './components/tickets/ticket-create/ticket-create.component';
 import { TicketsTicketComponent } from './components/tickets/ticket-ticket/ticket-ticket.component';
+
+//JQuery & Bootstrap
+import * as $ from "jquery";
+import * as bootstrap from 'bootstrap';
 
 
 

@@ -16,7 +16,7 @@ export class LoginComponent implements OnInit{
   loginForm: FormGroup = new FormGroup({
     username: new FormControl('',[
       Validators.required,
-      Validators.maxLength(20)
+      Validators.maxLength(15)
     ]),
     password: new FormControl('',[
       Validators.required,
@@ -43,7 +43,7 @@ export class LoginComponent implements OnInit{
   changePasswordForm: FormGroup = new FormGroup({
     password: new FormControl('', [
       Validators.required,
-      Validators.maxLength(30),
+      Validators.maxLength(100),
     ])
   });
 
@@ -53,16 +53,21 @@ export class LoginComponent implements OnInit{
   error_key_msg: string = "";
   error_newPassword_msg: string = "";
 
-  //Variable for control a the form with reset key
+  //Variable for control button to show the form with reset key
   button_reset_key: boolean = false;
+
+  //Set buttons text and variable for disable buttons
+  text_button: string = 'Login'
+  disable_button: boolean = false;
 
   constructor (public fb: FormBuilder, public authService: AuthService, public router: Router, public location: Location, private toastrService: ToastrService) {}
 
-  ngOnInit(): void {
-    
+  ngOnInit(): void { 
   }
 
   login() {
+    this.disable_button = true
+    this.text_button = 'Procesando...'
     this.authService.signIn(this.loginForm.value).subscribe({
       next: (response: any) => {
         this.authService.currentUser = this.authService.getDecodedAccessToken(response.access_token)['user'];
@@ -70,13 +75,15 @@ export class LoginComponent implements OnInit{
         this.router.navigate(['home'])
       },
       error: (err: any) => {
+        this.disable_button = false
+        this.text_button = 'Login'
         switch(err.status){
           case 401: {
-            this.error_login_msg = "Username/Password incorrect";
+            this.error_login_msg = "Usuario/Contraseña incorrectos";
             break;
           } 
           default: {
-            this.error_login_msg = "Unknow server error"
+            this.error_login_msg = "Unknown server error"
           }   
         }
       },
@@ -85,26 +92,29 @@ export class LoginComponent implements OnInit{
   }
 
   validateEmail(){
+    this.disable_button = true
+    this.text_button = 'Procesando...'
     this.authService.validateEmail(this.forgotPasswordForm.value).subscribe({
-      next: (response: any) => {
-        this.error_email_msg = ""
+      next: () => {
         this.button_reset_key = false
         this.show("validateResetPassKey");
       },
       error: (err: any) => {
+        this.disable_button = false
+        this.text_button = 'Enviar email'
         switch(err.status){
           case 401: { 
-            this.error_email_msg = "Incorrect Email"
+            this.error_email_msg = "Email incorrecto"
             this.button_reset_key = false
             break;
           }
           case 423: {
-            this.error_email_msg = "Email has been sent earlier, check email please"
+            this.error_email_msg = "El correo electrónico se envió anteriormente, verifique el correo electrónico por favor"
             this.button_reset_key = true
             break;
           }
           default: {
-            this.error_email_msg = "Unknow server error"
+            this.error_email_msg = "Unknown server error"
             this.button_reset_key = false
           }
         }
@@ -114,19 +124,22 @@ export class LoginComponent implements OnInit{
   }
 
   validateResetKey(){
+    this.disable_button = true
+    this.text_button = 'Procesando...'
     this.authService.validateResetKey(this.validateResetKeyForm.value).subscribe({
       next: () => {
-        this.error_key_msg = ""
         this.show('changePasswordForm')
       },
       error: (err: any) => {
+        this.disable_button = false
+        this.text_button = 'Validar clave'
         switch(err.status){
           case 401: { 
-            this.error_key_msg = "Incorrect key"
+            this.error_key_msg = "Clave incorrecta"
             break;
           }
           default: {
-            this.error_key_msg = "Unknow server error"
+            this.error_key_msg = "Unknown server error"
           }
         }
       },
@@ -135,6 +148,8 @@ export class LoginComponent implements OnInit{
   }
 
   changePassword(){
+    this.disable_button = true
+    this.text_button = 'Procesando...'
     this.authService.changePassword(this.changePasswordForm.value).subscribe({
       next: () => {
         this.location.back()
@@ -143,13 +158,15 @@ export class LoginComponent implements OnInit{
         this.toastrService.success('Contraseña cambiada')
       },
       error: (err: any) => {
+        this.disable_button = false
+        this.text_button = 'Cambiar contraseña'
         switch(err.status){
           case 401: { 
-            this.error_newPassword_msg = "Not valid key to change password"
+            this.error_newPassword_msg = "La clave para cambiar la contraseña no es válida"
             break;
           }
           default: {
-            this.error_newPassword_msg = "Unknow server error"
+            this.error_newPassword_msg = "Unknown server error"
           }
         }
       },
@@ -159,6 +176,12 @@ export class LoginComponent implements OnInit{
 
   show(option_id: string){
     if(option_id == 'formLogin'){
+      this.error_login_msg = "";
+      this.error_email_msg = "";
+      this.error_key_msg = "";
+      this.error_newPassword_msg = "";
+      this.text_button = 'Login';
+      this.disable_button = false
       var element = document.getElementById("formLogin")
       element?.classList.remove("animate")
       document.getElementById('formLogin')!.style.display = 'block';
@@ -167,18 +190,37 @@ export class LoginComponent implements OnInit{
       document.getElementById('changePasswordForm')!.style.display = 'none';
     }
     if(option_id == 'forgotPassword'){
+      this.error_login_msg = "";
+      this.error_email_msg = "";
+      this.error_key_msg = "";
+      this.error_newPassword_msg = "";
+      this.button_reset_key = false;
+      this.text_button = 'Enviar email';
+      this.disable_button = false
       document.getElementById('forgotPassword')!.style.display = 'block';
       document.getElementById('formLogin')!.style.display = 'none';
       document.getElementById('validateResetPassKey')!.style.display = 'none';
       document.getElementById('changePasswordForm')!.style.display = 'none';
     }
     if(option_id == 'validateResetPassKey'){
+      this.error_login_msg = "";
+      this.error_email_msg = "";
+      this.error_key_msg = "";
+      this.error_newPassword_msg = "";
+      this.text_button = 'Validar Clave';
+      this.disable_button = false;
       document.getElementById('forgotPassword')!.style.display = 'none';
       document.getElementById('formLogin')!.style.display = 'none';
       document.getElementById('validateResetPassKey')!.style.display = 'block';
       document.getElementById('changePasswordForm')!.style.display = 'none';
     }
     if(option_id == 'changePasswordForm'){
+      this.error_login_msg = "";
+      this.error_email_msg = "";
+      this.error_key_msg = "";
+      this.error_newPassword_msg = "";
+      this.text_button = 'Cambiar contraseña';
+      this.disable_button = false;
       document.getElementById('forgotPassword')!.style.display = 'none';
       document.getElementById('formLogin')!.style.display = 'none';
       document.getElementById('validateResetPassKey')!.style.display = 'none';

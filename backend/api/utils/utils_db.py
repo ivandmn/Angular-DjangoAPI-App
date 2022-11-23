@@ -1,20 +1,14 @@
-#Imports
+from django.db.models import Max
+import textwrap
 
 import datetime
 from typing import Any
 
-from django.db.models import Max
-from django.db.models.functions import Cast
-
 from .. import models as db
-
-#Database Validation Functions
-
-priority_tickets = {1: 'BAJA', 2: 'MEDIA', 3: 'ALTA', 4: 'URGENTE'}
 
 def login(_username: str, _password: str) -> dict[str, Any] | None:
     """
-    Login - Return user from DB with given username and password
+    Login - Check if user is in DB with given username and password
     
     Args:
         _username (str): User Name string
@@ -39,7 +33,7 @@ def login(_username: str, _password: str) -> dict[str, Any] | None:
 
 def email_validation(_email: str) -> dict[str, Any] | None:
     """
-    Email Validation - Return email from DB with given email
+    Email Validation - Check if email exists in DB
     
     Args:
         _email (str): User email string
@@ -59,7 +53,7 @@ def email_validation(_email: str) -> dict[str, Any] | None:
 
 def change_user_password(_email: str, newpassword: str) -> int:
     """
-    Change User Password - Change user password from DB with given email
+    Change User Password - Change user password in DB with given email
     
     Args:
         _email (str): User email string
@@ -75,24 +69,20 @@ def change_user_password(_email: str, newpassword: str) -> int:
         print("An exception occurred - " + format(e))
         return 0
 
-#Database Data Functions
-
-def get_users() -> list[dict[str, Any]]: 
+def get_users() -> list[dict[str, Any]] | list: 
     """
     Get Users - Get username and name for all users in DB
 
     Returns:
         result (list[dict[str, Any]]): Return list with all users
     """
-    result: list[dict[str, Any]] = []
     try:
         result_query = db.SsUser.objects.all().order_by('usrname')
-        for row in result_query:
-            result.append({'username': row.name, 'name': row.usrname})
+        result: list[dict[str, Any]] = [{'username': row.name, 'name': row.usrname} for row in result_query]
         return result
     except Exception as e:
         print("An exception occurred - " + format(e))
-        return result
+        return []
 
 def get_managers() -> list[dict[str, Any]]:
     """
@@ -103,37 +93,39 @@ def get_managers() -> list[dict[str, Any]]:
     """
     try: 
         result_query = db.SsUser.objects.filter(privilegios__gt=99)
-        result: list[dict[str, Any]] = [{'username': row.name.strip(), 'name': row.usrname.strip()} for row in result_query]
+        result: list[dict[str, Any]] = [{'username': row.name, 'name': row.usrname} for row in result_query]
         return result
     except Exception as e:
         print("An exception occurred - " + format(e))
         return []
 
-def get_tickets(ticket_options: dict) -> list[dict[str, Any]]:
+def get_tickets(ticket_options: dict) -> list[dict[str, Any]] | list:
     """
-    Get tickets - Return all tickets with given manager, username and state
+    Get tickets - Return all tickets with given manager, username, category and state
     
     Args:
-        options (dict): Dict with ticket search options
+        ticket_options (dict): Dict with ticket search options
 
     Returns:
-        list[tickets]: Returns list of tickets
+        result[list[tickets]]: Returns list of tickets
     """
+    result: list[dict[str, Any]] = []
     try: 
+        priority_tickets_hash_map = {1: 'BAJA', 2: 'MEDIA', 3: 'ALTA', 4: 'URGENTE'}
+        category_tickets_hash_map = {'GRAL': 'general'}
         parsed_options = {'gestor': ticket_options['manager'], 'usuario': ticket_options['username'], 'estado': ticket_options['state'], 'categoria': ticket_options['category']}
         final_options = {k: v for k, v in parsed_options.items() if v}
         result_query: list[db.SsAdmCasosH] = db.SsAdmCasosH.objects.filter(**final_options).order_by('-prioridad', 'f_alta')
-        result: list[dict[str, Any]] = []
         index = 1
         for row in result_query:
-            result.append({'code': row.code, 'date': row.f_alta, 'title': row.titulo, 'user': row.usuario, 'manager': row.gestor, 'priority': priority_tickets[row.prioridad], 'state': row.estado, 'position':  index, 'time': row.tiempo, 'validation': row.validacion})
+            result.append({'code': row.code, 'date': row.f_alta, 'title': row.titulo, 'user': row.usuario, 'manager': row.gestor, 'category': category_tickets_hash_map[row.categoria], 'priority': priority_tickets_hash_map[row.prioridad], 'state': row.estado, 'position':  index, 'time': row.tiempo, 'validation': row.validacion})
             index = index + 1
         return result
     except Exception as e:
         print("An exception occurred - " + format(e))
-        return []
+        return result
     
-def get_ticket(t_code: int) -> dict[str, Any]:
+def get_ticket(t_code: int) -> dict[str, Any] | None:
     """
     Get ticket - Return ticket with given code
     
@@ -151,7 +143,7 @@ def get_ticket(t_code: int) -> dict[str, Any]:
         print("An exception occurred - " + format(e))
         return None
 
-def get_ticket_msgs(t_code: int) -> list[dict[str, Any]]:
+def get_ticket_msgs(t_code: int) -> list[dict[str, Any]] | list:
     """
     Get ticket - Return ticket messages with given code
     
@@ -171,10 +163,10 @@ def get_ticket_msgs(t_code: int) -> list[dict[str, Any]]:
 
 def get_ticket_code_H() -> int | None:
     """
-    Get Ticket Code Header - Return the code for a ticket that is going to insert in DB
+    Get Ticket Code Header - Return the code for a ticket header that is going to insert in DB
 
     Returns:
-        code (int) - Return max(code) + 1 for tickets_h
+        ticket_code (int) - Return max(code) + 1 for tickets_h
     """
     try:
         ticket_code: int = 1
@@ -191,7 +183,7 @@ def get_ticket_code_l(code_h: int) -> int | None:
     Get Ticket Code List - Return the code for a message in a ticket that is going to insert in DB
 
     Returns:
-        code (int) - Return max(code) + 1 for tickets_l
+        ticket_code (int) - Return max(code) + 1 for tickets_l
     """
     try:
         ticket_code: int = 1
@@ -205,7 +197,7 @@ def get_ticket_code_l(code_h: int) -> int | None:
 
 def open_ticket(t_code: int) -> int:
     """
-    openTicket - Update estate of ticket to 'A' (open) with the given ticket code
+    Open Ticket - Update state of ticket to 'A' (open) with the given ticket code
 
     Returns:
         int - 1 if updated, 0 if not
@@ -219,7 +211,7 @@ def open_ticket(t_code: int) -> int:
     
 def close_ticket(t_code: int) -> int:
     """
-    openTicket - Update estate of ticket to 'C' (closed) with the given ticket code
+    Close Ticket - Update estate of ticket to 'C' (closed) with the given ticket code
 
     Returns:
         int - 1 if updated, 0 if not
@@ -245,7 +237,7 @@ def create_ticket(ticket: dict) -> bool:
         #Get code of new ticket header
         t_code = get_ticket_code_H()
         #Set values to insert as ticket header
-        parsed_ticket_Header: dict = {
+        parsed_ticket_H: dict = {
             'code': t_code,
             'f_alta': datetime.datetime.now(),
             'titulo': ticket['title'], 
@@ -258,34 +250,26 @@ def create_ticket(ticket: dict) -> bool:
             'proceso': 1, 
             'validacion': 0
         }
-
         #Insert ticket header in DB
-        tH = db.SsAdmCasosH(**parsed_ticket_Header)
+        tH = db.SsAdmCasosH(**parsed_ticket_H)
         tH.save() 
 
-        #If ticket get 'description' or 'file' create ticket line for ticket header
+        #If ticket get 'description' or 'file' create ticket message for ticket header
         if(ticket.get('description') or ticket.get('file')):
-            texto1 = ""
-            texto2 = ""
-            texto3 = ""
-            file = ""
-
+            texto1 = ""; texto2 = ""; texto3 = ""
+            file = ticket.get('file')
             if(ticket.get('description')):
-                description = ticket.get('description')
-                if(len(description) < 255):
-                    texto1 = description
-                else:
-                    res = [description[i:i+255] for i in range(0,len(description),255)]
+                description: str | None = ticket.get('description')
+                res: list[str] = textwrap.wrap(description, width=255, break_long_words=True)
+                len_res: int = len(res)
+                if(len_res > 0):
                     texto1 = res[0]
-                    if(res[1]):
-                        texto2 = res[1]
-                    if(res[2]):
-                        texto3 = res[2]
+                if(len_res > 1):
+                    texto2 = res[1]
+                if(len_res > 2):
+                    texto3 = res[2]
 
-            if(ticket.get('file')):
-                file = ticket.get('file')
-
-            ticket_Line: dict = {
+            ticket_L: dict = {
                 'code': get_ticket_code_l(t_code),
                 'u_docentry': t_code,
                 'fecha': datetime.datetime.now(),
@@ -296,20 +280,19 @@ def create_ticket(ticket: dict) -> bool:
                 'texto3': texto3,
                 'adjunto': file
             }
-            
-            parsed_ticket_Line = {k: v for k, v in ticket_Line.items() if v}
-
-            #Insert ticket line in DB if exist description or file
-            tL = db.SsAdmCasosL(**parsed_ticket_Line)
-            tL.save()        
+            parsed_ticket_L: dict[str, Any] = {k: v for k, v in ticket_L.items() if v}
+            #Insert ticket message in DB if exist description or file
+            tL = db.SsAdmCasosL(**parsed_ticket_L)
+            tL.save()  
         return True
     except Exception as e:
         print("An exception occurred - " + format(e))
         return False
 
-def create_ticket_msg(ticket_msg: dict):
+def create_ticket_msg(ticket_msg: dict) -> bool:
     """
     Create Ticket Message - Create ticket_L with message object given and the code of ticket_H
+
     Args:
         ticket_msg (dict): Ticket message to insert in DB
 
@@ -317,37 +300,28 @@ def create_ticket_msg(ticket_msg: dict):
         bool: True if ticket has been created, false if not has been created
     """
     try:
-        texto1 = ""
-        texto2 = ""
-        texto3 = ""
-        file = ""
-        type = ticket_msg.get('type')       
+        texto1: str = ""; texto2: str = ""; texto3: str = ""
+        file: str = ticket_msg.get('file')
+        type: str = ticket_msg.get('type')       
         ticket_code: int = ticket_msg.get('t_code')
         ticket_msg_code: int = get_ticket_code_l(ticket_code)
-        
-        if(ticket_msg.get('msg') or ticket_msg.get('file')):
-            if(ticket_msg.get('msg')):
-                description = ticket_msg.get('msg')
-                if(len(description) < 255):
-                    texto1 = description
-                else:
-                    res = [description[i:i+255] for i in range(0,len(description),255)]
-                    texto1 = res[0]
-                    if(res[1]):
-                        texto2 = res[1]
-                    if(res[2]):
-                        texto3 = res[2]
-            if(ticket_msg.get('file')):
-                file = ticket_msg.get('file')
-
-        
-        #Get time
         array_time = ticket_msg.get('time').split(':')
+
         for i in range(len(array_time)):
             array_time[i] = int(array_time[i])
-        
+
+        if(ticket_msg.get('msg')):
+            description: str | None = ticket_msg.get('msg')
+            res: list[str] = textwrap.wrap(description, width=255, break_long_words=True)
+            len_res: int = len(res)
+            if(len_res > 0):
+                texto1 = res[0]
+            if(len_res > 1):
+                texto2 = res[1]
+            if(len_res > 2):
+                texto3 = res[2]
             
-        ticket_Line: dict = {
+        ticket_L: dict = {
                 'code': ticket_msg_code,
                 'u_docentry': ticket_code,
                 'fecha': datetime.datetime.now(),
@@ -359,12 +333,10 @@ def create_ticket_msg(ticket_msg: dict):
                 'adjunto': file
         }
 
-        parsed_ticket_Line = {k: v for k, v in ticket_Line.items() if v}
-        
-
+        parsed_ticket_L = {k: v for k, v in ticket_L.items() if v}
         
         # Insert ticket line in DB
-        tL = db.SsAdmCasosL(**parsed_ticket_Line)
+        tL = db.SsAdmCasosL(**parsed_ticket_L)
         tL.save()
         
         #Refresh validation
@@ -375,14 +347,13 @@ def create_ticket_msg(ticket_msg: dict):
 
         #Refresh time of ticket
         resfresh_ticket_time(ticket_code, datetime.time(array_time[0], array_time[1], 0))
-
         return True
     except Exception as e:
         print("An exception occurred - " + format(e))
         return False
     
 
-def resfresh_ticket_time(t_code: int, time: datetime.time):
+def resfresh_ticket_time(t_code: int, time: datetime.time) -> int:
     """
     Refresh Time of Ticket - Update time of ticket with the given t_code and new time
 
@@ -427,5 +398,3 @@ def change_ticket_manager(t_code: int, new_manager: str) -> int:
     except Exception as e:
         print("An exception occurred - " + format(e))
     return 0
-
-

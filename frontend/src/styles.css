@@ -1,11 +1,7 @@
-@font-face{
+/* @font-face{
   font-family: 'Quicksand';
   src: url('./assets/fonts/Quicksand/Quicksand-Regular.otf')
-}
-
-* {
-  font-family: 'Quicksand', sans-serif !important;
-}
+} */
 
 html, body{
   height: 100%;
@@ -13,7 +9,7 @@ html, body{
 }
 
 body {
-  background-color: aliceblue;
+  background-color: white;
 }
 
 .toast-top-center {

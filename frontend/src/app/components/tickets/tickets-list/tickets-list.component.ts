@@ -13,13 +13,15 @@ import { FormGroup, Validators, FormControl } from '@angular/forms';
   styleUrls: ['./tickets-list.component.css']
 })
 export class TicketsListComponent implements OnInit {
+  //User Logged
+  current_user: User = new User()
 
-  user: User = new User()
-
+  //Arrays for search tickets_H, managers and users
   tickets: Array<TicketH> = []
   managers: Array<User> | null = [];
   users: Array<User> = [];
 
+  //Ticket List options Form Group
   ticketsListForm: FormGroup = new FormGroup({
     manager: new FormControl('',[
       Validators.required
@@ -38,24 +40,34 @@ export class TicketsListComponent implements OnInit {
   constructor(private authService: AuthService, private ticketService: TicketService, private router: Router, public location: Location) { }
 
   ngOnInit(): void {
-    this.user = this.authService.getUserInfo();
+    //Get data of current user
+    this.current_user = this.authService.getUserInfo();
+    //Get current managers
     this.getManagers()
 
-    if(this.user.rol == 'admin'){
-      this.ticketsListForm.controls['manager'].setValue(this.user.username);
+    //If current user is admin, enable user select and set manager select value to current user username
+    if(this.current_user.rol == 'admin'){
+      this.ticketsListForm.controls['manager'].setValue(this.current_user.username);
       this.ticketsListForm.controls['username'].enable()
-      this.getUsers();      
+      //And get all users in DB
+      this.getUsers();
+    //If current user is not admin, set user select value to current user     
     } else {
-      this.ticketsListForm.controls['username'].setValue(this.user.username);
+      this.ticketsListForm.controls['username'].setValue(this.current_user.username);
     }
 
-    console.log(this.ticketService.getFilterOptionsFromCookies())
-    
+    //Set filter options saved on cookies if cookie exist
+    if(this.ticketService.getFilterOptionsFromCookies() != null) {
+      this.ticketsListForm.patchValue(this.ticketService.getFilterOptionsFromCookies())
+    }
+
+    //Get tickets
     this.getTickets()
 
-    this.ticketsListForm.valueChanges.subscribe((value) => {
+    //If filter options changes getTickets with new options and save options in cookies
+    this.ticketsListForm.valueChanges.subscribe(() => {
       this.getTickets()
-      this.ticketService.saveFilterOptionsInCookies(value)
+      this.ticketService.saveFilterOptionsInCookies(this.ticketsListForm.getRawValue())
     })
   }
 

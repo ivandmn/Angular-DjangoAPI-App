@@ -36,10 +36,6 @@
     width: 50px;
 }
 
-button:hover {
-  opacity: 0.8;
-}
-
 #ss_text{
     font-size: 18px;
     padding: 10px;

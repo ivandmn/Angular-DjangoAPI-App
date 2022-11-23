@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 @Injectable({
@@ -15,14 +15,14 @@ export class FileService {
   upload(file: any):Observable<any> {
     const formData = new FormData(); 
     formData.append("file", file, file.name);
-    return this.http.post(`${this.ROOT_URL}/tickets/upload-file`, formData)
+    return this.http.post(`${this.ROOT_URL}/tickets/upload-file`, formData, this.request_options)
   }
 
   delete(fileName: string) {
-    return this.http.post(`${this.ROOT_URL}/tickets/delete-file`, {file: fileName})
+    return this.http.post(`${this.ROOT_URL}/tickets/delete-file`, {file: fileName}, this.request_options)
   }
 
   download(filepath: string){
-    return this.http.post(`${this.ROOT_URL}/tickets/download-file`, {file: filepath}, {observe:'response', responseType:'blob'})
+    return this.http.post(`${this.ROOT_URL}/tickets/download-file`, {file: filepath}, {withCredentials: true, observe:'response', responseType:'blob'})
   }
 }

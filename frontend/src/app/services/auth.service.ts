@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { CookieService } from 'ngx-cookie-service';
 
 import jwt_decode from 'jwt-decode';
+import { ThisReceiver } from '@angular/compiler';
 
 @Injectable({
   providedIn: 'root'
@@ -39,7 +40,9 @@ export class AuthService {
     return this.http.post<any>(`${this.ROOT_URL}/logout`, this.currentUser, this.request_options).subscribe({
       next: () => {
         this.logged_user = false;
-        this.currentUser = new User(); 
+        this.currentUser = new User();
+        this.CookieService.delete('ticket_filter_options');
+        this.CookieService.delete('t_code');
         this.router.navigate(['home']); 
       },
       error: (err: any) => {
@@ -47,7 +50,9 @@ export class AuthService {
           case 401: {
             this.logged_user = false;
             this.currentUser = new User(); 
-            this.router.navigate(['home'])
+            this.CookieService.delete('ticket_filter_options');
+            this.CookieService.delete('t_code');
+            this.router.navigate(['home']);
             break;
           } 
           default: {

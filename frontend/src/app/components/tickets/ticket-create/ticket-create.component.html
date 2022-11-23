@@ -75,6 +75,7 @@
                     <div class="col-md-12 align-self-center mb-2">
                         <label for="description" class="text-primary">Descripción</label>
                         <textarea name="description" class="form-control p-3 border-secondary" formControlName="description" rows="7"></textarea>
+                        <div class="text-danger" *ngIf="createTicketForm.controls['description'].value.length > 765">Los mensajes no pueden tener más de 765 caracteres</div>
                     </div>
                 </div>
             </div>

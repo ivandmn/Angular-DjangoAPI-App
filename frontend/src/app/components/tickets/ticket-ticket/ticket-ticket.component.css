@@ -1,6 +1,6 @@
 .main{
     width: 100%;
-    min-height: 815px;
+    min-height: 760px;
 }
 
 .back-button{
@@ -24,12 +24,15 @@
 
 #ticket-container{
     background-color: #68c5ed;
-    min-height: 550px;
-    max-height: 550px;
+    max-height: 490px;
 }
 
 #ticket-w-container{
     min-height: 27%;
+}
+
+#message-textarea-container{
+    min-height: 134px;
 }
 
 
@@ -95,12 +98,13 @@
 }
 
 .msg-right{
-    display: flex;
-    flex-direction: row-reverse;
+    /* display: flex;
+    flex-wrap: wrap;
+    flex-direction: row-reverse; */
     margin: 10px;
     margin-top: 15px;
     text-align: start;
-    word-wrap: break-word; 
+    word-wrap: break-word !important; 
 }
 
 .file-msg-right{
@@ -113,6 +117,7 @@
     margin-top: 10px;
     cursor: pointer;
 }
+
 
 .left{
     position: relative;
@@ -173,10 +178,13 @@
 }
 
 .msg-left{
-    display: flex;
-    flex-direction: row;
+    /* display: flex;
+    flex-wrap: wrap;
+    flex-direction: row; */
     margin: 10px;
     margin-top: 15px;
+    text-align: start;
+    word-wrap: break-word !important; 
 }
 
 .file-msg-left{

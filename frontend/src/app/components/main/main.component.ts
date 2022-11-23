@@ -14,7 +14,6 @@ export class MainComponent implements OnInit {
 
   ngOnInit(): void {
     this.authService.isLoggedIn
-    this.ticketService.getTicketCodeFromCookies()
   }
 
   logout(){
