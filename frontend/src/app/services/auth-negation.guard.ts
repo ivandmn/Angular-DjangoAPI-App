@@ -2,18 +2,22 @@ import { Injectable } from '@angular/core';
 import { ActivatedRouteSnapshot, CanActivate, RouterStateSnapshot, UrlTree, Router} from '@angular/router';
 import { Observable } from 'rxjs';
 import { AuthService } from './auth.service';
+import { ToastrService } from 'ngx-toastr';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthNegationGuard implements CanActivate {
-  constructor(public authService: AuthService, public router: Router) { }
+  constructor(private authService: AuthService, private router: Router, private toastrService: ToastrService) { }
   canActivate(
     route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
       if (this.authService.isLoggedIn) {
-        window.alert("You are already logged in!");
-        this.router.navigate(['home'])
+        this.router.navigate(['home']).then(() => {
+          this.toastrService.toastrConfig.timeOut = 2000
+          this.toastrService.toastrConfig.positionClass = 'toast-top-center'
+          this.toastrService.error('Acceso no permitido')
+        })
         return false;
       }
       return true;

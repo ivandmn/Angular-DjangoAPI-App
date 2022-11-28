@@ -8,10 +8,6 @@ html, body{
   width: 100%;
 }
 
-body {
-  background-color: white;
-}
-
 .toast-top-center {
   top: 10px !important;
 }

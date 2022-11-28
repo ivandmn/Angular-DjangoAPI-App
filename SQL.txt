@@ -24,3 +24,8 @@ SET viewed  = 1
 
 1 -> visto 
 0 -> no visto
+
+
+
+
+

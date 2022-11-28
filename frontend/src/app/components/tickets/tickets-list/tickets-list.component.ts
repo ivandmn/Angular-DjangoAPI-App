@@ -20,6 +20,13 @@ export class TicketsListComponent implements OnInit {
   tickets: Array<TicketH> = []
   managers: Array<User> | null = [];
   users: Array<User> = [];
+  ticket_categories: Array<any> = [];
+
+  //Pagination options
+  page: number = 1;
+  itemsPerPage: number = 25;
+  itemsCount: number = 0;
+
 
   //Ticket List options Form Group
   ticketsListForm: FormGroup = new FormGroup({
@@ -42,6 +49,8 @@ export class TicketsListComponent implements OnInit {
   ngOnInit(): void {
     //Get data of current user
     this.current_user = this.authService.getUserInfo();
+    //Get current ticket categories
+    this.getTicketCategories()
     //Get current managers
     this.getManagers()
 
@@ -61,13 +70,18 @@ export class TicketsListComponent implements OnInit {
       this.ticketsListForm.patchValue(this.ticketService.getFilterOptionsFromCookies())
     }
 
+    //Get tickets count
+    this.getTicketsCount()
+
     //Get tickets
     this.getTickets()
 
     //If filter options changes getTickets with new options and save options in cookies
     this.ticketsListForm.valueChanges.subscribe(() => {
+      this.getTicketsCount()
       this.getTickets()
       this.ticketService.saveFilterOptionsInCookies(this.ticketsListForm.getRawValue())
+      this.page = 1
     })
   }
 
@@ -84,9 +98,23 @@ export class TicketsListComponent implements OnInit {
   }
 
   getTickets(): void {
-    this.ticketService.getTickets(this.ticketsListForm.getRawValue()).subscribe({
+    let options_filter: any = this.ticketsListForm.getRawValue()
+    options_filter['page'] = this.page
+    options_filter['itemsPerPage'] = this.itemsPerPage
+    this.ticketService.getTickets(options_filter).subscribe({
       next: (response: any) => {
         this.tickets = response
+        console.log(this.tickets)
+      },
+      error: (err: any) => {},
+      complete: () => {}
+    });
+  }
+
+  getTicketCategories(): void {
+    this.ticketService.getCategories().subscribe({
+      next: (response: any) => {
+        this.ticket_categories = response
         console.log(response)
       },
       error: (err: any) => {},
@@ -122,5 +150,21 @@ export class TicketsListComponent implements OnInit {
     } else {
       this.users = this.ticketService.users
     }
+  }
+
+  getTicketsCount(){
+    this.ticketService.getTicketsCount(this.ticketsListForm.getRawValue()).subscribe({
+      next: (response: any) => {
+        this.itemsCount = response
+        console.log(response)
+      },
+      error: (err: any) => {},
+      complete: () => {}
+    });
+  }
+
+  paginationChange(event: any){
+    this.page = event
+    this.getTickets()
   }
 }

@@ -60,7 +60,7 @@ export class LoginComponent implements OnInit{
   text_button: string = 'Login'
   disable_button: boolean = false;
 
-  constructor (public fb: FormBuilder, public authService: AuthService, public router: Router, public location: Location, private toastrService: ToastrService) {}
+  constructor (private fb: FormBuilder, private authService: AuthService, private toastrService: ToastrService, private router: Router, public location: Location) {}
 
   ngOnInit(): void { 
   }

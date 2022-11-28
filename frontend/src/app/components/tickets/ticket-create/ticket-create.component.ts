@@ -19,6 +19,7 @@ export class TicketsCreateComponent implements OnInit {
 
   managers: Array<User> | null = [];
   users: Array<User> = [];
+  ticket_categories: Array<any> = [];
 
   uploadingFile: boolean = false;
   fileUpload: boolean = false;
@@ -49,6 +50,7 @@ export class TicketsCreateComponent implements OnInit {
 
   ngOnInit(): void {
     this.getManagers()
+    this.getTicketCategories()
     
     if(this.current_user.rol == 'admin'){
       this.createTicketForm.controls['username'].enable()
@@ -203,6 +205,16 @@ export class TicketsCreateComponent implements OnInit {
           }
         }
       },
+      complete: () => {}
+    });
+  }
+
+  getTicketCategories(): void {
+    this.ticketService.getCategories().subscribe({
+      next: (response: any) => {
+        this.ticket_categories = response
+      },
+      error: (err: any) => {},
       complete: () => {}
     });
   }

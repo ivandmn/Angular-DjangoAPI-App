@@ -7,6 +7,8 @@ from random import randint
 import jwt
 
 from .. import models as db
+from . import utils_templates_email as email_templates
+
 
 def is_authenticated(request: HttpRequest) -> bool:
     """
@@ -19,7 +21,7 @@ def is_authenticated(request: HttpRequest) -> bool:
         bool: Returns True if is authenticated or False if is not authenticated
     """
     #If authorization token is not in request headers or user is not logged in session return False
-    if not request.headers.get('Authorization') or not request.session.get('username'):
+    if not request.headers.get('Authorization') or request.session.get('logged') != True:
         return False
     #Get user access token from request headers
     encoded_token = get_jwt_access_token_from_request_header(request.headers.get('Authorization'))
@@ -44,6 +46,7 @@ def login_user(request: HttpRequest, user: dict[str, Any]) -> None:
     request.session['name'] = user.get('name')
     request.session['email'] = user.get('email')
     request.session['rol'] = user.get('rol')
+    request.session['logged'] = True
 
 def logout_user(request: HttpRequest) -> None:
     """
@@ -68,7 +71,8 @@ def send_reset_password_email(email: str) -> str | None:
         reset_key = generate_random_password_reset_key()
         send_mail(
             subject=f'Silver Sanz - Password Reset Code',
-            message= "Reset Code - " + reset_key,
+            message="",
+            html_message= email_templates.reset_password_template.format(reset_key),
             from_email= config('EMAIL_USER'),
             recipient_list= [email]
         )

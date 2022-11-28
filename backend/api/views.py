@@ -76,7 +76,6 @@ def validate_email(request: HttpRequest):
             else:
                 #Get email from database if exist
                 email_valid = utils_db.email_validation(request_data.get('email'))
-                print(email_valid)
                 #If email don't exist in db return 401 Error
                 if not email_valid:
                     return Response(data={'state':'Could not verify email'}, status=status.HTTP_401_UNAUTHORIZED, template_name='api.html')
@@ -156,6 +155,23 @@ def get_tickets(request: HttpRequest):
             tickets = utils_db.get_tickets(request_data)
             #Return success to client
             return Response(data=tickets, status=status.HTTP_200_OK, template_name='api.html')
+    except Exception as e:
+        print("An exception occurred - " + format(e))
+        return Response(data={'state':'Server Error'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR, template_name='api.html')
+
+@api_view(['POST'])
+def get_tickets_count(request: HttpRequest):
+    try:
+        if not auth.is_authenticated(request):
+                response = Response(data={'state':'Authentication failed'}, status=status.HTTP_401_UNAUTHORIZED, template_name='api.html') 
+                response.set_cookie('access_token', '', 0)
+                return response
+        else:
+            #Get parsed content of request body
+            request_data: dict = request.data
+            tickets_count = utils_db.get_tickets_count(request_data)
+            #Return success to client
+            return Response(data=tickets_count, status=status.HTTP_200_OK, template_name='api.html')
     except Exception as e:
         print("An exception occurred - " + format(e))
         return Response(data={'state':'Server Error'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR, template_name='api.html')
@@ -248,18 +264,13 @@ def change_ticket_viewed_state(request: HttpRequest):
             username = request_data.get('user_name')
             ticket: dict = utils_db.get_ticket(t_code)
             if(ticket.get('validation') == 0):
-                print('gestor le toca resp')
                 type_recent_message: dict = utils_db.get_most_recent_message(t_code)
                 if(username == ticket.get('manager') and type_recent_message != 'R'):
-                    print('gestor ha visto el mensaje')
                     utils_db.change_ticket_viewed_state(t_code)
                 if(username == ticket.get('user') and type_recent_message == 'R'):
-                    print('usuario ha visto el mensaje')
                     utils_db.change_ticket_viewed_state(t_code)
             if(ticket.get('validation') == -1):
-                print('usuario le toca resp')
                 if(username == ticket.get('user')):
-                    print('usuario ha visto el mensje')
                     utils_db.change_ticket_viewed_state(t_code)
             return Response(data={'state': 'success'}, status=status.HTTP_200_OK, template_name='api.html')
     except Exception as e:
@@ -310,11 +321,24 @@ def change_ticket_manager(request: HttpRequest):
         else:
             #Get parsed content of request body
             request_data: dict = request.data
-            print(request_data)
             t_code = request_data.get('t_code')
             new_manager = request_data.get('manager')
             updated: int = utils_db.change_ticket_manager(t_code, new_manager)
             return Response(data={'state': 'success'}, status=status.HTTP_200_OK, template_name='api.html')
+    except Exception as e:
+        print("An exception occurred - " + format(e))
+        return Response(data={'state':'Server Error'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR, template_name='api.html')
+
+@api_view(['GET'])
+def get_categories(request: HttpRequest):
+    try:
+        if not auth.is_authenticated(request):
+            response = Response(data={'state':'Authentication failed'}, status=status.HTTP_401_UNAUTHORIZED, template_name='api.html') 
+            response.set_cookie('access_token', '', 0)
+            return response
+        else:
+            categories_list = utils_db.get_categories()
+            return Response(data=categories_list, status=status.HTTP_200_OK, template_name='api.html')
     except Exception as e:
         print("An exception occurred - " + format(e))
         return Response(data={'state':'Server Error'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR, template_name='api.html')

@@ -8,6 +8,7 @@ import { AuthInterceptor } from './services/authconfig.interceptor';
 import { AppRoutingModule } from './app-routing.module';
 import { ToastrModule } from 'ngx-toastr';
 import { CookieService } from 'ngx-cookie-service';
+import { NgxPaginationModule } from 'ngx-pagination';
 
 //Pipes
 import { DdMmYYYYDatePipe } from './date-pipes/dd-mm-yyyy-date.pipe';
@@ -22,12 +23,11 @@ import { UserProfileComponent } from './components/user-profile/user-profile.com
 import { TicketsListComponent } from './components/tickets/tickets-list/tickets-list.component';
 import { TicketsCreateComponent } from './components/tickets/ticket-create/ticket-create.component';
 import { TicketsTicketComponent } from './components/tickets/ticket-ticket/ticket-ticket.component';
+import { PwbiHomeComponent } from './components/powerbi/pwbi-home/pwbi-home.component';
 
 //JQuery & Bootstrap
 import * as $ from "jquery";
 import * as bootstrap from 'bootstrap';
-
-
 
 @NgModule({
   declarations: [
@@ -41,6 +41,7 @@ import * as bootstrap from 'bootstrap';
     DdMmYYYYDatePipe,
     TicketsTicketComponent,
     DdMmYyyyHHMMDatePipe,
+    PwbiHomeComponent,
   ],
   imports: [
     BrowserModule,
@@ -50,6 +51,7 @@ import * as bootstrap from 'bootstrap';
     HttpClientModule,
     BrowserAnimationsModule,
     ToastrModule.forRoot(),
+    NgxPaginationModule,
   ],
   providers: [
     {

@@ -1,6 +1,4 @@
 import { Injectable } from '@angular/core';
-import { TicketH } from '../models/ticket-h.model';
-import { TicketL } from '../models/ticket-l.model';
 import { HttpClient, HttpHeaders} from '@angular/common/http';
 import { Router } from '@angular/router';
 import { CookieService } from 'ngx-cookie-service';
@@ -21,6 +19,10 @@ export class TicketService {
 
   constructor(private http: HttpClient, private router: Router, private CookieService: CookieService) { }
 
+  getCategories(){
+    return this.http.get<any>(`${this.ROOT_URL}/tickets/get-categories`, this.request_options)
+  }
+
   getManagers(){
     return this.http.get<any>(`${this.ROOT_URL}/tickets/get-managers`, this.request_options)
   }
@@ -31,6 +33,10 @@ export class TicketService {
 
   getTickets(options: object){
     return this.http.post<any>(`${this.ROOT_URL}/tickets/get-tickets`, options, this.request_options);
+  }
+
+  getTicketsCount(options: object){
+    return this.http.post<any>(`${this.ROOT_URL}/tickets/get-tickets-count`, options, this.request_options);
   }
 
   getTicket(ticket_code: number | null){

@@ -1,12 +1,10 @@
 import { Injectable } from "@angular/core";
 import { HttpInterceptor, HttpRequest, HttpHandler, HttpEvent } from "@angular/common/http";
-import { AuthService } from "./auth.service";
-import { TicketService } from "./ticket.service";
 import { CookieService } from "ngx-cookie-service";
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
-    constructor(private authService: AuthService, private ticketService: TicketService, private cookieService: CookieService) { }
+    constructor(private cookieService: CookieService) { }
     intercept(req: HttpRequest<any>, next: HttpHandler) {
         const token = this.cookieService.get('access_token')
         const csrfToken = this.cookieService.get('csrftoken')

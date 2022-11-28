@@ -10,6 +10,7 @@ import { UserProfileComponent } from './components/user-profile/user-profile.com
 import { TicketsListComponent } from './components/tickets/tickets-list/tickets-list.component';
 import { TicketsCreateComponent } from './components/tickets/ticket-create/ticket-create.component';
 import { TicketsTicketComponent } from './components/tickets/ticket-ticket/ticket-ticket.component';
+import { PwbiHomeComponent } from './components/powerbi/pwbi-home/pwbi-home.component';
 
 const routes: Routes = [
    { path: 'log-in', component: LoginComponent, canActivate: [AuthNegationGuard]},
@@ -17,7 +18,9 @@ const routes: Routes = [
    { path: 'user-profile', component: UserProfileComponent, canActivate: [AuthGuard]},
    { path: 'tickets/list', component: TicketsListComponent, canActivate: [AuthGuard]},
    { path: 'tickets/create', component: TicketsCreateComponent, canActivate: [AuthGuard]},
-   { path: 'tickets/ticket', component: TicketsTicketComponent, canActivate: [AuthGuard]}
+   { path: 'tickets/ticket', component: TicketsTicketComponent, canActivate: [AuthGuard]},
+   { path: 'pwbi/home', component: PwbiHomeComponent, canActivate: [AuthGuard]},
+
 ];
 
 @NgModule({

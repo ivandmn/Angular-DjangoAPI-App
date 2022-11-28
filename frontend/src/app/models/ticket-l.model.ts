@@ -1,13 +1,14 @@
 import { Time } from "@angular/common";
+
 export class TicketL {
-    code!: number | null; //Codigo mensaje del ticket
-    t_code!: number | null; //Codigo de ticket
-    date!: Time | null; //Fecha del mensaje del ticket
-    type!: string | null;  //Tipo de mensaje (P o R)
-    time!: string | null; //Tiempo empleado en el mensaje
-    text1: string = ""; //Texto 1 del mesnaje del ticket (765 caracteres) (255+255+255)
-    text2: string = ""; //Texto 2 del mesnaje del ticket (765 caracteres) (255+255+255)
-    text3: string = ""; //Texto 3 del mesnaje del ticket (765 caracteres) (255+255+255)
-    file!: string | null; //F.adjunto del mensaje del ticket
+    code!: number | null; //Ticket message code
+    t_code!: number | null; //Ticket code
+    date!: Time | null; //Ticket message date
+    type!: string | null;  //Ticket message type (P or R)
+    time!: string | null; //Time spent on the ticket message
+    text1: string = ""; //Ticket message text 1 (765 characters) (255+255+255)
+    text2: string = ""; //Ticket message text 2 (765 characters) (255+255+255)
+    text3: string = ""; //Ticket message text 3 (765 characters) (255+255+255)
+    file!: string | null; //Ticket message attachment
 }
 

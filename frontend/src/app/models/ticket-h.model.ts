@@ -1,18 +1,18 @@
 import { Time } from "@angular/common";
 
 export class TicketH {
-    code!: number | null; //Codigo ticket
-    date!: Date | null; //f_alta ticket
-    title!: string | null; //titulo ticket
-    user!: string | null; // usuario ticket
-    manager!: string | null; //gestor ticket
-    category!: string | null //categoria ticket
-    priority!: string | null; //prioridad ticket
-    state!: string | null; //estado ticket (A o C)
-    position!: number | null; //Posición ticket
-    time!: Time | null; //tiempo empleado por el gestor en el ticket
-    validation!: number | null; //validacion 0 si le toca responder al gestor 1 si le toca responder al usuario
-    viewed!: number | null; //Es para saber si la persona ha abierto el mensaje
-    last_response_type!: string | null; //Variable para saber de quien es el ulimo mensaje
+    code!: number | null; //Ticket Code
+    date!: Date | null; //Ticket creation date
+    title!: string | null; //Ticket title
+    user!: string | null; //Ticket user
+    manager!: string | null; //Ticket manager
+    category!: string | null //Ticket category
+    priority!: string | null; //Ticket priority
+    state!: string | null; //Ticket state (A, C)
+    position!: number | null; //Ticket position
+    time!: Time | null; //Time spent by the manager on the ticket
+    validation!: number | null; //Ticket validation, 0 if it is the manager's turn to respond 1 if the user's turn is to respond
+    viewed!: number | null; //It is to know if the person has opened the message
+    last_response_type!: string | null; //Variable to know who the last message is from
 }
 

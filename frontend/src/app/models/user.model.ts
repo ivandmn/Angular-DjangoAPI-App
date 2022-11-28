@@ -1,7 +1,7 @@
 export class User {
-  code!: number | null;
-  username!: string | null;
-  name!: string | null;
-  email!: string | null;
-  rol!: string | null;
+  code!: number | null; //User code
+  username!: string | null; //User name
+  name!: string | null; //User full name
+  email!: string | null; //User email
+  rol!: string | null; //User rol
 }

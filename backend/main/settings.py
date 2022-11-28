@@ -29,7 +29,7 @@ DEBUG = True
 ALLOWED_HOSTS = []
 
 REST_FRAMEWORK = {
-    'UNAUTHENTICATED_USER': None
+    'UNAUTHENTICATED_USER': None,
 }
 
 # Application definition

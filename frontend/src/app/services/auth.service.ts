@@ -46,19 +46,12 @@ export class AuthService {
         this.router.navigate(['home']); 
       },
       error: (err: any) => {
-        switch(err.status){
-          case 401: {
-            this.logged_user = false;
-            this.currentUser = new User(); 
-            this.CookieService.delete('ticket_filter_options');
-            this.CookieService.delete('t_code');
-            this.router.navigate(['home']);
-            break;
-          } 
-          default: {
-            break;
-          }   
-        }
+        this.logged_user = false;
+        this.currentUser = new User(); 
+        this.CookieService.delete('ticket_filter_options');
+        this.CookieService.delete('t_code');
+        this.router.navigate(['home']);
+
       },
       complete: () => {}
     });

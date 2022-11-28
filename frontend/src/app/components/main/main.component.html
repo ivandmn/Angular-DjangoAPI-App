@@ -25,6 +25,9 @@
               <a class="nav-link text-white" *ngIf="!authService.logged_user" routerLink="/log-in">LOGIN</a>
             </li>
             <li class="nav-item">
+              <a class="nav-link text-white" *ngIf="authService.logged_user" routerLink="/pwbi/home">POWERBI</a>
+            </li> 
+            <li class="nav-item">
               <a class="nav-link text-white" *ngIf="authService.logged_user" routerLink="/tickets/list">TICKETS</a>
             </li> 
           </ul>
@@ -57,11 +60,11 @@
 </header>
   
   
-  <div class="body-content">
-      <router-outlet></router-outlet>
-  </div>
-  
-  <footer class="footer">
-      <p class="m-0">Developed by SilverSanz SA</p>
-  </footer>
+<div class="body-content">
+    <router-outlet></router-outlet>
+</div>
+
+<footer class="footer">
+    <p class="m-0">Developed by SilverSanz SA</p>
+</footer>
   

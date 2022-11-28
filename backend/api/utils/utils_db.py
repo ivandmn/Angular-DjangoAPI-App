@@ -25,7 +25,7 @@ def login(_username: str, _password: str) -> dict[str, Any] | None:
                 result_query.privilegios = "admin"
             else: 
                 result_query.privilegios = "user"
-            result: dict[str, Any] = {'code': result_query.code, 'username': result_query.name, 'name': result_query.usrname, 'email': result_query.email, 'rol': result_query.privilegios}
+            result: dict[str, Any] = {'code': result_query.code, 'username': result_query.name.strip(), 'name': result_query.usrname.strip(), 'email': result_query.email.strip(), 'rol': result_query.privilegios}
         return result
     except Exception as e:
         print("An exception occurred - " + format(e))
@@ -45,7 +45,7 @@ def email_validation(_email: str) -> dict[str, Any] | None:
     try: 
         result_query: db.SsUser | None = db.SsUser.objects.filter(email=_email).first()
         if(result_query):
-            result: dict[str, Any] = {'email': result_query.email}
+            result: dict[str, Any] = {'email': result_query.email.strip()}
         return result
     except Exception as e:
         print("An exception occurred - " + format(e))
@@ -78,7 +78,7 @@ def get_users() -> list[dict[str, Any]] | list:
     """
     try:
         result_query = db.SsUser.objects.all().order_by('usrname')
-        result: list[dict[str, Any]] = [{'username': row.name, 'name': row.usrname} for row in result_query]
+        result: list[dict[str, Any]] = [{'username': row.name.strip(), 'name': row.usrname.strip()} for row in result_query]
         return result
     except Exception as e:
         print("An exception occurred - " + format(e))
@@ -93,7 +93,23 @@ def get_managers() -> list[dict[str, Any]]:
     """
     try: 
         result_query = db.SsUser.objects.filter(privilegios__gt=99)
-        result: list[dict[str, Any]] = [{'username': row.name, 'name': row.usrname} for row in result_query]
+        result: list[dict[str, Any]] = [{'username': row.name.strip(), 'name': row.usrname.strip()} for row in result_query]
+        return result
+    except Exception as e:
+        print("An exception occurred - " + format(e))
+        return []
+    
+def get_categories() -> list[dict[str, Any]]:
+    """
+    Get Categories - Get ticket categories in DB
+
+    Returns:
+         result (list[dict[str, Any]]): Returns list with all categories
+    """
+    try: 
+        result_query: list[dict[str, Any]] = db.SsTablas.objects.filter(tipo='CATG').values().distinct()    
+        result: list[dict[str, Any]] = [{'category': row.get('code').strip(), 'categoryname': row.get('name').strip()} for row in result_query]
+        print(result)
         return result
     except Exception as e:
         print("An exception occurred - " + format(e))
@@ -112,18 +128,39 @@ def get_tickets(ticket_options: dict) -> list[dict[str, Any]] | list:
     result: list[dict[str, Any]] = []
     try: 
         priority_tickets_hash_map = {1: 'BAJA', 2: 'MEDIA', 3: 'ALTA', 4: 'URGENTE'}
-        category_tickets_hash_map = {'GRAL': 'general'}
+        category_tickets_hash_map = {'GRAL': 'GENERAL', 'SAP': 'SAP', 'PB1':'POWER BI', 'GESC': 'GESTION COMERCIAL', 'GMAIL':'GMAL'}
+        p: int = ticket_options['page']
+        ixp: int = ticket_options['itemsPerPage']
         parsed_options = {'gestor': ticket_options['manager'], 'usuario': ticket_options['username'], 'estado': ticket_options['state'], 'categoria': ticket_options['category']}
         final_options = {k: v for k, v in parsed_options.items() if v}
-        result_query: list[db.SsAdmCasosH] = db.SsAdmCasosH.objects.filter(**final_options).order_by('-prioridad', 'f_alta')
-        index = 1
+        result_query: list[db.SsAdmCasosH] = db.SsAdmCasosH.objects.filter(**final_options).order_by('-prioridad', 'f_alta')[(p-1)*ixp:p*ixp]
+        index = (p-1)*ixp + 1
         for row in result_query:
-            result.append({'code': row.code, 'date': row.f_alta, 'title': row.titulo, 'user': row.usuario, 'manager': row.gestor, 'category': category_tickets_hash_map[row.categoria], 'priority': priority_tickets_hash_map[row.prioridad], 'state': row.estado, 'position':  index, 'time': row.tiempo, 'validation': row.validacion, 'viewed': row.viewed, 'last_response_type': get_most_recent_message(row.code)})
+            result.append({'code': row.code, 'date': row.f_alta, 'title': row.titulo, 'user': row.usuario.strip(), 'manager': row.gestor.strip(), 'category': category_tickets_hash_map[row.categoria], 'priority': priority_tickets_hash_map[row.prioridad], 'state': row.estado, 'position':  index, 'time': row.tiempo, 'validation': row.validacion, 'viewed': row.viewed, 'last_response_type': get_most_recent_message(row.code)})
             index = index + 1
         return result
     except Exception as e:
         print("An exception occurred - " + format(e))
         return result
+    
+def get_tickets_count(ticket_options: dict) -> int | None:
+    """
+    Get tickets - Return all tickets count with given manager, username, category and state
+    
+    Args:
+        ticket_options (dict): Dict with ticket search options
+
+    Returns:
+        rows (int): Tickets count with search options
+    """
+    try: 
+        parsed_options = {'gestor': ticket_options['manager'], 'usuario': ticket_options['username'], 'estado': ticket_options['state'], 'categoria': ticket_options['category']}
+        final_options = {k: v for k, v in parsed_options.items() if v}
+        rows: int = db.SsAdmCasosH.objects.filter(**final_options).count()
+        return rows
+    except Exception as e:
+        print("An exception occurred - " + format(e))
+        return None
     
 def get_ticket(t_code: int) -> dict[str, Any] | None:
     """
@@ -137,7 +174,7 @@ def get_ticket(t_code: int) -> dict[str, Any] | None:
     """
     try: 
         result_query: db.SsAdmCasosH = db.SsAdmCasosH.objects.filter(code=t_code).first()
-        result: dict[str, Any] = {'code': result_query.code, 'date': result_query.f_alta, 'title': result_query.titulo, 'user': result_query.usuario, 'manager': result_query.gestor, 'priority': result_query.prioridad, 'state': result_query.estado, 'time': result_query.tiempo, 'validation': result_query.validacion, 'viewed': result_query.viewed}
+        result: dict[str, Any] = {'code': result_query.code, 'date': result_query.f_alta, 'title': result_query.titulo, 'user': result_query.usuario.strip(), 'manager': result_query.gestor.strip(), 'priority': result_query.prioridad, 'state': result_query.estado, 'time': result_query.tiempo, 'validation': result_query.validacion, 'viewed': result_query.viewed}
         return result
     except Exception as e:
         print("An exception occurred - " + format(e))
@@ -255,36 +292,35 @@ def create_ticket(ticket: dict) -> bool:
         tH = db.SsAdmCasosH(**parsed_ticket_H)
         tH.save() 
 
-        #If ticket get 'description' or 'file' create ticket message for ticket header
-        if(ticket.get('description') or ticket.get('file')):
-            texto1 = ""; texto2 = ""; texto3 = ""
-            file = ticket.get('file')
-            if(ticket.get('description')):
-                description: str | None = ticket.get('description')
-                res: list[str] = textwrap.wrap(description, width=255, break_long_words=True)
-                len_res: int = len(res)
-                if(len_res > 0):
-                    texto1 = res[0]
-                if(len_res > 1):
-                    texto2 = res[1]
-                if(len_res > 2):
-                    texto3 = res[2]
+        #Create ticket header
+        texto1 = ""; texto2 = ""; texto3 = ""
+        file = ticket.get('file')
+        if(ticket.get('description')):
+            description: str | None = ticket.get('description')
+            res: list[str] = textwrap.wrap(description, width=255, break_long_words=True)
+            len_res: int = len(res)
+            if(len_res > 0):
+                texto1 = res[0]
+            if(len_res > 1):
+                texto2 = res[1]
+            if(len_res > 2):
+                texto3 = res[2]
 
-            ticket_L: dict = {
-                'code': get_ticket_code_l(t_code),
-                'u_docentry': t_code,
-                'fecha': datetime.datetime.now(),
-                'tipo': 'P',
-                'tiempo': datetime.time(0,0,0),
-                'texto1': texto1,
-                'texto2': texto2, 
-                'texto3': texto3,
-                'adjunto': file
-            }
-            parsed_ticket_L: dict[str, Any] = {k: v for k, v in ticket_L.items() if v}
-            #Insert ticket message in DB if exist description or file
-            tL = db.SsAdmCasosL(**parsed_ticket_L)
-            tL.save()  
+        ticket_L: dict = {
+            'code': get_ticket_code_l(t_code),
+            'u_docentry': t_code,
+            'fecha': datetime.datetime.now(),
+            'tipo': 'P',
+            'tiempo': datetime.time(0,0,0),
+            'texto1': texto1,
+            'texto2': texto2, 
+            'texto3': texto3,
+            'adjunto': file
+        }
+        parsed_ticket_L: dict[str, Any] = {k: v for k, v in ticket_L.items() if v}
+        #Insert ticket message in DB if exist description or file
+        tL = db.SsAdmCasosL(**parsed_ticket_L)
+        tL.save()  
         return True
     except Exception as e:
         print("An exception occurred - " + format(e))

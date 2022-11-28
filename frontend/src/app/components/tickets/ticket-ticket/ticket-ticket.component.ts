@@ -300,7 +300,9 @@ export class TicketsTicketComponent implements OnInit, AfterViewChecked  {
   changeTicketManager(){
     this.ticketService.changeTicketManager(this.t_code, this.managerSelect.controls['manager'].value).subscribe({
       next: (response: any) => {
-        console.log(response)
+        this.toastrService.toastrConfig.timeOut = 2000
+        this.toastrService.toastrConfig.positionClass = 'toast-top-center'
+        this.toastrService.success('Gestor cambiado')
       },
       error: (err: any) => {
         switch(err.status){
