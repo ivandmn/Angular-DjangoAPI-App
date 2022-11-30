@@ -1,10 +1,12 @@
-from django.db.models import Max
-import textwrap
+from api import serializers
+from api import models as db
+from . import utils_custom_exceptions as c_exceptions 
 
+from django.db.models import Max
+
+import textwrap
 import datetime
 from typing import Any
-
-from .. import models as db
 
 def login(_username: str, _password: str) -> dict[str, Any] | None:
     """
@@ -17,19 +19,14 @@ def login(_username: str, _password: str) -> dict[str, Any] | None:
     Returns:
         result (dict | None): Returns dict with user if found | None if not found
     """
-    result: dict[str, Any] | None = None
     try:
         result_query: db.SsUser | None = db.SsUser.objects.filter(name=_username, pasword=_password).first()
-        if(result_query):
-            if(result_query.privilegios > 99):
-                result_query.privilegios = "admin"
-            else: 
-                result_query.privilegios = "user"
-            result: dict[str, Any] = {'code': result_query.code, 'username': result_query.name.strip(), 'name': result_query.usrname.strip(), 'email': result_query.email.strip(), 'rol': result_query.privilegios}
-        return result
+        if not result_query:
+            return None
+        result: dict[str, Any] = serializers.loginSerializer(result_query)
+        return result.data
     except Exception as e:
-        print("An exception occurred - " + format(e))
-        return result
+        raise c_exceptions.dbError(format(e))
 
 def email_validation(_email: str) -> dict[str, Any] | None:
     """
@@ -41,15 +38,14 @@ def email_validation(_email: str) -> dict[str, Any] | None:
     Returns:
         result (dict | None): Returns dict with email if found | None if not found 
     """
-    result: dict[str, Any] | None = None
     try: 
         result_query: db.SsUser | None = db.SsUser.objects.filter(email=_email).first()
-        if(result_query):
-            result: dict[str, Any] = {'email': result_query.email.strip()}
+        if not result_query:
+            return None
+        result: dict[str, Any] = {'email': result_query.email.strip()}
         return result
     except Exception as e:
-        print("An exception occurred - " + format(e))
-        return result
+        raise c_exceptions.dbError(format(e))
 
 def change_user_password(_email: str, newpassword: str) -> int:
     """
@@ -66,8 +62,7 @@ def change_user_password(_email: str, newpassword: str) -> int:
         row_updated: int = db.SsUser.objects.filter(email=_email).update(pasword=newpassword)
         return row_updated
     except Exception as e:
-        print("An exception occurred - " + format(e))
-        return 0
+        raise c_exceptions.dbError(format(e))
 
 def get_users() -> list[dict[str, Any]] | list: 
     """
@@ -78,11 +73,10 @@ def get_users() -> list[dict[str, Any]] | list:
     """
     try:
         result_query = db.SsUser.objects.all().order_by('usrname')
-        result: list[dict[str, Any]] = [{'username': row.name.strip(), 'name': row.usrname.strip()} for row in result_query]
-        return result
+        result: list[dict[str, Any]] = serializers.shortUserSerializer(result_query, many=True)
+        return result.data
     except Exception as e:
-        print("An exception occurred - " + format(e))
-        return []
+        raise c_exceptions.dbError(format(e))
 
 def get_managers() -> list[dict[str, Any]]:
     """
@@ -93,11 +87,10 @@ def get_managers() -> list[dict[str, Any]]:
     """
     try: 
         result_query = db.SsUser.objects.filter(privilegios__gt=99)
-        result: list[dict[str, Any]] = [{'username': row.name.strip(), 'name': row.usrname.strip()} for row in result_query]
-        return result
+        result: list[dict[str, Any]] = serializers.shortUserSerializer(result_query, many=True)
+        return result.data
     except Exception as e:
-        print("An exception occurred - " + format(e))
-        return []
+        raise c_exceptions.dbError(format(e))
     
 def get_categories() -> list[dict[str, Any]]:
     """
@@ -107,13 +100,11 @@ def get_categories() -> list[dict[str, Any]]:
          result (list[dict[str, Any]]): Returns list with all categories
     """
     try: 
-        result_query: list[dict[str, Any]] = db.SsTablas.objects.filter(tipo='CATG').values().distinct()    
-        result: list[dict[str, Any]] = [{'category': row.get('code').strip(), 'categoryname': row.get('name').strip()} for row in result_query]
-        print(result)
-        return result
+        result_query: list[dict[str, Any]] = db.SsTablas.objects.filter(tipo='CATG').distinct() 
+        result: list[dict[str, Any]] = serializers.categorySerializer(result_query, many=True)
+        return result.data
     except Exception as e:
-        print("An exception occurred - " + format(e))
-        return []
+        raise c_exceptions.dbError(format(e))
 
 def get_tickets(ticket_options: dict) -> list[dict[str, Any]] | list:
     """
@@ -140,8 +131,7 @@ def get_tickets(ticket_options: dict) -> list[dict[str, Any]] | list:
             index = index + 1
         return result
     except Exception as e:
-        print("An exception occurred - " + format(e))
-        return result
+        raise c_exceptions.dbError(format(e))
     
 def get_tickets_count(ticket_options: dict) -> int | None:
     """
@@ -159,8 +149,7 @@ def get_tickets_count(ticket_options: dict) -> int | None:
         rows: int = db.SsAdmCasosH.objects.filter(**final_options).count()
         return rows
     except Exception as e:
-        print("An exception occurred - " + format(e))
-        return None
+        raise c_exceptions.dbError(format(e))
     
 def get_ticket(t_code: int) -> dict[str, Any] | None:
     """
@@ -174,11 +163,10 @@ def get_ticket(t_code: int) -> dict[str, Any] | None:
     """
     try: 
         result_query: db.SsAdmCasosH = db.SsAdmCasosH.objects.filter(code=t_code).first()
-        result: dict[str, Any] = {'code': result_query.code, 'date': result_query.f_alta, 'title': result_query.titulo, 'user': result_query.usuario.strip(), 'manager': result_query.gestor.strip(), 'priority': result_query.prioridad, 'state': result_query.estado, 'time': result_query.tiempo, 'validation': result_query.validacion, 'viewed': result_query.viewed}
-        return result
+        result: dict[str, Any] = serializers.getTicketSerializer(result_query)
+        return result.data
     except Exception as e:
-        print("An exception occurred - " + format(e))
-        return None
+        raise c_exceptions.dbError(format(e))
 
 def get_ticket_msgs(t_code: int) -> list[dict[str, Any]] | list:
     """
@@ -192,11 +180,10 @@ def get_ticket_msgs(t_code: int) -> list[dict[str, Any]] | list:
     """
     try: 
         result_query = db.SsAdmCasosL.objects.filter(u_docentry=t_code).order_by('code')
-        result: list[db.SsAdmCasosL] = [{'code': row.code, 't_code': row.u_docentry, 'date': row.fecha, 'type': row.tipo, 'time': row.tiempo, 'text1': row.texto1 or "", 'text2': row.texto2 or "", 'text3': row.texto3 or "", 'file': row.adjunto} for row in result_query]
-        return result
+        result: list[db.SsAdmCasosL] = serializers.getTicketMsgsSerializer(result_query, many=True)
+        return result.data
     except Exception as e:
-        print("An exception occurred - " + format(e))
-        return []
+        raise c_exceptions.dbError(format(e))
 
 def get_ticket_code_H() -> int | None:
     """
@@ -212,8 +199,7 @@ def get_ticket_code_H() -> int | None:
             ticket_code = max_code.get('code__max') + 1 
         return ticket_code
     except Exception as e:
-        print("An exception occurred - " + format(e))
-        return None
+        raise c_exceptions.dbError(format(e))
 
 def get_ticket_code_l(code_h: int) -> int | None:
     """
@@ -229,8 +215,7 @@ def get_ticket_code_l(code_h: int) -> int | None:
             ticket_code = max_code.get('code__max') + 1 
         return ticket_code
     except Exception as e:
-        print("An exception occurred - " + format(e))
-        return None
+        raise c_exceptions.dbError(format(e))
 
 def open_ticket(t_code: int) -> int:
     """
@@ -243,8 +228,7 @@ def open_ticket(t_code: int) -> int:
         row_updated: int = db.SsAdmCasosH.objects.filter(code=t_code).update(estado='A', f_final=None)
         return row_updated
     except Exception as e:
-        print("An exception occurred - " + format(e))
-        return 0
+        raise c_exceptions.dbError(format(e))
     
 def close_ticket(t_code: int) -> int:
     """
@@ -257,140 +241,63 @@ def close_ticket(t_code: int) -> int:
         row_updated: int = db.SsAdmCasosH.objects.filter(code=t_code).update(estado='C', f_final=datetime.datetime.now())
         return row_updated
     except Exception as e:
-        print("An exception occurred - " + format(e))
-        return 0
+        raise c_exceptions.dbError(format(e))
 
-def create_ticket(ticket: dict) -> bool:
+def create_ticket(ticket: dict) -> None:
     """
     Create Ticket - Create ticket_H with given ticket and ticket_L if ticket have description or file
 
     Args:
         ticket (dict): Ticket to insert in DB
-
-    Returns:
-        bool: True if ticket has been created, false if not has been created
     """
     try:
         #Get code of new ticket header
-        t_code = get_ticket_code_H()
-        #Set values to insert as ticket header
-        parsed_ticket_H: dict = {
-            'code': t_code,
-            'f_alta': datetime.datetime.now(),
-            'titulo': ticket['title'], 
-            'usuario': ticket['username'], 
-            'gestor': ticket['manager'], 
-            'tiempo': datetime.time(0,0,0), 
-            'prioridad': ticket['priority'],
-            'categoria': ticket['category'],
-            'estado': 'A', 
-            'proceso': 1, 
-            'validacion': 0,
-            'viewed': 0
-        }
+        ticket_code = get_ticket_code_H()
+        #Create new ticket calling class method create_new_ticket()
+        new_ticket = db.SsAdmCasosH.create_new_ticket(ticket_code, ticket.get('title'), ticket.get('username'), ticket.get('manager'), ticket.get('priority'), ticket.get('category'))
         #Insert ticket header in DB
-        tH = db.SsAdmCasosH(**parsed_ticket_H)
-        tH.save() 
-
-        #Create ticket header
-        texto1 = ""; texto2 = ""; texto3 = ""
-        file = ticket.get('file')
-        if(ticket.get('description')):
-            description: str | None = ticket.get('description')
-            res: list[str] = textwrap.wrap(description, width=255, break_long_words=True)
-            len_res: int = len(res)
-            if(len_res > 0):
-                texto1 = res[0]
-            if(len_res > 1):
-                texto2 = res[1]
-            if(len_res > 2):
-                texto3 = res[2]
-
-        ticket_L: dict = {
-            'code': get_ticket_code_l(t_code),
-            'u_docentry': t_code,
-            'fecha': datetime.datetime.now(),
-            'tipo': 'P',
-            'tiempo': datetime.time(0,0,0),
-            'texto1': texto1,
-            'texto2': texto2, 
-            'texto3': texto3,
-            'adjunto': file
-        }
-        parsed_ticket_L: dict[str, Any] = {k: v for k, v in ticket_L.items() if v}
-        #Insert ticket message in DB if exist description or file
-        tL = db.SsAdmCasosL(**parsed_ticket_L)
-        tL.save()  
-        return True
+        new_ticket.save()
+        
+        #Get code of new ticket message
+        message_code = get_ticket_code_l(ticket_code)
+        #Create new ticket message calling class method create_new_ticket_message()
+        new_ticket_message = db.SsAdmCasosL.create_new_ticket_message(message_code, ticket_code, ticket.get('description'), ticket.get('file'))
+        #Insert ticket message in DB
+        new_ticket_message.save()
     except Exception as e:
-        print("An exception occurred - " + format(e))
-        return False
+        raise c_exceptions.dbError(format(e))
 
-def create_ticket_msg(ticket_msg: dict) -> bool:
+def create_ticket_msg(ticket_msg: dict) -> None:
     """
     Create Ticket Message - Create ticket_L with message object given and the code of ticket_H
 
     Args:
         ticket_msg (dict): Ticket message to insert in DB
-
-    Returns:
-        bool: True if ticket has been created, false if not has been created
     """
     try:
-        texto1: str = ""; texto2: str = ""; texto3: str = ""
-        file: str = ticket_msg.get('file')
-        type: str = ticket_msg.get('type')       
-        ticket_code: int = ticket_msg.get('t_code')
+        #Get ticket code
+        ticket_code: int | None = ticket_msg.get('t_code')
+        #Get code of new ticket message
         ticket_msg_code: int = get_ticket_code_l(ticket_code)
-        array_time = ticket_msg.get('time').split(':')
+        #Create new ticket message calling class method create_new_ticket_message()
+        new_ticket_message = db.SsAdmCasosL.create_new_ticket_message(ticket_msg_code, ticket_code, ticket_msg.get('description'), ticket_msg.get('file'), ticket_msg.get('time'), ticket_msg.get('type'))
+        #Insert ticket message in DB
+        new_ticket_message.save()
+    
 
-        for i in range(len(array_time)):
-            array_time[i] = int(array_time[i])
-
-        if(ticket_msg.get('msg')):
-            description: str | None = ticket_msg.get('msg')
-            res: list[str] = textwrap.wrap(description, width=255, break_long_words=True)
-            len_res: int = len(res)
-            if(len_res > 0):
-                texto1 = res[0]
-            if(len_res > 1):
-                texto2 = res[1]
-            if(len_res > 2):
-                texto3 = res[2]
-            
-        ticket_L: dict = {
-                'code': ticket_msg_code,
-                'u_docentry': ticket_code,
-                'fecha': datetime.datetime.now(),
-                'tipo': type,
-                'tiempo': datetime.time(array_time[0], array_time[1], 0),
-                'texto1': texto1,
-                'texto2': texto2, 
-                'texto3': texto3,
-                'adjunto': file
-        }
-
-        parsed_ticket_L = {k: v for k, v in ticket_L.items() if v}
-        
-        # Insert ticket line in DB
-        tL = db.SsAdmCasosL(**parsed_ticket_L)
-        tL.save()
-
-        #Update ticket to no viewed
+        #Update ticket to no viewed 
         db.SsAdmCasosH.objects.filter(code=ticket_code).update(viewed = 0)
         
-        #Refresh validation
+        #Refresh validation of ticket
         validation: int = ticket_msg.get('validation')
         if validation is not None:
             validation = int(validation)
             change_ticket_validation(ticket_code,validation)
 
         #Refresh time of ticket
-        resfresh_ticket_time(ticket_code, datetime.time(array_time[0], array_time[1], 0))
-        return True
+        resfresh_ticket_time(ticket_code, datetime.datetime.strptime(ticket_msg.get('time'), '%H:%M').time())
     except Exception as e:
-        print("An exception occurred - " + format(e))
-        return False
+        raise c_exceptions.dbError(format(e))
     
 def change_ticket_viewed_state(t_code: int) -> int:
     """
@@ -403,8 +310,7 @@ def change_ticket_viewed_state(t_code: int) -> int:
         rows_updated: int = db.SsAdmCasosH.objects.filter(code=t_code).update(viewed = 1)
         return rows_updated
     except Exception as e:
-        print("An exception occurred - " + format(e))
-        return 0
+        raise c_exceptions.dbError(format(e))
 
 def get_most_recent_message(t_code: int) -> int:
     try: 
@@ -414,8 +320,7 @@ def get_most_recent_message(t_code: int) -> int:
             result: str = recent_message.tipo
             return result
     except Exception as e: 
-        print("An exception occurred - " + format(e))
-        return None
+        raise c_exceptions.dbError(format(e))
         
 
 def resfresh_ticket_time(t_code: int, time: datetime.time) -> int:
@@ -433,8 +338,7 @@ def resfresh_ticket_time(t_code: int, time: datetime.time) -> int:
         rows_updated: int = db.SsAdmCasosH.objects.filter(code=t_code).update(tiempo=result_time)
         return rows_updated
     except Exception as e:
-        print("An exception occurred - " + format(e))
-        return 0
+        raise c_exceptions.dbError(format(e))
 
 def change_ticket_validation(t_code: int, validation: int) -> int:
     """
@@ -447,8 +351,7 @@ def change_ticket_validation(t_code: int, validation: int) -> int:
         rows_updated: int = db.SsAdmCasosH.objects.filter(code=t_code).update(validacion=validation)
         return rows_updated
     except Exception as e:
-        print("An exception occurred - " + format(e))
-        return 0
+        raise c_exceptions.dbError(format(e))
 
 def change_ticket_manager(t_code: int, new_manager: str) -> int:
     """
@@ -461,5 +364,4 @@ def change_ticket_manager(t_code: int, new_manager: str) -> int:
         rows_updated: int = db.SsAdmCasosH.objects.filter(code=t_code).update(gestor=new_manager)
         return rows_updated
     except Exception as e:
-        print("An exception occurred - " + format(e))
-    return 0
+        raise c_exceptions.dbError(format(e))

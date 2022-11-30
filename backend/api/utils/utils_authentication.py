@@ -55,7 +55,7 @@ def logout_user(request: HttpRequest) -> None:
     Args:
         request (HttpRequest): User request
     """
-    request.session.delete()
+    request.session.clear()
 
 def send_reset_password_email(email: str) -> str | None:
     """

@@ -34,7 +34,7 @@ export class TicketsTicketComponent implements OnInit, AfterViewChecked  {
   fileUpload: boolean = false;
   
   sendTicketMsgForm: FormGroup = new FormGroup({
-    msg: new FormControl('',[
+    description: new FormControl('',[
       Validators.maxLength(765),
       Validators.required
     ]),
@@ -163,6 +163,7 @@ export class TicketsTicketComponent implements OnInit, AfterViewChecked  {
         this.toastrService.toastrConfig.positionClass = 'toast-top-center'
         this.toastrService.success('Mensaje de ticket enviado')
         this.sendTicketMsgForm.reset({time: "00:00", validation: false, file: '', msg: ''})
+        this.fileUpload = false
         this.getTicketMessages()
       },
       error: (err: any) => {
@@ -171,6 +172,7 @@ export class TicketsTicketComponent implements OnInit, AfterViewChecked  {
             this.toastrService.toastrConfig.timeOut = 2000
             this.toastrService.toastrConfig.positionClass = 'toast-top-center'
             this.toastrService.error('No se ha podido enviar el mensaje')
+            this.sendTicketMsgForm.reset({time: "00:00", validation: false, file: '', msg: ''})
           }
         }
       },
@@ -277,7 +279,6 @@ export class TicketsTicketComponent implements OnInit, AfterViewChecked  {
   getFile(filepath: string){
     this.fileService.download(filepath).subscribe({
       next: (response: any) => {
-        console.log(filepath)
         let blob: Blob = response.body as Blob;
         let a = document.createElement('a');
         a.download = filepath

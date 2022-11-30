@@ -5,7 +5,10 @@ import mimetypes
 
 from rest_framework import status
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, parser_classes
+from rest_framework.parsers import JSONParser
+
+from api.utils import utils_custom_exceptions as c_exceptions 
 
 from django.core.files.storage import default_storage, DefaultStorage
 from django.core.files.base import File
@@ -14,12 +17,14 @@ from .utils import utils_authentication as auth
 from .utils import utils_db
 
 @api_view(['GET'])
+@parser_classes([JSONParser])
 #Main API View
 def main(request: HttpRequest):
     return Response(data={'msg':'API Main Page'}, status=status.HTTP_200_OK, template_name='api.html')
 
 #Login Api View
 @api_view(['POST'])
+@parser_classes([JSONParser])
 def login(request: HttpRequest):
     try:
         #Get parsed content of request body
@@ -45,6 +50,7 @@ def login(request: HttpRequest):
         return Response(data={'state':'Server Error'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR, template_name='api.html')
 
 @api_view(['POST'])
+@parser_classes([JSONParser])
 def logout(request: HttpRequest):
     try:
         if not auth.is_authenticated(request):
@@ -61,6 +67,7 @@ def logout(request: HttpRequest):
         return Response(data={'state':'Server Error'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR, template_name='api.html')
 
 @api_view(['POST'])
+@parser_classes([JSONParser])
 def validate_email(request: HttpRequest):
     try:
         #Get parsed content of request body
@@ -93,6 +100,7 @@ def validate_email(request: HttpRequest):
         return Response(data={'state':'Server Error'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR, template_name='api.html')
 
 @api_view(['POST'])
+@parser_classes([JSONParser])
 def validate_reset_key(request: HttpRequest):
     try:
         #Get parsed content of request body
@@ -113,6 +121,7 @@ def validate_reset_key(request: HttpRequest):
         return Response(data={'state':'Server Error'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR, template_name='api.html')
 
 @api_view(['POST'])
+@parser_classes([JSONParser])
 def change_user_password(request: HttpRequest):
     try:
         #Get parsed content of request body
@@ -133,16 +142,22 @@ def change_user_password(request: HttpRequest):
         return Response(data={'state':'Server Error'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR, template_name='api.html')
 
 @api_view(['GET'])
+@parser_classes([JSONParser])
 def get_users(request: HttpRequest):
-    if not auth.is_authenticated(request):
-            response = Response(data={'state':'Authentication failed'}, status=status.HTTP_401_UNAUTHORIZED, template_name='api.html') 
-            response.set_cookie('access_token', '', 0)
-            return response
-    else:
-        allusers = utils_db.get_users()
-        return Response(data=allusers, status=status.HTTP_200_OK, template_name='api.html')
+    try:
+        if not auth.is_authenticated(request):
+                response = Response(data={'state':'Authentication failed'}, status=status.HTTP_401_UNAUTHORIZED, template_name='api.html')
+                response.set_cookie('access_token', '', 0)
+                return response
+        else:
+            allusers = utils_db.get_users()
+            return Response(data=allusers, status=status.HTTP_200_OK, template_name='api.html')
+    except Exception as e:
+        print("An exception occurred - " + format(e))
+        return Response(data={'state':'Server Error'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR, template_name='api.html')
     
 @api_view(['POST'])
+@parser_classes([JSONParser])
 def get_tickets(request: HttpRequest):
     try:
         if not auth.is_authenticated(request):
@@ -160,6 +175,7 @@ def get_tickets(request: HttpRequest):
         return Response(data={'state':'Server Error'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR, template_name='api.html')
 
 @api_view(['POST'])
+@parser_classes([JSONParser])
 def get_tickets_count(request: HttpRequest):
     try:
         if not auth.is_authenticated(request):
@@ -177,6 +193,7 @@ def get_tickets_count(request: HttpRequest):
         return Response(data={'state':'Server Error'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR, template_name='api.html')
 
 @api_view(['POST'])  
+@parser_classes([JSONParser])
 def get_ticket(request: HttpRequest):
     try:
         if not auth.is_authenticated(request):
@@ -198,6 +215,7 @@ def get_ticket(request: HttpRequest):
         return Response(data={'state':'Server Error'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR, template_name='api.html')
 
 @api_view(['POST'])
+@parser_classes([JSONParser])
 def get_tickets_msgs(request: HttpRequest):
     try:
         if not auth.is_authenticated(request):
@@ -218,7 +236,8 @@ def get_tickets_msgs(request: HttpRequest):
         print("An exception occurred - " + format(e))
         return Response(data={'state':'Server Error'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR, template_name='api.html')
 
-@api_view(['POST'])     
+@api_view(['POST'])
+@parser_classes([JSONParser]) 
 def create_ticket_msg(request: HttpRequest):
     try:
         if not auth.is_authenticated(request):
@@ -235,6 +254,7 @@ def create_ticket_msg(request: HttpRequest):
         return Response(data={'state':'Server Error'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR, template_name='api.html')
 
 @api_view(['POST'])
+@parser_classes([JSONParser])
 def create_ticket(request: HttpRequest):
     try:
         if not auth.is_authenticated(request):
@@ -251,6 +271,7 @@ def create_ticket(request: HttpRequest):
         return Response(data={'state':'Server Error'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR, template_name='api.html')
 
 @api_view(['POST'])
+@parser_classes([JSONParser])
 def change_ticket_viewed_state(request: HttpRequest):
     try:
         if not auth.is_authenticated(request):
@@ -278,6 +299,7 @@ def change_ticket_viewed_state(request: HttpRequest):
         return Response(data={'state':'Server Error'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR, template_name='api.html')
 
 @api_view(['POST'])
+@parser_classes([JSONParser])
 def open_ticket(request: HttpRequest):
     try:
         if not auth.is_authenticated(request):
@@ -295,6 +317,7 @@ def open_ticket(request: HttpRequest):
         return Response(data={'state':'Server Error'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR, template_name='api.html')
 
 @api_view(['POST'])
+@parser_classes([JSONParser])
 def close_ticket(request: HttpRequest):
     try:
         if not auth.is_authenticated(request):
@@ -312,6 +335,7 @@ def close_ticket(request: HttpRequest):
         return Response(data={'state':'Server Error'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR, template_name='api.html')
 
 @api_view(['POST'])
+@parser_classes([JSONParser])
 def change_ticket_manager(request: HttpRequest):
     try:
         if not auth.is_authenticated(request):
@@ -374,6 +398,7 @@ def upload_file(request: HttpRequest):
         return Response(data={'state':'Server Error'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR, template_name='api.html')
 
 @api_view(['POST'])
+@parser_classes([JSONParser])
 def delete_file(request: HttpRequest):
     try:
         if not auth.is_authenticated(request):
@@ -393,6 +418,7 @@ def delete_file(request: HttpRequest):
         return Response(data={'state':'Server Error'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR, template_name='api.html')
 
 @api_view(['POST'])
+@parser_classes([JSONParser])
 def download_file(request: HttpRequest):
     try:
         if not auth.is_authenticated(request):

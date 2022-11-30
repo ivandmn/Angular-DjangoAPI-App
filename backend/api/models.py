@@ -6,6 +6,8 @@
 #   * Remove `managed = False` lines if you wish to allow Django to create, modify, and delete the table
 # Feel free to rename the models, but don't rename db_table values or field names.
 from django.db import models
+import datetime
+import textwrap
 
 class SsAdmCasosH(models.Model):
     code = models.IntegerField(db_column='Code', primary_key=True)  # Field name made lowercase.
@@ -22,6 +24,22 @@ class SsAdmCasosH(models.Model):
     validacion = models.IntegerField(blank=True, null=True)
     viewed = models.IntegerField(blank=True, null=True)
 
+    @classmethod
+    def create_new_ticket(cls, t_code: int, title: str, user: str, manager: str, priority: int, category: str):
+        ticket = cls(
+            code=t_code,
+            f_alta=datetime.datetime.now(),
+            titulo=title, usuario=user,
+            gestor=manager,
+            tiempo=datetime.time(0,0,0), 
+            prioridad=priority, 
+            categoria=category,
+            estado='A',
+            validacion=0,
+            viewed=0
+        )
+        return ticket
+
     class Meta:
         managed = False
         db_table = 'SS_Adm_Casos_H'
@@ -37,6 +55,30 @@ class SsAdmCasosL(models.Model):
     texto3 = models.CharField(max_length=255, blank=True, null=True)
     adjunto = models.TextField(blank=True, null=True)
     id = models.AutoField(db_column='ID', primary_key=True)  # Field name made lowercase.
+
+    @classmethod
+    def create_new_ticket_message(cls, message_code: int, ticket_code: int, description: str, file: str, time: str = '00:00', type: str = 'P'):
+        text1 = None; text2 = None; text3 = None
+        if(description):
+            res: list[str] = textwrap.wrap(description, width=255, break_long_words=True)
+            if(len(res) > 0):
+                text1 = res[0]
+            if(len(res) > 1):
+                text2 = res[1]
+            if(len(res) > 2):
+                text3 = res[2]
+        ticket = cls(
+            code=message_code,
+            u_docentry=ticket_code,
+            fecha=datetime.datetime.now(),
+            tipo=type,
+            tiempo=datetime.datetime.strptime(time, '%H:%M').time(),
+            texto1=text1,
+            texto2=text2,
+            texto3=text3,
+            adjunto=file
+        )
+        return ticket
 
     class Meta:
         managed = False

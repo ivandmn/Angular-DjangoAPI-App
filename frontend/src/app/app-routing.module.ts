@@ -20,7 +20,6 @@ const routes: Routes = [
    { path: 'tickets/create', component: TicketsCreateComponent, canActivate: [AuthGuard]},
    { path: 'tickets/ticket', component: TicketsTicketComponent, canActivate: [AuthGuard]},
    { path: 'pwbi/home', component: PwbiHomeComponent, canActivate: [AuthGuard]},
-
 ];
 
 @NgModule({

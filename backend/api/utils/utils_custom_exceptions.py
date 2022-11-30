@@ -1,0 +1,2 @@
+class dbError(Exception):
+    pass

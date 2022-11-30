@@ -30,7 +30,7 @@
                 <label for="categoria">Categoria</label>
                 <select class="form-select" formControlName="category" title="categoria" name="categoria">
                     <option value="">--ALL--</option>
-                    <option *ngFor="let category of ticket_categories" value="{{category.category}}">{{category.categoryname}}</option>
+                    <option *ngFor="let category of ticket_categories" value="{{category.category}}">{{category.category_name}}</option>
                 </select>
             </div>
         </div>

@@ -104,7 +104,6 @@ export class TicketsListComponent implements OnInit {
     this.ticketService.getTickets(options_filter).subscribe({
       next: (response: any) => {
         this.tickets = response
-        console.log(this.tickets)
       },
       error: (err: any) => {},
       complete: () => {}
@@ -115,7 +114,6 @@ export class TicketsListComponent implements OnInit {
     this.ticketService.getCategories().subscribe({
       next: (response: any) => {
         this.ticket_categories = response
-        console.log(response)
       },
       error: (err: any) => {},
       complete: () => {}
@@ -156,7 +154,6 @@ export class TicketsListComponent implements OnInit {
     this.ticketService.getTicketsCount(this.ticketsListForm.getRawValue()).subscribe({
       next: (response: any) => {
         this.itemsCount = response
-        console.log(response)
       },
       error: (err: any) => {},
       complete: () => {}
