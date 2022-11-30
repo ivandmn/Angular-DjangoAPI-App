@@ -4,7 +4,7 @@
             <div class="text-underline">Alta de nuevo ticket</div>
         </div>
         <div class="col-md-2 align-self-center text-center ms-auto mb-2">
-            <button type="button" class="options-button" [disabled]="createTicketForm.invalid || uploadingFile" (click)="createTicket()">
+            <button type="button" class="options-button" [disabled]="createTicketForm.invalid" (click)="createTicket()">
                 <img title="check_icon" class="options-images" src="assets/images/check_icon.png">
             </button>
             <button type="button" class="options-button">
@@ -43,11 +43,8 @@
             </div>
             <div class="col-md-6 align-self-center mb-2">
                 <label class="col-md-12" for="file">F.Adjunto</label>
-                <input [disabled]="uploadingFile" class="form-control d-inline w-75" type="file" id="file" (change)="onChangeFile($event)">
-                <span *ngIf="uploadingFile" class="loader ms-2 align-middle"></span>
-                <span *ngIf="uploadingFile" class="ms-2 align-middle">Loading File</span>
-                <img *ngIf="fileUpload" class='file-uploaded-check-img ms-2 align-middle' src="../../assets/images/check_icon_green.svg">
-                <span *ngIf="fileUpload" class="ms-2 align-middle text-success">Archivo subido</span>
+                <input class="form-control d-inline w-75" formControlName="file" type="file" id="file" (change)="onChangeFile($event)">
+
             </div>
         </div>
 
@@ -83,8 +80,6 @@
     </form>
 </div>
 
-
-<!-- Modal -->
 
 <div class="modal fade" id="confirmModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-sm" id="confirmModalContent"> 

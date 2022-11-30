@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders} from '@angular/common/http';
-import { Router } from '@angular/router';
 import { CookieService } from 'ngx-cookie-service';
 import { User } from '../models/user.model';
 
@@ -13,11 +12,8 @@ export class TicketService {
   request_options: Object = {headers: new HttpHeaders({'Content-Type':'application/json'}), withCredentials: true, responseType: "json" as const};
 
   t_code: number | null = null;
-  
-  managers: Array<User> | null = null;
-  users: Array<User> | null = null
 
-  constructor(private http: HttpClient, private router: Router, private CookieService: CookieService) { }
+  constructor(private http: HttpClient, private CookieService: CookieService) { }
 
   getCategories(){
     return this.http.get<any>(`${this.ROOT_URL}/tickets/get-categories`, this.request_options)
@@ -72,16 +68,16 @@ export class TicketService {
   }
 
   getTicketCodeFromCookies(){
-    let ticket_code= this.CookieService.check('t_code');
+    let ticket_code= this.CookieService.check('ticket_code');
     if (ticket_code == true){
-      let t_code = Number(this.CookieService.get('t_code'))
+      let t_code = Number(this.CookieService.get('ticket_code'))
       this.t_code = t_code
     }
     return this.t_code
   }
 
   saveTicketCodeInCookies(t_code: number | null) {
-    this.CookieService.set('t_code', t_code!.toString())
+    this.CookieService.set('ticket_code', t_code!.toString())
   }
 
   saveFilterOptionsInCookies(options: any){

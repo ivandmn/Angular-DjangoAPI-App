@@ -36,6 +36,8 @@ export class TicketsCreateComponent implements OnInit {
     ]),
     file: new FormControl('',[
     ]),
+    fileSource: new FormControl('',[
+    ]), 
     category: new FormControl('GRAL',[
       Validators.required
     ]),
@@ -49,53 +51,37 @@ export class TicketsCreateComponent implements OnInit {
   });
 
   ngOnInit(): void {
+    this.toastrService.toastrConfig.timeOut = 2000
+    this.toastrService.toastrConfig.positionClass = 'toast-top-center'
     this.getManagers()
     this.getTicketCategories()
     
     if(this.current_user.rol == 'admin'){
       this.createTicketForm.controls['username'].enable()
-      this.ticketService.getUsers().subscribe({
-        next: (response: any) => {
-          this.users = response
-        },
-        error: (err: any) => {
-          switch(err.status){
-            case 401: { 
-              break;
-            }
-            default: {
-            }
-          }
-        },
-        complete: () => {}
-      });
+      this.getUsers()
     }
   }
 
-  clearTicket(): void{
-    this.createTicketForm.reset({manager: '', priority: '1', username: this.current_user.username, file: '', 'category': 'GRAL', title: '', description: ''})
+  getUsers(): void {
+    this.ticketService.getUsers().subscribe({
+      next: (response: any) => {
+        this.users = response
+      }
+    });
+  }
+
+  resetCreateTicketForm(): void{
+    this.createTicketForm.reset({manager: '', priority: '1', username: this.current_user.username, file: '', fileSource: '', category: 'GRAL', title: '', description: ''})
   }
 
   createTicket(): void {
     let ticket: any = this.createTicketForm.value
-    ticket['username'] = this.createTicketForm.get('username')?.value
+    ticket['username'] = this.createTicketForm.get('username')?.getRawValue()
     this.ticketService.createTicket(ticket).subscribe({
-      next: (response: any) => {
-        this.toastrService.toastrConfig.timeOut = 2000
-        this.toastrService.toastrConfig.positionClass = 'toast-top-center'
+      next: () => {
         this.toastrService.success('Ticket Enviado')
-        this.clearTicket()
-      },
-      error: (err: any) => {
-        switch(err.status){
-          case 401: { 
-            break;
-          }
-          default: {
-          }
-        }
-      },
-      complete: () => {}
+        this.resetCreateTicketForm()
+      }
     });
 
     
@@ -121,7 +107,7 @@ export class TicketsCreateComponent implements OnInit {
       document.getElementById("modal-success-btn")!.addEventListener('click', () =>{
           switch(function_name){
             case "clear":
-              this.clearTicket()
+              this.resetCreateTicketForm()
               break;
             default:
               break;
@@ -130,7 +116,7 @@ export class TicketsCreateComponent implements OnInit {
     } else{
       switch(function_name){
         case "clear":
-          this.clearTicket()
+          this.resetCreateTicketForm()
           break;
         default:
           break;
@@ -158,16 +144,13 @@ export class TicketsCreateComponent implements OnInit {
   onChangeFile(event: Event){
     let file: FileList | null = (event.target as HTMLInputElement).files;
     if(file && file.length > 0){
-      if(this.createTicketForm.controls['file'].value !== ''){
-        this.deleteFile(this.createTicketForm.controls['file'].value)
-      }
-      this.uploadingFile = true
-      this.uploadFile(file[0])
+      this.createTicketForm.patchValue({
+        fileSource: file[0]
+      })
     } else {
-      if(this.createTicketForm.controls['file'].value !== ''){
-        this.deleteFile(this.createTicketForm.controls['file'].value)
-      }
-      this.createTicketForm.controls['file'].setValue('')
+      this.createTicketForm.patchValue({
+        fileSource: ''
+      })
     }
   }
 
@@ -178,37 +161,11 @@ export class TicketsCreateComponent implements OnInit {
         this.createTicketForm.controls['file'].setValue(response['file_name'])
         this.fileUpload = true
       },
-      error: (err: any) => {
-        switch(err.status){
-          case 401: { 
-            break;
-          }
-          default: {
-          }
-        }
-      },
+      error: (err: any) => {},
       complete: () => {}
     });
   }
-
-  deleteFile(fileName: string){
-    this.fileService.delete(fileName).subscribe({
-      next: (response: any) => {
-        this.fileUpload = false
-      },
-      error: (err: any) => {
-        switch(err.status){
-          case 401: { 
-            break;
-          }
-          default: {
-          }
-        }
-      },
-      complete: () => {}
-    });
-  }
-
+  
   getTicketCategories(): void {
     this.ticketService.getCategories().subscribe({
       next: (response: any) => {

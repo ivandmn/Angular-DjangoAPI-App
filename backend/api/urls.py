@@ -3,11 +3,11 @@ from . import views
 
 urlpatterns = [
     path('', views.main),
-    path('login', views.login),
-    path('logout', views.logout),
-    path('reset-password/validate-email', views.validate_email),
-    path('reset-password/validate-reset-key', views.validate_reset_key),
-    path('reset-password/change-password', views.change_user_password),
+    path('auth/login', views.login),
+    path('auth/logout', views.logout),
+    path('auth/reset-password/validate-email', views.validate_email),
+    path('auth/reset-password/validate-reset-key', views.validate_reset_key),
+    path('auth/reset-password/change-password', views.change_user_password),
     path('tickets/get-tickets', views.get_tickets),
     path('tickets/get-tickets-count', views.get_tickets_count),
     path('tickets/create-ticket', views.create_ticket),

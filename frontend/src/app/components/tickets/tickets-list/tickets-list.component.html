@@ -7,7 +7,7 @@
             <div class="col-lg-3 align-self-center mb-2">
                 <label for="gestor">Gestor</label>
                 <select class="form-select" formControlName="manager" title="gestor" name="gestor">
-                    <option value="">--ALL--</option>
+                    <option value="">ALL</option>
                     <option *ngFor="let manager of managers" value="{{manager.username}}">{{manager.name}}</option>
                 </select>
             </div>
@@ -15,7 +15,7 @@
                 <label for="user">Usuario</label>
                 <select class="form-select" formControlName="username" name="user">
                     <option *ngIf="current_user.rol != 'admin'" value={{current_user.username}}>{{current_user.name}}</option> 
-                    <option *ngIf="current_user.rol == 'admin'" value="" selected>---ALL---</option>
+                    <option *ngIf="current_user.rol == 'admin'" value="" selected>ALL</option>
                     <option *ngFor="let user of users" value="{{user.username}}">{{user.name}}</option>
                 </select>
             </div>
@@ -29,17 +29,17 @@
             <div class="col-lg-2 align-self-center mb-2">
                 <label for="categoria">Categoria</label>
                 <select class="form-select" formControlName="category" title="categoria" name="categoria">
-                    <option value="">--ALL--</option>
+                    <option value="">ALL</option>
                     <option *ngFor="let category of ticket_categories" value="{{category.category}}">{{category.category_name}}</option>
                 </select>
             </div>
         </div>
     </form>
     <div class="row m-0" id="content-list-tickets">
-        <div class="col-md-3 mh-100 p-0 ticket-background text-center border border-dark">
-            <div class="col-md-12 tickets_options border-bottom border-dark" routerLink="/tickets/create"><h3>Alta Caso</h3></div>
-            <div class="col-md-12 tickets_options border-bottom border-dark"><h3>Búsqueda Casos</h3></div>
-            <div class="col-md-12 tickets_options border-bottom border-dark"><h3>Manuales</h3></div>
+        <div class="col-md-3 p-0 ticket-background text-center border border-dark">
+            <div class="col-md tickets_options border-bottom border-dark" routerLink="/tickets/create"><h3>Alta Caso</h3></div>
+            <div class="col-md tickets_options border-bottom border-dark"><h3>Búsqueda Casos</h3></div>
+            <div class="col-md tickets_options border-bottom border-dark"><h3>Manuales</h3></div>
         </div>
         <div class="col-md-9 p-0 mh-100 overflow-auto">
             <table class="table">
@@ -86,7 +86,7 @@
             <div class="d-flex justify-content-center">
                 <pagination-controls previousLabel="Prev" nextLabel="Next" (pageChange)="paginationChange($event)">
                 </pagination-controls>
-              </div>
+            </div>
         </div>
     </div>  
 </div>

@@ -198,30 +198,20 @@
     cursor: pointer;
 }
 
-.file-uploaded-check-img{
-    height: 25px;
-    width: auto;
+
+.bd-example-modal-lg .modal-dialog{
+    display: table;
+    position: relative;
+    margin: 0 auto;
+    top: calc(50% - 24px);
+}
+  
+.bd-example-modal-lg .modal-dialog .modal-content{
+    background-color: transparent;
+    border: none;
 }
 
-.loader {
-    width: 20px;
-    height: 20px;
-    border: 2px solid grey;
-    border-bottom-color: transparent;
-    border-radius: 50%;
-    display: inline-block;
-    box-sizing: border-box;
-    animation: rotation 1s linear infinite;
-}
 
-@keyframes rotation {
-    0% {
-        transform: rotate(0deg);
-    }
-    100% {
-        transform: rotate(360deg);
-    }
-} 
 
 
 

@@ -121,33 +121,23 @@ export class TicketsListComponent implements OnInit {
   }
 
   getManagers(): void {
-    if(!this.ticketService.managers){
-      this.ticketService.getManagers().subscribe({
-        next: (response: any) => {
-          this.managers = response
-          this.ticketService.managers = response
-        },
-        error: (err: any) => {},
-        complete: () => {}
-      });
-    } else {
-      this.managers = this.ticketService.managers
-    }
+    this.ticketService.getManagers().subscribe({
+      next: (response: any) => {
+        this.managers = response
+      },
+      error: (err: any) => {},
+      complete: () => {}
+    });
   }
 
   getUsers(): void {
-    if(!this.ticketService.users){
-      this.ticketService.getUsers().subscribe({
-        next: (response: any) => {
-          this.users = response
-          this.ticketService.users = response
-        },
-        error: (err: any) => {},
-        complete: () => {}
-      });
-    } else {
-      this.users = this.ticketService.users
-    }
+    this.ticketService.getUsers().subscribe({
+      next: (response: any) => {
+        this.users = response
+      },
+      error: (err: any) => {},
+      complete: () => {}
+    });
   }
 
   getTicketsCount(){

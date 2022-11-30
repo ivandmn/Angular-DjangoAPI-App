@@ -18,42 +18,24 @@ import { ToastrService } from 'ngx-toastr';
 export class TicketsTicketComponent implements OnInit, AfterViewChecked  {
 
   current_user: User = new User()
-
   t_code: number | null = null;
-
   ticket: TicketH = new TicketH()
-
   ticket_messages: Array<TicketL> = [];
-
-  user_question: string | null = null;
-  user_response: string | null = null
-
   managers: Array<User> | null = [];
-
-  uploadingFile: boolean = false;
-  fileUpload: boolean = false;
+  user_question: string | null = null;
+  user_response: string | null = null;
   
   sendTicketMsgForm: FormGroup = new FormGroup({
-    description: new FormControl('',[
-      Validators.maxLength(765),
-      Validators.required
-    ]),
-    validation: new FormControl(false,[
-    ]),
-    time: new FormControl("00:00",[
-    ]),
-    file: new FormControl('' ,[
-      Validators.required
-    ]),
+    description: new FormControl('',[Validators.maxLength(765)]),
+    validation: new FormControl(false),
+    time: new FormControl("00:00"),
+    file: new FormControl(''),
+    fileSource: new FormControl('')
   });
 
   managerSelect: FormGroup = new FormGroup({
-    manager: new FormControl('',[
-      Validators.required
-    ]),
+    manager: new FormControl('')
   });
-
-
 
   constructor(private authService: AuthService, private ticketService: TicketService, private router: Router, private fileService: FileService, private cdRef : ChangeDetectorRef, private toastrService: ToastrService) { }
 
@@ -63,220 +45,96 @@ export class TicketsTicketComponent implements OnInit, AfterViewChecked  {
   
 
   ngOnInit(): void {
-    
+    this.toastrService.toastrConfig.timeOut = 2000
+    this.toastrService.toastrConfig.positionClass = 'toast-top-center'
     //Get current user info
     this.current_user = this.authService.getUserInfo();
-
     //Get ticket code from cookie if cookie exist
     this.t_code = this.ticketService.getTicketCodeFromCookies()
-
     //Get ticket info
     this.getTicketInfo()
-
     //Get current managers
     this.getManagers()
-
-    //Get ticket header info
-    
     //Get tickets messages
     this.getTicketMessages()
   }
 
-  sendNewMessage(){
-    //If current_user is admin and validation check box is selected set validation to -1
-    if(this.current_user.rol == 'admin'){
-      if(this.sendTicketMsgForm.get('validation')?.value){
-        this.sendTicketMsgForm.controls['validation'].setValue(-1)
-      //If validation checkbox was not selected set validation to 0
-      } else {
-        this.sendTicketMsgForm.controls['validation'].setValue(0)
-      } 
-      //If current_user is not admin set always validation to 0
-    } else{
-      this.sendTicketMsgForm.controls['validation'].setValue(0)
-    }
+  onRequest(): void {
+    $('.modal').modal('show');
+  }
+  
+  requestFinished(): void {
+    $('.modal').modal('hide');
+  }
 
-    //Set ticket code
-    let msgObject = this.sendTicketMsgForm.value
-    msgObject['t_code'] = this.t_code
-
-    //Set type of message
-    if(this.user_question == this.current_user.username){
-      msgObject['type'] = 'P'
-    } else {
-      msgObject['type'] = 'R'
-    }
-
-    //Send new message
-    this.createTicketMessage(msgObject)
-
+  getManagers(): void {
+    this.ticketService.getManagers().subscribe({
+      next: (response: any) => {
+        this.managers = response
+      }
+    });
   }
 
   getTicketInfo(): void {
-    //Get ticket info
     this.ticketService.getTicket(this.t_code).subscribe({
       next: (response: any) => {
         this.ticket = response
         this.user_question = this.ticket.user
         this.user_response = this.ticket.manager
         this.managerSelect.controls['manager'].setValue(this.user_response) 
-      },
-      error: (err: any) => {
-        switch(err.status){
-          case 401: { 
-            break;
-          }
-          default: {
-          }
-        }
-      },
-      complete: () => {
       }
     });
   }
 
   getTicketMessages(): void {
-    //Get all ticket messages
     this.ticketService.getTicketMessages(this.t_code).subscribe({
       next: (response: any) => {
         this.ticket_messages = response
         this.cdRef.detectChanges();
-      },
-      error: (err: any) => {
-        switch(err.status){
-          case 401: { 
-            break;
-          }
-          default: {
-          }
-        }
-      },
-      complete: () => {}
+      }
     });  
-  }
-
-  createTicketMessage(msg: object): void {
-    //Create ticket message
-    this.ticketService.createTicketMessage(msg).subscribe({
-      next: (response: any) => {
-        this.toastrService.toastrConfig.timeOut = 2000
-        this.toastrService.toastrConfig.positionClass = 'toast-top-center'
-        this.toastrService.success('Mensaje de ticket enviado')
-        this.sendTicketMsgForm.reset({time: "00:00", validation: false, file: '', msg: ''})
-        this.fileUpload = false
-        this.getTicketMessages()
-      },
-      error: (err: any) => {
-        switch(err.status){
-          default: {
-            this.toastrService.toastrConfig.timeOut = 2000
-            this.toastrService.toastrConfig.positionClass = 'toast-top-center'
-            this.toastrService.error('No se ha podido enviar el mensaje')
-            this.sendTicketMsgForm.reset({time: "00:00", validation: false, file: '', msg: ''})
-          }
-        }
-      },
-      complete: () => {}
-    });
   }
 
   closeTicket(): void {
     this.ticketService.closeTicket(this.t_code).subscribe({
-      next: (response: any) => {
-        this.toastrService.toastrConfig.timeOut = 2000
-        this.toastrService.toastrConfig.positionClass = 'toast-top-center'
+      next: () => {
         this.toastrService.success('Se ha cerrado el ticket')
         this.ticket.state = 'C'
-      },
-      error: (err: any) => {
-        switch(err.status){
-          case 401: { 
-            break;
-          }
-          default: {
-          }
-        }
-      },
-      complete: () => {}
+      }
     });
   }
 
   openTicket(): void {
     this.ticketService.openTicket(this.t_code).subscribe({
-      next: (response: any) => {
-        this.toastrService.toastrConfig.timeOut = 2000
-        this.toastrService.toastrConfig.positionClass = 'toast-top-center'
+      next: () => {
         this.toastrService.success('Se ha reabierto el ticket')
         this.ticket.state = 'A'
-      },
-      error: (err: any) => {
-        switch(err.status){
-          case 401: { 
-            break;
-          }
-          default: {
-          }
-        }
-      },
-      complete: () => {}
+      }
+    });
+  }
+
+  changeTicketManager(){
+    this.ticketService.changeTicketManager(this.t_code, this.managerSelect.controls['manager'].value).subscribe({
+      next: () => {
+        this.toastrService.success('Gestor cambiado')
+      }
     });
   }
 
   onChangeFile(event: Event){
     let file: FileList | null = (event.target as HTMLInputElement).files;
     if(file && file.length > 0){
-      if(this.sendTicketMsgForm.controls['file'].value !== ''){
-        this.deleteFile(this.sendTicketMsgForm.controls['file'].value)
-      }
-      this.uploadingFile = true
-      this.uploadFile(file[0])
+      this.sendTicketMsgForm.patchValue({
+        fileSource: file[0]
+      })
     } else {
-      if(this.sendTicketMsgForm.controls['file'].value !== ''){
-        this.deleteFile(this.sendTicketMsgForm.controls['file'].value)
-      }
-      this.sendTicketMsgForm.controls['file'].setValue('')
+      this.sendTicketMsgForm.patchValue({
+        fileSource: ''
+      })
     }
   }
 
-  uploadFile(fileToUpload: File){
-    this.fileService.upload(fileToUpload).subscribe({
-      next: (response: any) => {
-        this.uploadingFile = false
-        this.sendTicketMsgForm.controls['file'].setValue(response['file_name'])
-        this.fileUpload = true
-      },
-      error: (err: any) => {
-        switch(err.status){
-          case 401: { 
-            break;
-          }
-          default: {
-          }
-        }
-      },
-      complete: () => {}
-    });
-  }
-
-  deleteFile(fileName: string){
-    this.fileService.delete(fileName).subscribe({
-      next: (response: any) => {
-        this.fileUpload = false
-      },
-      error: (err: any) => {
-        switch(err.status){
-          case 401: { 
-            break;
-          }
-          default: {
-          }
-        }
-      },
-      complete: () => {}
-    });
-  }
-
-  getFile(filepath: string){
+  downloadFile(filepath: string){
     this.fileService.download(filepath).subscribe({
       next: (response: any) => {
         let blob: Blob = response.body as Blob;
@@ -284,52 +142,89 @@ export class TicketsTicketComponent implements OnInit, AfterViewChecked  {
         a.download = filepath
         a.href = window.URL.createObjectURL(blob);
         a.click()
-      },
-      error: (err: any) => {
-        switch(err.status){
-          case 401: { 
-            break;
-          }
-          default: {
-          }
-        }
-      },
-      complete: () => {}
+      }
     });
   }
 
-  changeTicketManager(){
-    this.ticketService.changeTicketManager(this.t_code, this.managerSelect.controls['manager'].value).subscribe({
-      next: (response: any) => {
-        this.toastrService.toastrConfig.timeOut = 2000
-        this.toastrService.toastrConfig.positionClass = 'toast-top-center'
-        this.toastrService.success('Gestor cambiado')
-      },
-      error: (err: any) => {
-        switch(err.status){
-          case 401: { 
-            break;
-          }
-          default: {
-          }
-        }
-      },
-      complete: () => {}
-    });
+  resetSendTicketMsgForm(): void {
+    this.sendTicketMsgForm.reset({description: '', validation: false, time: "00:00", file: '', fileSource: ''})
   }
 
-  getManagers(): void {
-    if(!this.ticketService.managers){
-      this.ticketService.getManagers().subscribe({
-        next: (response: any) => {
-          this.managers = response
-          this.ticketService.managers = response
-        },
-        error: (err: any) => {},
-        complete: () => {}
-      });
+  sendMsg(): void {
+    //Save msg object in variable
+    let msg: any = this.sendTicketMsgForm.getRawValue()
+    //Disable form
+    this.sendTicketMsgForm.disable()
+    this.onRequest()
+    console.log(msg)
+    //If current_user is admin enter if
+    if(this.current_user.rol == 'admin'){
+      //If validation check box is selected set validation to -1
+      if(msg['validation']){msg['validation'] = -1
+      } 
+      //If validation checkbox was not selected set validation to 0
+      else {
+        msg['validation'] = 0
+      } 
+      //If current_user is not admin set always validation to 0
+    } else{
+      msg['validation'] = 0
+    }
+    //Set ticket code
+    msg['t_code'] = this.t_code
+    //Set type of message
+    if(this.user_question == this.current_user.username){
+      msg['type'] = 'P'
     } else {
-      this.managers = this.ticketService.managers
+      msg['type'] = 'R'
+    }
+
+    //Upload file if msg have file and after upload send message
+    if(msg['fileSource']){
+      this.fileService.upload(msg['fileSource']).subscribe({
+        next: (response: any) => {
+          //Change filename message to backend filename
+          msg['file'] = response['file_name'];
+          //Delete file from message object
+          delete msg['fileSource'];
+          console.log(msg)
+          //Create ticket message
+          this.ticketService.createTicketMessage(msg).subscribe({
+            next: () => {
+              this.sendTicketMsgForm.enable()
+              this.toastrService.success('Mensaje de ticket enviado')
+              this.resetSendTicketMsgForm();
+              this.getTicketMessages()
+            },
+            error: () => {
+              this.sendTicketMsgForm.enable()
+              this.toastrService.error('No se ha podido enviar el mensaje')
+              this.resetSendTicketMsgForm();
+            }
+          });
+        },
+        error: () => {
+          this.toastrService.error('Error al subir el archivo')
+          this.resetSendTicketMsgForm();
+        }
+      });
+    //If msg don't have a file send message
+    } else {
+      delete msg['fileSource'];
+      console.log(msg)
+      this.ticketService.createTicketMessage(msg).subscribe({
+        next: () => {
+          this.sendTicketMsgForm.enable()
+          this.toastrService.success('Mensaje de ticket enviado')
+          this.resetSendTicketMsgForm();
+          this.getTicketMessages()
+        },
+        error: () => {
+          this.sendTicketMsgForm.enable()
+          this.toastrService.error('No se ha podido enviar el mensaje')
+          this.resetSendTicketMsgForm();
+        }
+      });
     }
   }
 }

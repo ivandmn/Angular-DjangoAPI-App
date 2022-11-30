@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { User } from '../models/user.model';
-import { HttpClient, HttpHeaders} from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpResponse} from '@angular/common/http';
 import { Router } from '@angular/router';
 import { CookieService } from 'ngx-cookie-service';
 
@@ -19,71 +19,68 @@ export class AuthService {
   //Variable that indicates if the user is logged in
   logged_user: boolean = false;
   //Variable for save logged user info
-  currentUser: User = new User()
+  currentUser: User = new User();
 
   constructor(private http: HttpClient, private router: Router, private CookieService: CookieService) {}
   
   /**
-   * **signIn Function**
+   * **Sends an HTTP request to the backend to sign in**
    * @param {Object} user {'username': str, 'password': str}
-   * @return {Observable<any>} Observable
+   * @return {Observable<HttpResponse<any>>} Observable HTTP Response
    */
-  signIn(user: Object): Observable<any>{
-    return this.http.post<any>(`${this.ROOT_URL}/login`, user, this.request_options);
+  signIn(user: Object): Observable<HttpResponse<any>>{
+    return this.http.post<any>(`${this.ROOT_URL}/auth/login`, user, this.request_options);
   }
 
   /**
-   * **validateEmail Function**
+   * **Sends an HTTP request to the backend to validate email**
    * @param {Object} email {'email': str}
-   * @return {Observable<any>} Observable
+   * @return {Observable<HttpResponse<any>>} Observable HTTP Response
    */
-  validateEmail(email: Object): Observable<any>{
-    return this.http.post<any>(`${this.ROOT_URL}/reset-password/validate-email`, email, this.request_options);
+  validateEmail(email: Object): Observable<HttpResponse<any>>{
+    return this.http.post<any>(`${this.ROOT_URL}/auth/reset-password/validate-email`, email, this.request_options);
   }
 
   /**
-   * **validateResetKey Function**
+   * **Sends an HTTP request to the backend to validate reset key**
    * @param {Object} key {'key': str}
-   * @return {Observable<any>} Observable
+   * @return {Observable<HttpResponse<any>>} Observable HTTP Response
    */
-  validateResetKey(key: Object): Observable<any>{
-    return this.http.post<any>(`${this.ROOT_URL}/reset-password/validate-reset-key`, key, this.request_options);
+  validateResetKey(key: Object): Observable<HttpResponse<any>>{
+    return this.http.post<any>(`${this.ROOT_URL}/auth/reset-password/validate-reset-key`, key, this.request_options);
   }
 
   /**
-   * **changePassword Function**
+   * **Sends an HTTP request to the backend to change password**
    * @param {Object} password {'password': str}
-   * @return {Observable<any>} Observable
+   * @return {Observable<HttpResponse<any>>} Observable HTTP Response
    */
-  changePassword(password: Object): Observable<any>{
-    return this.http.post<any>(`${this.ROOT_URL}/reset-password/change-password`, password, this.request_options);
+  changePassword(password: Object): Observable<HttpResponse<any>>{
+    return this.http.post<any>(`${this.ROOT_URL}/auth/reset-password/change-password`, password, this.request_options);
   }
   
   /**
-   * **signOut Function** - SignOut User from app
+   * **Sends an HTTP request to the backend to sign out**
    */
   signOut(): void{
-    this.http.post<any>(`${this.ROOT_URL}/logout`, this.currentUser, this.request_options).subscribe({
+    this.http.post<any>(`${this.ROOT_URL}/auth/logout`, this.currentUser, this.request_options).subscribe({
       next: () => {
         this.logged_user = false;
         this.currentUser = new User();
-        this.CookieService.delete('ticket_filter_options');
-        this.CookieService.delete('t_code');
+        this.deleteSessionCookies();
         this.router.navigate(['home']); 
       },
-      error: (err: any) => {
+      error: () => {
         this.logged_user = false;
         this.currentUser = new User(); 
-        this.CookieService.delete('ticket_filter_options');
-        this.CookieService.delete('t_code');
+        this.deleteSessionCookies();
         this.router.navigate(['home']);
-
       }
     });
   }
 
   /**
-   * **getUserInfo Function** - Return info of current user if user is logged | new User if user is not logged
+   * **Return info of current user if user is logged | new User() if user is not logged**
    * @return {User} User object
    */
   getUserInfo(): User{
@@ -95,32 +92,33 @@ export class AuthService {
   }
 
   /**
-   * **isLoggedIn Function** - Check if the user is logged in or not by pulling the user information out of the 'access_token' cookie
+   * **Check if the user is logged in or not by pulling the user information out of the 'access_token' cookie**
    * @return {boolean} True if is logged | Flase if not
    */
   get isLoggedIn(): boolean {
-    let authToken = this.CookieService.check('access_token');
+    let jwt_cookie_exist: boolean = this.CookieService.check('access_token');
     try {
-      if (authToken == true){
+      if (jwt_cookie_exist == true){
+        let access_token: string = this.CookieService.get('access_token');
         this.logged_user = true;
-        this.currentUser = this.getDecodedAccessToken(this.CookieService.get('access_token'))['user'];
-        return true
+        this.currentUser = this.getDecodedAccessToken(access_token)['user'];
+        return true;
       } else {
         this.logged_user = false; 
-        this.currentUser = new User()
-        return false
+        this.currentUser = new User();
+        this.deleteSessionCookies();
+        return false;
       }
     } catch(error) {
       this.logged_user = false; 
-      this.currentUser = new User()
-      this.CookieService.delete('ticket_filter_options');
-      this.CookieService.delete('t_code');
+      this.currentUser = new User();
+      this.deleteSessionCookies();
       return false
     }
   }
 
   /**
-   * **getDecodedAccessToken Function** - Decode 'access_token' from cookies
+   * **Decodes given JWT Token**
    * @return {any} Return JWT content decoded
    */
   getDecodedAccessToken(token: string): any | null {
@@ -132,7 +130,7 @@ export class AuthService {
   }
 
   /**
-   * **getAccessToken Function** - Get 'access_token' from cookies
+   * **Get 'access_token' from cookies**
    * @return {string} Return JWT 'access_token'
    */
   getAccessToken(): string {
@@ -140,10 +138,11 @@ export class AuthService {
   }
 
   /**
-   * **setAccessToken Function** - Set cookie 'access_token'
+   * **Delete cookies related with logged user**
    */
-  setAccessToken(token: string): void{
-    this.CookieService.set('access_token', token)
+  deleteSessionCookies(): void {
+    this.CookieService.delete('ticket_filter_options');
+    this.CookieService.delete('ticket_code');
   }
-
+  
 }

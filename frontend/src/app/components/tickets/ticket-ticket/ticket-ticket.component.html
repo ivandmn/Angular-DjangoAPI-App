@@ -47,11 +47,11 @@
             <p [ngClass]="{'user-msg-right': message.type == 'P'}" *ngIf="message.type == 'P'">{{user_question}}</p>
             <p [ngClass]="{'msg-right': message.type == 'P', 'msg-left': message.type == 'R'}">{{message.text1 + message.text2 + message.text3}}</p>
             <a [ngClass]="{'time-msg-right': message.type == 'P', 'time-msg-left': message.type == 'R'}">{{message.date | ddMmYyyyHHMMDate}} <p *ngIf="message.time != '00:00:00'" [ngClass]="{'time-used-msg-right': message.type == 'P', 'time-used-msg-left': message.type == 'R'}">{{message.time}}</p></a>
-            <img *ngIf="message.file" src="../../assets/images/file.png" [ngClass]="{'file-msg-right': message.type == 'P', 'file-msg-left': message.type == 'R'}" (click)="getFile(message.file)">
+            <img *ngIf="message.file" src="../../assets/images/file.png" [ngClass]="{'file-msg-right': message.type == 'P', 'file-msg-left': message.type == 'R'}" (click)="downloadFile(message.file)">
         </div>
     </div>
     <div class="row m-2" id="ticket-w-container">
-        <form [formGroup]="sendTicketMsgForm" method="post" class="row mh-100" (ngSubmit)="sendNewMessage()">
+        <form [formGroup]="sendTicketMsgForm" method="post" class="row mh-100" (ngSubmit)="sendMsg()">
             <div class="col-md-7 p-0">
                 <textarea id="message-textarea-container" class="h-100 col-md-12 w-100 p-2" formControlName="description"></textarea>
             </div> 
@@ -59,13 +59,8 @@
                 <div class="col-md-12 m-2">
                     <label for="file col-md-12">F.Adjunto</label>
                     <div class="col-md-12">
-                        <input [disabled]="uploadingFile" class="form-control d-inline w-75" type="file" id="file" (change)="onChangeFile($event)">
-                        <span *ngIf="uploadingFile" class="loader ms-2 align-middle"></span>
-                        <span *ngIf="uploadingFile" class="ms-2 align-middle">Loading File</span>
-                        <img *ngIf="fileUpload" class='file-uploaded-check-img ms-2 align-middle' src="../../assets/images/check_icon_green.svg">
-                        <span *ngIf="fileUpload" class="ms-2 align-middle text-success">Archivo subido</span>
+                        <input class="form-control d-inline" formControlName="file" type="file" (change)="onChangeFile($event)">
                     </div>
-
                 </div>
                     
                 <div class="col-md-12 m-2">
@@ -73,9 +68,18 @@
                     <label class="col-md-6 ps-2 text-end" *ngIf="current_user.rol == 'admin'"><input formControlName="time" type=time> Tiempo (HH/MM)</label>
                 </div>
                 <div class="col-md-12 m-2">
-                    <input class="col-md-12" type="submit" value="Enviar" [disabled]="(sendTicketMsgForm.controls['description'].invalid && sendTicketMsgForm.controls['file'].invalid) || sendTicketMsgForm.controls['description'].value.length > 765 || uploadingFile">
+                    <input class="col-md-12" type="submit" value="Enviar" [disabled]="(sendTicketMsgForm.controls['description'].invalid && sendTicketMsgForm.controls['file'].invalid) || sendTicketMsgForm.controls['description'].value.length > 765">
                 </div>
             </div>
         </form>
+    </div>
+</div>
+
+
+<div class="modal fade bd-example-modal-lg" data-backdrop="static" data-keyboard="false" tabindex="-1">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content" style="width: 48px">
+            <span class="fa fa-spinner fa-spin fa-3x"></span>
+        </div>
     </div>
 </div>

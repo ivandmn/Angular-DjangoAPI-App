@@ -17,6 +17,14 @@ from django.urls import path, include, re_path
 from django.views.generic import TemplateView
 
 urlpatterns = [
-    re_path(r'^(?!api).*$', TemplateView.as_view(template_name="index.html"), name="index"),
+    path('', TemplateView.as_view(template_name="index.html"), name="index"),
+    path('log-in', TemplateView.as_view(template_name="index.html"), name="index"),
+    path('home', TemplateView.as_view(template_name="index.html"), name="index"),
+    path('user-profile', TemplateView.as_view(template_name="index.html"), name="index"),
+    path('tickets/list', TemplateView.as_view(template_name="index.html"), name="index"),
+    path('tickets/create', TemplateView.as_view(template_name="index.html"), name="index"),
+    path('tickets/ticket', TemplateView.as_view(template_name="index.html"), name="index"),
+    path('pwbi/home', TemplateView.as_view(template_name="index.html"), name="index"),
+    # re_path(r'^(?!api).*$', TemplateView.as_view(template_name="index.html"), name="index"),
     path('api/', include('api.urls')),
 ]
