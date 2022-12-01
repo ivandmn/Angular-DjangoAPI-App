@@ -14,37 +14,23 @@ export class LoginComponent implements OnInit{
 
   //Login Form Group
   loginForm: FormGroup = new FormGroup({
-    username: new FormControl('',[
-      Validators.required,
-      Validators.maxLength(15)
-    ]),
-    password: new FormControl('',[
-      Validators.required,
-      Validators.maxLength(100)
-    ])
+    username: new FormControl('', [Validators.required,Validators.maxLength(15)]),
+    password: new FormControl('', [Validators.required,Validators.maxLength(100)])
   });
 
   //Forgot Password Form Group
   forgotPasswordForm: FormGroup = new FormGroup({
-    email: new FormControl('',[
-      Validators.required,
-      Validators.pattern("^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$")
-    ])
+    email: new FormControl('',[Validators.required,Validators.pattern("^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$")])
   });
 
   //Resey Key Form Group
   validateResetKeyForm: FormGroup = new FormGroup({
-    key: new FormControl('', [
-      Validators.required,
-    ])
+    key: new FormControl('', [Validators.required,])
   });
 
   //Change Password Form Group
   changePasswordForm: FormGroup = new FormGroup({
-    password: new FormControl('', [
-      Validators.required,
-      Validators.maxLength(100),
-    ])
+    password: new FormControl('', [Validators.required,Validators.maxLength(100),])
   });
 
   //Variables to show error messages

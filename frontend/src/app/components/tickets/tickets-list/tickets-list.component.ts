@@ -6,6 +6,7 @@ import { TicketH } from 'src/app/models/ticket-h.model';
 import { Router } from '@angular/router';
 import {Location} from '@angular/common';
 import { FormGroup, Validators, FormControl } from '@angular/forms';
+import { CookieService } from 'ngx-cookie-service';
  
 @Component({
   selector: 'app-tickets-list',
@@ -30,29 +31,33 @@ export class TicketsListComponent implements OnInit {
 
   //Ticket List options Form Group
   ticketsListForm: FormGroup = new FormGroup({
-    manager: new FormControl('',[
-      Validators.required
-    ]),
-    username: new FormControl({value: '' , disabled: true},[
-      Validators.required
-    ]),
-    state: new FormControl('A',[
-      Validators.required
-    ]),
-    category: new FormControl('',[
-      Validators.required
-    ]),
+    manager: new FormControl('',[Validators.required]),
+    username: new FormControl({value: '' , disabled: true},[Validators.required]),
+    state: new FormControl('A',[Validators.required]),
+    category: new FormControl('',[Validators.required]),
   });
 
-  constructor(private authService: AuthService, private ticketService: TicketService, private router: Router, public location: Location) { }
+  constructor(private authService: AuthService, private ticketService: TicketService, private router: Router, public location: Location, private cookieService: CookieService) { }
 
   ngOnInit(): void {
     //Get data of current user
     this.current_user = this.authService.getUserInfo();
+    //Set filter options saved on cookies if cookie exist
+    if(this.ticketService.getTicketsFilterOptionsFromCookies() != null) {
+      this.ticketsListForm.patchValue(this.ticketService.getTicketsFilterOptionsFromCookies())
+    }
+    //Set page saved on cookies if  cookie exist
+    if(this.ticketService.getTicketsPageFromCookies() != null){
+      this.page = this.ticketService.getTicketsPageFromCookies()
+    }
+    //Get tickets count
+    this.getTicketsCount()
     //Get current ticket categories
     this.getTicketCategories()
     //Get current managers
     this.getManagers()
+    //Get tickets
+    this.getTickets()
 
     //If current user is admin, enable user select and set manager select value to current user username
     if(this.current_user.rol == 'admin'){
@@ -65,23 +70,13 @@ export class TicketsListComponent implements OnInit {
       this.ticketsListForm.controls['username'].setValue(this.current_user.username);
     }
 
-    //Set filter options saved on cookies if cookie exist
-    if(this.ticketService.getFilterOptionsFromCookies() != null) {
-      this.ticketsListForm.patchValue(this.ticketService.getFilterOptionsFromCookies())
-    }
-
-    //Get tickets count
-    this.getTicketsCount()
-
-    //Get tickets
-    this.getTickets()
-
     //If filter options changes getTickets with new options and save options in cookies
     this.ticketsListForm.valueChanges.subscribe(() => {
       this.getTicketsCount()
       this.getTickets()
-      this.ticketService.saveFilterOptionsInCookies(this.ticketsListForm.getRawValue())
+      this.ticketService.saveTicketsFilterOptionsInCookies(this.ticketsListForm.getRawValue())
       this.page = 1
+      this.ticketService.saveTicketsPageFromCookies(this.page)
     })
   }
 
@@ -104,9 +99,7 @@ export class TicketsListComponent implements OnInit {
     this.ticketService.getTickets(options_filter).subscribe({
       next: (response: any) => {
         this.tickets = response
-      },
-      error: (err: any) => {},
-      complete: () => {}
+      }
     });
   }
 
@@ -114,9 +107,7 @@ export class TicketsListComponent implements OnInit {
     this.ticketService.getCategories().subscribe({
       next: (response: any) => {
         this.ticket_categories = response
-      },
-      error: (err: any) => {},
-      complete: () => {}
+      }
     });
   }
 
@@ -124,9 +115,7 @@ export class TicketsListComponent implements OnInit {
     this.ticketService.getManagers().subscribe({
       next: (response: any) => {
         this.managers = response
-      },
-      error: (err: any) => {},
-      complete: () => {}
+      }
     });
   }
 
@@ -134,9 +123,7 @@ export class TicketsListComponent implements OnInit {
     this.ticketService.getUsers().subscribe({
       next: (response: any) => {
         this.users = response
-      },
-      error: (err: any) => {},
-      complete: () => {}
+      }
     });
   }
 
@@ -144,14 +131,13 @@ export class TicketsListComponent implements OnInit {
     this.ticketService.getTicketsCount(this.ticketsListForm.getRawValue()).subscribe({
       next: (response: any) => {
         this.itemsCount = response
-      },
-      error: (err: any) => {},
-      complete: () => {}
+      }
     });
   }
 
   paginationChange(event: any){
     this.page = event
+    this.ticketService.saveTicketsPageFromCookies(this.page)
     this.getTickets()
   }
 }

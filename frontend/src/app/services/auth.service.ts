@@ -141,7 +141,8 @@ export class AuthService {
    * **Delete cookies related with logged user**
    */
   deleteSessionCookies(): void {
-    this.CookieService.delete('ticket_filter_options');
+    this.CookieService.delete('tickets_filter_options');
+    this.CookieService.delete('tickets_page');
     this.CookieService.delete('ticket_code');
   }
   

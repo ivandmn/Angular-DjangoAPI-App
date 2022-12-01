@@ -1,3 +1,6 @@
-__pycache__/
 backend/.env
 backend/storage-files
+backend/api/__pycache__
+backend/api/utils/__pycache__
+backend/api/migrations/__pycache__
+backend/main/__pycache__

@@ -1,39 +1,29 @@
 1. Remove Spaces
 
-Update 
-	[SS_SQL_HANA].[dbo].[SS_USER]
-SET email = LTRIM(RTRIM(email))
+	Update [SS_SQL_HANA].[dbo].[SS_USER] SET email = LTRIM(RTRIM(email))
 
-Update 
-	[SS_SQL_HANA].[dbo].[SS_USER]
-SET email = TRIM(email)
+	Update [SS_SQL_HANA].[dbo].[SS_USER] SET email = TRIM(email)
 
 2. Change Type of column
 
-ALTER TABLE [SS_SQL_HANA].[dbo].[SS_USER] ALTER COLUMN email nvarchar(60)
+	ALTER TABLE [SS_SQL_HANA].[dbo].[SS_USER] ALTER COLUMN email nvarchar(60)
+
+3. Add new column to a table
+
+	ALTER TABLE [SS_SQL_HANA].[dbo].[SS_Adm_Casos_H] ADD viewed int
+
+	UPDATE [SS_SQL_HANA].[dbo].[SS_Adm_Casos_H] SET viewed  = 1
+
+	1 -> visto 
+	0 -> no visto
+
+	----------------------------------------------------------------------
+	ALTER TABLE [SS_SQL_HANA].[dbo].[SS_USER] ADD powerbi_permissions [nvarchar](20)
+
+	UPDATE [SS_SQL_HANA].[dbo].[SS_USER] SET [powerbi_permissions]  = '1;2;3;4;5;6;7;8'
 
 
-----------------------------------------------------------------------------------------------------
-
-ALTER TABLE [SS_SQL_HANA].[dbo].[SS_Adm_Casos_H]
-ADD viewed int
-
-UPDATE [SS_SQL_HANA].[dbo].[SS_Adm_Casos_H]
-SET viewed  = 1
-
-
-ALTER TABLE [SS_SQL_HANA].[dbo].[SS_USER]
-ADD powerbi_permissions [nvarchar](20)
-
-UPDATE [SS_SQL_HANA].[dbo].[SS_USER]
-SET [powerbi_permissions]  = '1;2;3;4;5;6;7;8'
-
-
-
-1 -> visto 
-0 -> no visto
-
-
+--------------------------------------------------------------------------------------------------------------------------
 USE [SS_SQL_HANA]
 GO
 
@@ -73,7 +63,7 @@ INSERT INTO [dbo].[SS_POWERBI_H]
 	 ('Análisis Stock', 'ANSCK')
 
 
------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------
 
 USE [SS_SQL_HANA]
 GO

@@ -14,6 +14,8 @@ export class AuthNegationGuard implements CanActivate {
         this.router.navigate(['home']).then(() => {
           this.toastrService.toastrConfig.timeOut = 2000
           this.toastrService.toastrConfig.positionClass = 'toast-top-center'
+          this.toastrService.toastrConfig.closeButton = true
+          this.toastrService.toastrConfig.maxOpened = 6
           this.toastrService.error('Acceso no permitido')
         })
         return false;

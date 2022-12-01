@@ -28,14 +28,14 @@
                 </form>
             </div>
             <div class="col-lg-2 text-end ms-auto">
-                <button type="button" class="me-2" *ngIf="ticket.state == 'A'">
-                    <img title="cerrar_ticket" class="back-button" value="Cerrar Ticket" (click)="closeTicket()" src="assets/images/unlock.png">
+                <button type="button" class="me-2 mt-2" *ngIf="ticket.state == 'A'">
+                    <img title="cerrar_ticket" class="option-button" value="Cerrar Ticket" (click)="closeTicket()" src="assets/images/unlock.png">
                 </button>
-                <button type="button" *ngIf="ticket.state == 'C'" class="me-2">
-                    <img title="reabrir_ticket" class="back-button" value="Reabrir Ticket" (click)="openTicket()" src="assets/images/lock.png">
+                <button type="button" class="me-2 mt-2" *ngIf="ticket.state == 'C'">
+                    <img title="reabrir_ticket" class="option-button" value="Reabrir Ticket" (click)="openTicket()" src="assets/images/lock.png">
                 </button>
-                <button type="button" routerLink="/tickets/list">
-                    <img title="back-button" class="back-button" src="assets/images/back_icon.svg">
+                <button type="button" class="mt-2" routerLink="/tickets/list">
+                    <img title="back-button" class="option-button" src="assets/images/back_icon.svg">
                 </button>
             </div>
         </div>
@@ -51,7 +51,7 @@
         </div>
     </div>
     <div class="row m-2" id="ticket-w-container">
-        <form [formGroup]="sendTicketMsgForm" method="post" class="row mh-100" (ngSubmit)="sendMsg()">
+        <form [formGroup]="msgForm" method="post" class="row mh-100" (ngSubmit)="sendMsg()">
             <div class="col-md-7 p-0">
                 <textarea id="message-textarea-container" class="h-100 col-md-12 w-100 p-2" formControlName="description"></textarea>
             </div> 
@@ -68,18 +68,18 @@
                     <label class="col-md-6 ps-2 text-end" *ngIf="current_user.rol == 'admin'"><input formControlName="time" type=time> Tiempo (HH/MM)</label>
                 </div>
                 <div class="col-md-12 m-2">
-                    <input class="col-md-12" type="submit" value="Enviar" [disabled]="(sendTicketMsgForm.controls['description'].invalid && sendTicketMsgForm.controls['file'].invalid) || sendTicketMsgForm.controls['description'].value.length > 765">
+                    <input class="col-md-12" type="submit" value="Enviar" [disabled]="msgForm.invalid || msgForm.disabled">
                 </div>
             </div>
         </form>
     </div>
 </div>
 
-
-<div class="modal fade bd-example-modal-lg" data-backdrop="static" data-keyboard="false" tabindex="-1">
+<div class="modal bd-example-modal-lg" id="awaitBackendModal" data-backdrop="static" data-keyboard="false" tabindex="-1">
     <div class="modal-dialog modal-sm">
-        <div class="modal-content" style="width: 48px">
+        <div class="modal-content">
             <span class="fa fa-spinner fa-spin fa-3x"></span>
+            <div *ngIf="modalMsg" class='text-center mt-1 text-white'>{{modalMsg}}</div>
         </div>
     </div>
 </div>

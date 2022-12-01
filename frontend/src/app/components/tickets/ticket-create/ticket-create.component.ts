@@ -21,45 +21,44 @@ export class TicketsCreateComponent implements OnInit {
   users: Array<User> = [];
   ticket_categories: Array<any> = [];
 
-  uploadingFile: boolean = false;
-  fileUpload: boolean = false;
+  modalMsg: string = '';
 
-  createTicketForm: FormGroup = new FormGroup({
-    manager: new FormControl('',[
-      Validators.required
-    ]),
-    priority: new FormControl('1',[
-      Validators.required
-    ]),
-    username: new FormControl({value: this.current_user.username , disabled: true},[
-      Validators.required
-    ]),
-    file: new FormControl('',[
-    ]),
-    fileSource: new FormControl('',[
-    ]), 
-    category: new FormControl('GRAL',[
-      Validators.required
-    ]),
-    title: new FormControl('',[
-      Validators.required,
-      Validators.maxLength(60)
-    ]),
-    description: new FormControl('',[
-      Validators.maxLength(765)
-    ]),
+  ticketForm: FormGroup = new FormGroup({
+    manager: new FormControl('', [Validators.required]),
+    priority: new FormControl('1', [Validators.required]),
+    username: new FormControl({value: this.current_user.username , disabled: true}, [Validators.required]),
+    file: new FormControl(''),
+    fileSource: new FormControl(''), 
+    category: new FormControl('GRAL', [Validators.required]),
+    title: new FormControl('', [Validators.required,Validators.maxLength(60)]),
+    description: new FormControl('', [Validators.maxLength(765)]),
   });
 
   ngOnInit(): void {
-    this.toastrService.toastrConfig.timeOut = 2000
-    this.toastrService.toastrConfig.positionClass = 'toast-top-center'
+    this.configurateToastr()
     this.getManagers()
     this.getTicketCategories()
     
     if(this.current_user.rol == 'admin'){
-      this.createTicketForm.controls['username'].enable()
+      this.ticketForm.controls['username'].enable()
       this.getUsers()
     }
+  }
+
+  getManagers(): void {
+    this.ticketService.getManagers().subscribe({
+      next: (response: any) => {
+        this.managers = response
+      }
+    });
+  }
+
+  getTicketCategories(): void {
+    this.ticketService.getCategories().subscribe({
+      next: (response: any) => {
+        this.ticket_categories = response
+      }
+    });
   }
 
   getUsers(): void {
@@ -70,27 +69,87 @@ export class TicketsCreateComponent implements OnInit {
     });
   }
 
-  resetCreateTicketForm(): void{
-    this.createTicketForm.reset({manager: '', priority: '1', username: this.current_user.username, file: '', fileSource: '', category: 'GRAL', title: '', description: ''})
+  resetTicketForm(): void{
+    this.ticketForm.reset({manager: '', priority: '1', username: this.current_user.username, file: '', fileSource: '', category: 'GRAL', title: '', description: ''})
   }
 
-  createTicket(): void {
-    let ticket: any = this.createTicketForm.value
-    ticket['username'] = this.createTicketForm.get('username')?.getRawValue()
-    this.ticketService.createTicket(ticket).subscribe({
-      next: () => {
-        this.toastrService.success('Ticket Enviado')
-        this.resetCreateTicketForm()
-      }
-    });
+  sendTicket(): void {
+    //Save ticket object in variable
+    let ticket: any = this.ticketForm.getRawValue()
+    //Disable form and add request modal
+    this.ticketForm.disable()
+    this.onRequest('Creando Ticket')
 
-    
+    //Upload file if ticket msg have file and after upload send ticket
+    if(ticket['fileSource']){
+      this.fileService.upload(ticket['fileSource']).subscribe({
+        next: (response: any) => {
+          //Change filename message to backend filename
+          ticket['file'] = response['file_name'];
+          //Delete file from message object
+          delete ticket['fileSource'];
+          //Create ticket
+          this.ticketService.createTicket(ticket).subscribe({
+            next: () => {
+              this.requestFinished()
+              this.ticketForm.enable()
+              this.toastrService.success('Ticket Enviado')
+              this.resetTicketForm()
+            }, 
+            error: () => {
+              this.requestFinished()
+              this.ticketForm.enable()
+              this.toastrService.error('Ha sucedido un error, no se ha podido crear el ticket')
+              this.resetTicketForm()
+            }
+          });
+        },
+        error: () => {
+          this.requestFinished()
+          this.ticketForm.enable()
+          this.toastrService.error('Ha sucedido un error al subir el archivo, no se ha podido crear el ticket')
+          this.resetTicketForm()
+        }
+      });
+    //If ticket msg don't have a file create ticket
+    } else {
+      delete ticket['fileSource'];
+      //Create ticket
+      this.ticketService.createTicket(ticket).subscribe({
+        next: () => {
+          this.requestFinished()
+          this.ticketForm.enable()
+          this.toastrService.success('Ticket Enviado')
+          this.resetTicketForm()
+        }, 
+        error: () => {
+          this.requestFinished()
+          this.ticketForm.enable()
+          this.toastrService.error('Ha sucedido un error, no se ha podido crear el ticket')
+          this.resetTicketForm()
+        }
+      });
+    }
+  
   }
 
+  onChangeFile(event: Event){
+    let file: FileList | null = (event.target as HTMLInputElement).files;
+    if(file && file.length > 0){
+      this.ticketForm.patchValue({
+        fileSource: file[0]
+      })
+    } else {
+      this.ticketForm.patchValue({
+        fileSource: ''
+      })
+    }
+  }
+  
   showConfirmModal(msg: string, function_name: any, btn_discard: string = "No", btn_success: string = "Si"): void {
-    if(this.createTicketForm.controls['manager'].value !== "" || this.createTicketForm.controls['file'].value !== "" ||
-    this.createTicketForm.controls['title'].value !== "" || this.createTicketForm.controls['description'].value !== "" ||
-    this.createTicketForm.controls['username'].value !== this.current_user.username){
+    if(this.ticketForm.controls['manager'].value !== "" || this.ticketForm.controls['file'].value !== "" ||
+    this.ticketForm.controls['title'].value !== "" || this.ticketForm.controls['description'].value !== "" ||
+    this.ticketForm.controls['username'].value !== this.current_user.username){
       $('#confirmModal').modal("show");
       
       document.getElementById("confirmModalContent")!.innerHTML = `
@@ -107,7 +166,7 @@ export class TicketsCreateComponent implements OnInit {
       document.getElementById("modal-success-btn")!.addEventListener('click', () =>{
           switch(function_name){
             case "clear":
-              this.resetCreateTicketForm()
+              this.resetTicketForm()
               break;
             default:
               break;
@@ -116,7 +175,7 @@ export class TicketsCreateComponent implements OnInit {
     } else{
       switch(function_name){
         case "clear":
-          this.resetCreateTicketForm()
+          this.resetTicketForm()
           break;
         default:
           break;
@@ -124,56 +183,24 @@ export class TicketsCreateComponent implements OnInit {
     }
   }
 
-  getManagers(): void {
-    this.ticketService.getManagers().subscribe({
-      next: (response: any) => {
-        this.managers = response
-      },
-      error: (err: any) => {
-        switch(err.status){
-          case 401: {
-            break;
-          }
-          default: {}
-        }
-      },
-      complete: () => {}
-    });
-  }
-
-  onChangeFile(event: Event){
-    let file: FileList | null = (event.target as HTMLInputElement).files;
-    if(file && file.length > 0){
-      this.createTicketForm.patchValue({
-        fileSource: file[0]
-      })
-    } else {
-      this.createTicketForm.patchValue({
-        fileSource: ''
-      })
-    }
-  }
-
-  uploadFile(fileToUpload: File){
-    this.fileService.upload(fileToUpload).subscribe({
-      next: (response: any) => {
-        this.uploadingFile = false
-        this.createTicketForm.controls['file'].setValue(response['file_name'])
-        this.fileUpload = true
-      },
-      error: (err: any) => {},
-      complete: () => {}
-    });
+  onRequest(modal_msg: string = ''): void {
+    $('#awaitBackendModal').modal({backdrop: 'static', keyboard: false})  
+    $('#awaitBackendModal').modal('show')  
+    this.modalMsg = modal_msg
   }
   
-  getTicketCategories(): void {
-    this.ticketService.getCategories().subscribe({
-      next: (response: any) => {
-        this.ticket_categories = response
-      },
-      error: (err: any) => {},
-      complete: () => {}
-    });
+  requestFinished(): void {
+    setTimeout( () => {
+      $('#awaitBackendModal').modal('hide');
+      this.modalMsg = ''
+    },100)
+  }
+  
+  configurateToastr(): void {
+    this.toastrService.toastrConfig.timeOut = 2000
+    this.toastrService.toastrConfig.positionClass = 'toast-top-center'
+    this.toastrService.toastrConfig.closeButton = true
+    this.toastrService.toastrConfig.maxOpened = 6
   }
 }
 

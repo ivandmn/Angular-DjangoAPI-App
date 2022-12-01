@@ -4,7 +4,7 @@
             <div class="text-underline">Alta de nuevo ticket</div>
         </div>
         <div class="col-md-2 align-self-center text-center ms-auto mb-2">
-            <button type="button" class="options-button" [disabled]="createTicketForm.invalid" (click)="createTicket()">
+            <button type="button" class="options-button" [disabled]="ticketForm.invalid || ticketForm.disabled" (click)="sendTicket()">
                 <img title="check_icon" class="options-images" src="assets/images/check_icon.png">
             </button>
             <button type="button" class="options-button">
@@ -16,7 +16,7 @@
         </div>
     </div>
 
-    <form [formGroup]="createTicketForm" method="post">
+    <form [formGroup]="ticketForm" method="post">
         <div class="row m-0 ticket-background border-top border-dark">
             <div class="col-md-2 align-self-center mb-2">
                 <label for="gestor">Gestor</label>
@@ -43,7 +43,7 @@
             </div>
             <div class="col-md-6 align-self-center mb-2">
                 <label class="col-md-12" for="file">F.Adjunto</label>
-                <input class="form-control d-inline w-75" formControlName="file" type="file" id="file" (change)="onChangeFile($event)">
+                <input class="form-control d-inline" formControlName="file" type="file" id="file" (change)="onChangeFile($event)">
 
             </div>
         </div>
@@ -72,7 +72,7 @@
                     <div class="col-md-12 align-self-center mb-2">
                         <label for="description" class="text-primary">Descripción</label>
                         <textarea name="description" class="form-control p-3 border-secondary" formControlName="description" rows="7"></textarea>
-                        <div class="text-danger" *ngIf="createTicketForm.controls['description'].value.length > 765">Los mensajes no pueden tener más de 765 caracteres</div>
+                        <div class="text-danger" *ngIf="ticketForm.controls['description'].value.length > 765">Los mensajes no pueden tener más de 765 caracteres</div>
                     </div>
                 </div>
             </div>
@@ -83,6 +83,15 @@
 
 <div class="modal fade" id="confirmModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-sm" id="confirmModalContent"> 
+    </div>
+</div>
+
+<div class="modal bd-example-modal-lg" id="awaitBackendModal" data-backdrop="static" data-keyboard="false" tabindex="-1">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <span class="fa fa-spinner fa-spin fa-3x"></span>
+            <div *ngIf="modalMsg" class='text-center mt-1 text-white'>{{modalMsg}}</div>
+        </div>
     </div>
 </div>
 

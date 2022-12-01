@@ -16,16 +16,18 @@ import { ToastrService } from 'ngx-toastr';
   styleUrls: ['./ticket-ticket.component.css']
 })
 export class TicketsTicketComponent implements OnInit, AfterViewChecked  {
-
   current_user: User = new User()
   t_code: number | null = null;
   ticket: TicketH = new TicketH()
   ticket_messages: Array<TicketL> = [];
   managers: Array<User> | null = [];
+
   user_question: string | null = null;
   user_response: string | null = null;
+
+  modalMsg: string| null = "";
   
-  sendTicketMsgForm: FormGroup = new FormGroup({
+  msgForm: FormGroup = new FormGroup({
     description: new FormControl('',[Validators.maxLength(765)]),
     validation: new FormControl(false),
     time: new FormControl("00:00"),
@@ -45,8 +47,8 @@ export class TicketsTicketComponent implements OnInit, AfterViewChecked  {
   
 
   ngOnInit(): void {
-    this.toastrService.toastrConfig.timeOut = 2000
-    this.toastrService.toastrConfig.positionClass = 'toast-top-center'
+    //Configurate toastr Service
+    this.configurateToastr()
     //Get current user info
     this.current_user = this.authService.getUserInfo();
     //Get ticket code from cookie if cookie exist
@@ -57,14 +59,6 @@ export class TicketsTicketComponent implements OnInit, AfterViewChecked  {
     this.getManagers()
     //Get tickets messages
     this.getTicketMessages()
-  }
-
-  onRequest(): void {
-    $('.modal').modal('show');
-  }
-  
-  requestFinished(): void {
-    $('.modal').modal('hide');
   }
 
   getManagers(): void {
@@ -124,11 +118,11 @@ export class TicketsTicketComponent implements OnInit, AfterViewChecked  {
   onChangeFile(event: Event){
     let file: FileList | null = (event.target as HTMLInputElement).files;
     if(file && file.length > 0){
-      this.sendTicketMsgForm.patchValue({
+      this.msgForm.patchValue({
         fileSource: file[0]
       })
     } else {
-      this.sendTicketMsgForm.patchValue({
+      this.msgForm.patchValue({
         fileSource: ''
       })
     }
@@ -146,17 +140,16 @@ export class TicketsTicketComponent implements OnInit, AfterViewChecked  {
     });
   }
 
-  resetSendTicketMsgForm(): void {
-    this.sendTicketMsgForm.reset({description: '', validation: false, time: "00:00", file: '', fileSource: ''})
+  resetMsgForm(): void {
+    this.msgForm.reset({description: '', validation: false, time: "00:00", file: '', fileSource: ''})
   }
 
   sendMsg(): void {
     //Save msg object in variable
-    let msg: any = this.sendTicketMsgForm.getRawValue()
-    //Disable form
-    this.sendTicketMsgForm.disable()
-    this.onRequest()
-    console.log(msg)
+    let msg: any = this.msgForm.getRawValue()
+    //Disable form and add request modal
+    this.msgForm.disable()
+    this.onRequest('Enviando mensaje')
     //If current_user is admin enter if
     if(this.current_user.rol == 'admin'){
       //If validation check box is selected set validation to -1
@@ -187,45 +180,69 @@ export class TicketsTicketComponent implements OnInit, AfterViewChecked  {
           msg['file'] = response['file_name'];
           //Delete file from message object
           delete msg['fileSource'];
-          console.log(msg)
           //Create ticket message
           this.ticketService.createTicketMessage(msg).subscribe({
             next: () => {
-              this.sendTicketMsgForm.enable()
+              this.requestFinished()
+              this.msgForm.enable()
               this.toastrService.success('Mensaje de ticket enviado')
-              this.resetSendTicketMsgForm();
+              this.resetMsgForm();
               this.getTicketMessages()
             },
             error: () => {
-              this.sendTicketMsgForm.enable()
-              this.toastrService.error('No se ha podido enviar el mensaje')
-              this.resetSendTicketMsgForm();
+              this.requestFinished()
+              this.msgForm.enable()
+              this.toastrService.error('Ha sucedido un error, no se ha podido enviar el mensaje')
+              this.resetMsgForm();
             }
           });
         },
         error: () => {
-          this.toastrService.error('Error al subir el archivo')
-          this.resetSendTicketMsgForm();
+          this.requestFinished()
+          this.msgForm.enable()
+          this.toastrService.error('Ha sucedido un error al subir el archivo, no se ha podido enviar el mensaje')
+          this.resetMsgForm();
         }
       });
     //If msg don't have a file send message
     } else {
       delete msg['fileSource'];
-      console.log(msg)
       this.ticketService.createTicketMessage(msg).subscribe({
         next: () => {
-          this.sendTicketMsgForm.enable()
+          this.requestFinished()
+          this.msgForm.enable()
           this.toastrService.success('Mensaje de ticket enviado')
-          this.resetSendTicketMsgForm();
+          this.resetMsgForm();
           this.getTicketMessages()
         },
         error: () => {
-          this.sendTicketMsgForm.enable()
-          this.toastrService.error('No se ha podido enviar el mensaje')
-          this.resetSendTicketMsgForm();
+          this.requestFinished()
+          this.msgForm.enable()
+          this.toastrService.error('Ha sucedido un error, no se ha podido enviar el mensaje')
+          this.resetMsgForm();
         }
       });
     }
+  }
+
+  onRequest(modal_msg: string = ''): void {
+    $('#awaitBackendModal').modal({backdrop: 'static', keyboard: false})  
+    $('#awaitBackendModal').modal('show')  
+    this.modalMsg = modal_msg
+  }
+  
+  requestFinished(): void {
+    setTimeout( () => {
+      $('#awaitBackendModal').modal('hide');
+      this.modalMsg = ''
+    },100)
+  }
+
+  configurateToastr(): void {
+    this.toastrService.toastrConfig.timeOut = 2000
+    this.toastrService.toastrConfig.positionClass = 'toast-top-center'
+    this.toastrService.toastrConfig.closeButton = true
+    this.toastrService.toastrConfig.maxOpened = 6
   }
 }
 

@@ -391,7 +391,6 @@ def upload_file(request: HttpRequest):
         else:
             file = request.FILES['file']
             file_name: str = default_storage.save(file.name, file)
-            print(file_name)
             return Response(data={'file_name': file_name}, status=status.HTTP_200_OK, template_name='api.api.html')
     except Exception as e:
         print("An exception occurred - " + format(e))

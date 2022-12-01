@@ -11,8 +11,6 @@ export class TicketService {
   ROOT_URL: string = 'http://localhost:8000/api';
   request_options: Object = {headers: new HttpHeaders({'Content-Type':'application/json'}), withCredentials: true, responseType: "json" as const};
 
-  t_code: number | null = null;
-
   constructor(private http: HttpClient, private CookieService: CookieService) { }
 
   getCategories(){
@@ -67,30 +65,54 @@ export class TicketService {
     return this.http.post<any>(`${this.ROOT_URL}/tickets/change-ticket-manager`, {'t_code': t_code, 'manager': manager}, this.request_options);
   }
 
-  getTicketCodeFromCookies(){
-    let ticket_code= this.CookieService.check('ticket_code');
-    if (ticket_code == true){
-      let t_code = Number(this.CookieService.get('ticket_code'))
-      this.t_code = t_code
-    }
-    return this.t_code
-  }
 
   saveTicketCodeInCookies(t_code: number | null) {
-    this.CookieService.set('ticket_code', t_code!.toString())
+    this.CookieService.set('ticket_code', JSON.stringify(t_code!.toString()))
   }
 
-  saveFilterOptionsInCookies(options: any){
-    this.CookieService.set('ticket_filter_options', JSON.stringify(options))
-  }
-
-  getFilterOptionsFromCookies() {
-    let cookieExist = this.CookieService.check('ticket_filter_options');
-    if(cookieExist){
-      return JSON.parse(this.CookieService.get('ticket_filter_options'))
-    } else {
+  getTicketCodeFromCookies(): number | null{
+    try {
+      let cookieExist = this.CookieService.check('ticket_code');
+      if (cookieExist){
+        return Number(JSON.parse(this.CookieService.get('ticket_code')))
+      } else {
+        return null
+      }
+    } catch(error){
       return null
     }
   }
 
+  saveTicketsFilterOptionsInCookies(options: any): void{
+    this.CookieService.set('tickets_filter_options', JSON.stringify(options))
+  }
+
+  getTicketsFilterOptionsFromCookies() {
+    try {
+      let cookieExist = this.CookieService.check('tickets_filter_options');
+      if(cookieExist){
+        return JSON.parse(this.CookieService.get('tickets_filter_options'))
+      } else {
+        return null
+      }
+    } catch(error){
+      return null
+    }
+  }
+  saveTicketsPageFromCookies(tickets_page: number): void{
+    this.CookieService.set('tickets_page', JSON.stringify(tickets_page.toString()))
+  }
+
+  getTicketsPageFromCookies(): number{
+    try {
+      let cookieExist = this.CookieService.check('tickets_page');
+      if(cookieExist){
+        return Number(JSON.parse(this.CookieService.get('tickets_page')))
+      } else {
+        return 1
+      }
+    } catch(error){
+      return 1
+    }
+  }
 }
