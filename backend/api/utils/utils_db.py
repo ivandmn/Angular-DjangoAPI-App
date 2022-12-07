@@ -3,6 +3,7 @@ from api import models as db
 from . import utils_custom_exceptions as c_exceptions 
 
 from django.db.models import Max
+from django.db.models import Q
 
 import textwrap
 import datetime
@@ -122,13 +123,20 @@ def get_tickets(ticket_options: dict) -> list[dict[str, Any]] | list:
         category_tickets_hash_map = {'GRAL': 'GENERAL', 'SAP': 'SAP', 'PB1':'POWER BI', 'GESC': 'GESTION COMERCIAL', 'GMAIL':'GMAL'}
         p: int = ticket_options['page']
         ixp: int = ticket_options['itemsPerPage']
-        parsed_options = {'gestor': ticket_options['manager'], 'usuario': ticket_options['username'], 'estado': ticket_options['state'], 'categoria': ticket_options['category']}
-        final_options = {k: v for k, v in parsed_options.items() if v}
-        result_query: list[db.SsAdmCasosH] = db.SsAdmCasosH.objects.filter(**final_options).order_by('-prioridad', 'f_alta')[(p-1)*ixp:p*ixp]
         index = (p-1)*ixp + 1
-        for row in result_query:
-            result.append({'code': row.code, 'date': row.f_alta, 'title': row.titulo, 'user': row.usuario.strip(), 'manager': row.gestor.strip(), 'category': category_tickets_hash_map[row.categoria], 'priority': priority_tickets_hash_map[row.prioridad], 'state': row.estado, 'position':  index, 'time': row.tiempo, 'validation': row.validacion, 'viewed': row.viewed, 'last_response_type': get_most_recent_message(row.code)})
-            index = index + 1
+        parsed_options = {'gestor': ticket_options['manager'], 'usuario': ticket_options['username'], 'estado': ticket_options['state'], 'categoria': ticket_options['category'], 'validacion': ticket_options['validation']}
+        final_options = {k: v for k, v in parsed_options.items() if v or v==0}
+        if(ticket_options['userMode'] == True):
+            result_query: list[db.SsAdmCasosH] = db.SsAdmCasosH.objects.filter(**final_options).filter(~Q(gestor=ticket_options['currentUser'])).order_by('-prioridad', 'f_alta')[(p-1)*ixp:p*ixp]
+            for row in result_query:
+                result.append({'code': row.code, 'date': row.f_alta, 'title': row.titulo, 'user': row.usuario.strip(), 'manager': row.gestor.strip(), 'category': category_tickets_hash_map[row.categoria], 'priority': priority_tickets_hash_map[row.prioridad], 'state': row.estado, 'position':  index, 'time': row.tiempo, 'validation': row.validacion, 'viewed': row.viewed, 'last_response_type': get_most_recent_message(row.code)})
+                index = index + 1
+        else:
+            result_query: list[db.SsAdmCasosH] = db.SsAdmCasosH.objects.filter(**final_options).order_by('-prioridad', 'f_alta')[(p-1)*ixp:p*ixp]
+            for row in result_query:
+                result.append({'code': row.code, 'date': row.f_alta, 'title': row.titulo, 'user': row.usuario.strip(), 'manager': row.gestor.strip(), 'category': category_tickets_hash_map[row.categoria], 'priority': priority_tickets_hash_map[row.prioridad], 'state': row.estado, 'position':  index, 'time': row.tiempo, 'validation': row.validacion, 'viewed': row.viewed, 'last_response_type': get_most_recent_message(row.code)})
+                index = index + 1
+        
         return result
     except Exception as e:
         raise c_exceptions.dbError(format(e))
@@ -143,11 +151,15 @@ def get_tickets_count(ticket_options: dict) -> int | None:
     Returns:
         rows (int): Tickets count with search options
     """
-    try: 
+    try:
         parsed_options = {'gestor': ticket_options['manager'], 'usuario': ticket_options['username'], 'estado': ticket_options['state'], 'categoria': ticket_options['category']}
         final_options = {k: v for k, v in parsed_options.items() if v}
-        rows: int = db.SsAdmCasosH.objects.filter(**final_options).count()
-        return rows
+        if(ticket_options['userMode'] == True):
+            rows: int = db.SsAdmCasosH.objects.filter(**final_options).filter(~Q(gestor=ticket_options['currentUser'])).count()
+            return rows
+        else:
+            rows: int = db.SsAdmCasosH.objects.filter(**final_options).count()
+            return rows
     except Exception as e:
         raise c_exceptions.dbError(format(e))
     
@@ -363,5 +375,47 @@ def change_ticket_manager(t_code: int, new_manager: str) -> int:
     try:
         rows_updated: int = db.SsAdmCasosH.objects.filter(code=t_code).update(gestor=new_manager)
         return rows_updated
+    except Exception as e:
+        raise c_exceptions.dbError(format(e))
+
+def change_ticket_priority(t_code: int, new_priority: int) -> int:
+    """
+    Change Ticket Priority - Update priority of ticket with the given t_code and new priority
+
+    Returns:
+        int - 1 if updated, 0 if not
+    """
+    try:
+        rows_updated: int = db.SsAdmCasosH.objects.filter(code=t_code).update(prioridad=new_priority)
+        return rows_updated
+    except Exception as e:
+        raise c_exceptions.dbError(format(e))
+
+def change_ticket_categroy(t_code: int, new_category: str) -> int:
+    """
+    Change Ticket Category - Update category of ticket with the given t_code and new category
+
+    Returns:
+        int - 1 if updated, 0 if not
+    """
+    try:
+        rows_updated: int = db.SsAdmCasosH.objects.filter(code=t_code).update(categoria=new_category)
+        return rows_updated
+    except Exception as e:
+        raise c_exceptions.dbError(format(e))
+
+    
+
+
+def get_powerbi_categories() -> list[dict[str, Any]] | list:
+    """
+    Get PowerBi Categories - Get all powerbi categories from database
+
+    Returns:
+        list - list with all power bi categories
+    """
+    try:
+        result_query = db.SsPowerbiH.objects.all().values('id','name', 'code')
+        return result_query
     except Exception as e:
         raise c_exceptions.dbError(format(e))

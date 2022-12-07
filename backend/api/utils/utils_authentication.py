@@ -6,6 +6,10 @@ from typing import Any
 from random import randint
 import jwt
 
+
+import datetime
+import pytz
+
 from .. import models as db
 from . import utils_templates_email as email_templates
 
@@ -27,12 +31,28 @@ def is_authenticated(request: HttpRequest) -> bool:
     encoded_token = get_jwt_access_token_from_request_header(request.headers.get('Authorization'))
     #Try to decode token 
     decoded_token = decode_jwt_access_token(encoded_token)
-    #If token is invalid, return False
+    #If token is invalid or expired, return False
     if not decoded_token:
         return False
     #If token is valid, return True
     else:
         return True
+
+def is_admin(request: HttpRequest) -> bool:
+    """
+    Is Admin - Check if user is admin
+    
+    Args:
+        request (HttpRequest): User request
+
+    Returns:
+        bool: Returns True if is admin or False if is not admin
+    """
+    if(request.session.get('rol') == 'admin'):
+        return True
+    else:
+        return False
+
 
 def login_user(request: HttpRequest, user: dict[str, Any]) -> None:
     """
@@ -55,7 +75,12 @@ def logout_user(request: HttpRequest) -> None:
     Args:
         request (HttpRequest): User request
     """
-    request.session.clear()
+    del request.session['username']
+    del request.session['name']
+    del request.session['email']
+    del request.session['rol']
+    request.session['logged'] = False
+
 
 def send_reset_password_email(email: str) -> str | None:
     """
@@ -107,7 +132,7 @@ def generate_jwt_access_token(user: dict[str, Any]) -> str | None:
         access_token (str | None): Returns access_token
     """
     try:
-        access_token: str = jwt.encode({"user": user}, config('SECRET_KEY'), algorithm="HS256")
+        access_token: str = jwt.encode({"user": user, "exp": datetime.datetime.now(tz=pytz.timezone(config("TIME_ZONE"))) + datetime.timedelta(days=1)}, config('SECRET_KEY'), algorithm="HS256")
         return access_token
     except Exception as e:
         print("An exception occurred - " + format(e))

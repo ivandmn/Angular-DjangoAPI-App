@@ -22,12 +22,24 @@ td{
     padding: 4px;
 }
 
-.ticket-background{
+.bg-ticket-blue{
     background-color: #68c5ed;
 }
 
-.bg-ticket-blue{
-    background-color: #68c5ed;
+.bg-ticket-usermode{
+    background-color: #93d16d;
+}
+
+.bg-ticket-usermode-response{
+    background-color: #51a62d;
+}
+
+.bg-ticket-closed {
+    background-color: #c4beab;
+}
+
+.bg-ticket-self {
+    background-color: #faac8c;
 }
 
 .tickets_options{
@@ -49,3 +61,6 @@ td{
     cursor: pointer;
 }
 
+.ticketsCount{
+    margin-left: 10px;
+}

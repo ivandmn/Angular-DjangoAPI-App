@@ -9,6 +9,7 @@ class loginSerializer(serializers.ModelSerializer):
     name = serializers.SerializerMethodField('get_name')
     email = serializers.SerializerMethodField('get_email')
     rol = serializers.SerializerMethodField('get_role')
+    powerbi_permissions = serializers.CharField()
     
     def get_role(self,obj):
         if obj.privilegios > 99:
@@ -26,7 +27,7 @@ class loginSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = models.SsUser
-        fields = ('code', 'username', 'name', 'email', 'rol')
+        fields = ('code', 'username', 'name', 'email', 'rol', 'powerbi_permissions')
         
 class shortUserSerializer(serializers.ModelSerializer):
     username = serializers.SerializerMethodField('get_username')
@@ -63,6 +64,7 @@ class getTicketSerializer(serializers.ModelSerializer):
     user = serializers.SerializerMethodField('get_user')
     manager = serializers.SerializerMethodField('get_manager')
     priority = serializers.CharField(source='prioridad')
+    category = serializers.CharField(source='categoria')
     state = serializers.CharField(source='estado')
     time = serializers.TimeField(source='tiempo')
     validation = serializers.IntegerField(source='validacion')
@@ -76,7 +78,7 @@ class getTicketSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = models.SsAdmCasosH
-        fields = ('code', 'date', 'title', 'user', 'manager', 'priority', 'state', 'time', 'validation', 'viewed')
+        fields = ('code', 'date', 'title', 'user', 'manager', 'priority', 'category', 'state', 'time', 'validation', 'viewed')
 
 class getTicketMsgsSerializer(serializers.ModelSerializer):
     code = serializers.IntegerField()

@@ -174,24 +174,6 @@ def get_tickets(request: HttpRequest):
         print("An exception occurred - " + format(e))
         return Response(data={'state':'Server Error'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR, template_name='api.api.html')
 
-@api_view(['POST'])
-@parser_classes([JSONParser])
-def get_tickets_count(request: HttpRequest):
-    try:
-        if not auth.is_authenticated(request):
-                response = Response(data={'state':'Authentication failed'}, status=status.HTTP_401_UNAUTHORIZED, template_name='api.api.html') 
-                response.set_cookie('access_token', '', 0)
-                return response
-        else:
-            #Get parsed content of request body
-            request_data: dict = request.data
-            tickets_count = utils_db.get_tickets_count(request_data)
-            #Return success to client
-            return Response(data=tickets_count, status=status.HTTP_200_OK, template_name='api.api.html')
-    except Exception as e:
-        print("An exception occurred - " + format(e))
-        return Response(data={'state':'Server Error'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR, template_name='api.api.html')
-
 @api_view(['POST'])  
 @parser_classes([JSONParser])
 def get_ticket(request: HttpRequest):
@@ -236,6 +218,26 @@ def get_tickets_msgs(request: HttpRequest):
         print("An exception occurred - " + format(e))
         return Response(data={'state':'Server Error'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR, template_name='api.api.html')
 
+@api_view(['POST'])
+@parser_classes([JSONParser])
+def get_tickets_count(request: HttpRequest):
+    try:
+        if not auth.is_authenticated(request):
+                response = Response(data={'state':'Authentication failed'}, status=status.HTTP_401_UNAUTHORIZED, template_name='api.api.html') 
+                response.set_cookie('access_token', '', 0)
+                return response
+        else:
+            #Get parsed content of request body
+            request_data: dict = request.data
+            tickets_count = utils_db.get_tickets_count(request_data)
+            #Return success to client
+            return Response(data=tickets_count, status=status.HTTP_200_OK, template_name='api.api.html')
+    except Exception as e:
+        print("An exception occurred - " + format(e))
+   
+        return Response(data={'state':'Server Error'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR, template_name='api.api.html')
+        
+        
 @api_view(['POST'])
 @parser_classes([JSONParser]) 
 def create_ticket_msg(request: HttpRequest):
@@ -353,6 +355,44 @@ def change_ticket_manager(request: HttpRequest):
         print("An exception occurred - " + format(e))
         return Response(data={'state':'Server Error'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR, template_name='api.api.html')
 
+@api_view(['POST'])
+@parser_classes([JSONParser])
+def change_ticket_priority(request: HttpRequest):
+    try:
+        if not auth.is_authenticated(request):
+            response = Response(data={'state':'Authentication failed'}, status=status.HTTP_401_UNAUTHORIZED, template_name='api.api.html') 
+            response.set_cookie('access_token', '', 0)
+            return response
+        else:
+            #Get parsed content of request body
+            request_data: dict = request.data
+            t_code = request_data.get('t_code')
+            new_priority = request_data.get('priority')
+            updated: int = utils_db.change_ticket_priority(t_code, new_priority)
+            return Response(data={'state': 'success'}, status=status.HTTP_200_OK, template_name='api.api.html')
+    except Exception as e:
+        print("An exception occurred - " + format(e))
+        return Response(data={'state':'Server Error'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR, template_name='api.api.html')
+
+@api_view(['POST'])
+@parser_classes([JSONParser])
+def change_ticket_category(request: HttpRequest):
+    try:
+        if not auth.is_authenticated(request):
+            response = Response(data={'state':'Authentication failed'}, status=status.HTTP_401_UNAUTHORIZED, template_name='api.api.html') 
+            response.set_cookie('access_token', '', 0)
+            return response
+        else:
+            #Get parsed content of request body
+            request_data: dict = request.data
+            t_code = request_data.get('t_code')
+            new_category = request_data.get('category')
+            updated: int = utils_db.change_ticket_categroy(t_code, new_category)
+            return Response(data={'state': 'success'}, status=status.HTTP_200_OK, template_name='api.api.html')
+    except Exception as e:
+        print("An exception occurred - " + format(e))
+        return Response(data={'state':'Server Error'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR, template_name='api.api.html')
+
 @api_view(['GET'])
 def get_categories(request: HttpRequest):
     try:
@@ -435,6 +475,21 @@ def download_file(request: HttpRequest):
                 return response
             else:
                 return Response(data={'state': 'Error getting file'}, status=status.HTTP_200_OK, template_name='api.api.html')
+    except Exception as e:
+        print("An exception occurred - " + format(e))
+        return Response(data={'state':'Server Error'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR, template_name='api.api.html')
+
+@api_view(['GET'])
+def get_powerbi_categories(request: HttpRequest):
+    try:
+        if not auth.is_authenticated(request):
+            response = Response(data={'state':'Authentication failed'}, status=status.HTTP_401_UNAUTHORIZED, template_name='api.api.html') 
+            response.set_cookie('access_token', '', 0)
+            return response
+        else:
+            powerbi_cat = utils_db.get_powerbi_categories()
+            print(powerbi_cat)
+            return Response(data=powerbi_cat, status=status.HTTP_200_OK, template_name='api.api.html')
     except Exception as e:
         print("An exception occurred - " + format(e))
         return Response(data={'state':'Server Error'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR, template_name='api.api.html')

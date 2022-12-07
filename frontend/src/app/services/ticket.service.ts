@@ -65,6 +65,13 @@ export class TicketService {
     return this.http.post<any>(`${this.ROOT_URL}/tickets/change-ticket-manager`, {'t_code': t_code, 'manager': manager}, this.request_options);
   }
 
+  changeTicketPriority(t_code: number | null, priority: string | null){
+    return this.http.post<any>(`${this.ROOT_URL}/tickets/change-ticket-priority`, {'t_code': t_code, 'priority': priority}, this.request_options);
+  }
+
+  changeTicketCategory(t_code: number | null, category: string | null){
+    return this.http.post<any>(`${this.ROOT_URL}/tickets/change-ticket-category`, {'t_code': t_code, 'category': category}, this.request_options);
+  }
 
   saveTicketCodeInCookies(t_code: number | null) {
     this.CookieService.set('ticket_code', JSON.stringify(t_code!.toString()))

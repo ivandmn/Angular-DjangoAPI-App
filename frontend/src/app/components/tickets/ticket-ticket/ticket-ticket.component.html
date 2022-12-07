@@ -19,15 +19,34 @@
             </div>
         </div>
         <div class="row m-2">
-            <div class="col-lg-4">
+            <div class="col-xl-4 mb-1">
                 <form [formGroup]="managerSelect">
                     <label for="gestor">Gestor</label>
-                    <select class="form-select d-inline w-75 ms-2" id="managerForm" formControlName="manager" title="gestor" name="gestor" (change)=changeTicketManager()>
+                    <select class="form-select d-inline w-auto ms-2" [attr.disabled]="current_user.rol != 'admin'" formControlName="manager" title="gestor" name="gestor" (change)=changeTicketManager()>
                         <option *ngFor="let manager of managers" [value]="manager.username" [selected]="ticket.manager == manager.username?true:false">{{manager.name}}</option>
                     </select>
                 </form>
             </div>
-            <div class="col-lg-2 text-end ms-auto">
+            <div class="col-xl-3 mb-1">
+                <form [formGroup]="categorySelect">
+                    <label for="categoria">Categoria</label>
+                    <select class="form-select d-inline w-auto ms-2" [attr.disabled]="current_user.rol != 'admin'" formControlName="category" title="categoria" name="categoria" (change)=changeTicketCategory()>
+                        <option *ngFor="let category of ticket_categories" value="{{category.category}}">{{category.category_name}}</option>
+                    </select>
+                </form>
+            </div>
+            <div class="col-xl-3 mb-1">
+                <form [formGroup]="prioritySelect">
+                    <label for="prioridad">Prioridad</label>
+                    <select class="form-select d-inline w-auto ms-2" [attr.disabled]="current_user.rol != 'admin'" formControlName="priority" title="prioridad" name="prioridad" (change)=changeTicketPriority()>
+                        <option value="1" selected>BAJA</option>
+                        <option value="2">MEDIA</option>
+                        <option value="3">ALTA</option>
+                        <option value="4">URGENTE</option>
+                    </select>
+                </form>
+            </div>
+            <div class="col-xl-2 text-end ms-auto">
                 <button type="button" class="me-2 mt-2" *ngIf="ticket.state == 'A'">
                     <img title="cerrar_ticket" class="option-button" value="Cerrar Ticket" (click)="closeTicket()" src="assets/images/unlock.png">
                 </button>
@@ -43,8 +62,8 @@
 
     <div class="border border-dark m-2 overflow-auto" #scrollChat [scrollTop]="ticket_messages.length == 0 ? 0: scrollChat.scrollHeight" id="ticket-container">
         <div class="col-9" *ngFor="let message of ticket_messages" [ngClass]="{'right': message.type == 'P', 'left': message.type == 'R'}">
-            <p [ngClass]="{'user-msg-left': message.type == 'R'}" *ngIf="message.type == 'R'">{{user_response}}</p>
-            <p [ngClass]="{'user-msg-right': message.type == 'P'}" *ngIf="message.type == 'P'">{{user_question}}</p>
+            <p [ngClass]="{'user-msg-left': message.type == 'R'}" *ngIf="message.type == 'R'">{{ticket.manager}}</p>
+            <p [ngClass]="{'user-msg-right': message.type == 'P'}" *ngIf="message.type == 'P'">{{ticket.user}}</p>
             <p [ngClass]="{'msg-right': message.type == 'P', 'msg-left': message.type == 'R'}">{{message.text1 + message.text2 + message.text3}}</p>
             <a [ngClass]="{'time-msg-right': message.type == 'P', 'time-msg-left': message.type == 'R'}">{{message.date | ddMmYyyyHHMMDate}} <p *ngIf="message.time != '00:00:00'" [ngClass]="{'time-used-msg-right': message.type == 'P', 'time-used-msg-left': message.type == 'R'}">{{message.time}}</p></a>
             <img *ngIf="message.file" src="../../assets/images/file.png" [ngClass]="{'file-msg-right': message.type == 'P', 'file-msg-left': message.type == 'R'}" (click)="downloadFile(message.file)">
@@ -66,7 +85,7 @@
                 <div class="col-md-12 m-2">
                     <label class="col-md-6 text-start" *ngIf="current_user.rol == 'admin'"><input formControlName="validation" type="checkbox"> Validación</label>
                     <label class="col-md-6 ps-2 text-end" *ngIf="current_user.rol == 'admin'"><input formControlName="time" type=time> Tiempo (HH/MM)</label>
-                </div>
+                </div> 
                 <div class="col-md-12 m-2">
                     <input class="col-md-12" type="submit" value="Enviar" [disabled]="msgForm.invalid || msgForm.disabled">
                 </div>

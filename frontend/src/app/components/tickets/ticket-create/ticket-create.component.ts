@@ -24,12 +24,12 @@ export class TicketsCreateComponent implements OnInit {
   modalMsg: string = '';
 
   ticketForm: FormGroup = new FormGroup({
-    manager: new FormControl('', [Validators.required]),
-    priority: new FormControl('1', [Validators.required]),
-    username: new FormControl({value: this.current_user.username , disabled: true}, [Validators.required]),
+    manager: new FormControl('', [Validators.required, Validators.maxLength(10)]),
+    priority: new FormControl('1', [Validators.required, Validators.pattern("^([0-9])*$")]),
+    username: new FormControl({value: this.current_user.username , disabled: true}, [Validators.required, Validators.maxLength(15)]),
     file: new FormControl(''),
     fileSource: new FormControl(''), 
-    category: new FormControl('GRAL', [Validators.required]),
+    category: new FormControl('GRAL', [Validators.required, Validators.maxLength(15)]),
     title: new FormControl('', [Validators.required,Validators.maxLength(60)]),
     description: new FormControl('', [Validators.maxLength(765)]),
   });

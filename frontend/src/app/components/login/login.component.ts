@@ -25,7 +25,7 @@ export class LoginComponent implements OnInit{
 
   //Resey Key Form Group
   validateResetKeyForm: FormGroup = new FormGroup({
-    key: new FormControl('', [Validators.required,])
+    key: new FormControl('', [Validators.required])
   });
 
   //Change Password Form Group

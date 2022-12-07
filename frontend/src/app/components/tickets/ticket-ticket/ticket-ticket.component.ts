@@ -19,6 +19,7 @@ export class TicketsTicketComponent implements OnInit, AfterViewChecked  {
   current_user: User = new User()
   t_code: number | null = null;
   ticket: TicketH = new TicketH()
+  ticket_categories: Array<any> = [];
   ticket_messages: Array<TicketL> = [];
   managers: Array<User> | null = [];
 
@@ -39,6 +40,14 @@ export class TicketsTicketComponent implements OnInit, AfterViewChecked  {
     manager: new FormControl('')
   });
 
+  categorySelect: FormGroup = new FormGroup({
+    category: new FormControl('')
+  });
+
+  prioritySelect: FormGroup = new FormGroup({
+    priority: new FormControl('')
+  });
+
   constructor(private authService: AuthService, private ticketService: TicketService, private router: Router, private fileService: FileService, private cdRef : ChangeDetectorRef, private toastrService: ToastrService) { }
 
   ngAfterViewChecked(){
@@ -57,6 +66,8 @@ export class TicketsTicketComponent implements OnInit, AfterViewChecked  {
     this.getTicketInfo()
     //Get current managers
     this.getManagers()
+    //Get current ticket categories
+    this.getTicketCategories()
     //Get tickets messages
     this.getTicketMessages()
   }
@@ -73,9 +84,21 @@ export class TicketsTicketComponent implements OnInit, AfterViewChecked  {
     this.ticketService.getTicket(this.t_code).subscribe({
       next: (response: any) => {
         this.ticket = response
-        this.user_question = this.ticket.user
-        this.user_response = this.ticket.manager
-        this.managerSelect.controls['manager'].setValue(this.user_response) 
+        this.prioritySelect.controls['priority'].setValue(response['priority'])
+        this.categorySelect.controls['category'].setValue(response['category'])
+        this.managerSelect.controls['manager'].setValue(response['manager'])
+        if(this.ticket.user != this.current_user.username && this.ticket.manager != this.current_user.username){
+          this.msgForm.disable()
+          this.toastrService.warning('No puedes escribir mensajes en este ticket')
+        } else {
+          this.msgForm.enable()
+        }
+        if(this.ticket.user == this.current_user.username && this.ticket.manager != this.current_user.username){
+          this.current_user.rol = 'user'
+        }
+        if(this.ticket.validation == -1){
+          this.msgForm.controls['validation'].setValue(true)
+        }
       }
     });
   }
@@ -87,6 +110,14 @@ export class TicketsTicketComponent implements OnInit, AfterViewChecked  {
         this.cdRef.detectChanges();
       }
     });  
+  }
+
+  getTicketCategories(): void {
+    this.ticketService.getCategories().subscribe({
+      next: (response: any) => {
+        this.ticket_categories = response
+      }
+    });
   }
 
   closeTicket(): void {
@@ -110,7 +141,26 @@ export class TicketsTicketComponent implements OnInit, AfterViewChecked  {
   changeTicketManager(){
     this.ticketService.changeTicketManager(this.t_code, this.managerSelect.controls['manager'].value).subscribe({
       next: () => {
+        this.getTicketInfo()
         this.toastrService.success('Gestor cambiado')
+      }
+    });
+  }
+
+  changeTicketPriority(){
+    this.ticketService.changeTicketPriority(this.t_code, this.prioritySelect.controls['priority'].value).subscribe({
+      next: () => {
+        this.getTicketInfo()
+        this.toastrService.success('Prioridad cambiada')
+      }
+    });
+  }
+
+  changeTicketCategory(){
+    this.ticketService.changeTicketCategory(this.t_code, this.categorySelect.controls['category'].value).subscribe({
+      next: () => {
+        this.getTicketInfo()
+        this.toastrService.success('Categoria cambiada')
       }
     });
   }
@@ -141,7 +191,7 @@ export class TicketsTicketComponent implements OnInit, AfterViewChecked  {
   }
 
   resetMsgForm(): void {
-    this.msgForm.reset({description: '', validation: false, time: "00:00", file: '', fileSource: ''})
+    this.msgForm.reset({description: '', validation: this.ticket.validation, time: "00:00", file: '', fileSource: ''})
   }
 
   sendMsg(): void {
@@ -153,7 +203,8 @@ export class TicketsTicketComponent implements OnInit, AfterViewChecked  {
     //If current_user is admin enter if
     if(this.current_user.rol == 'admin'){
       //If validation check box is selected set validation to -1
-      if(msg['validation']){msg['validation'] = -1
+      if(msg['validation']){
+        msg['validation'] = -1
       } 
       //If validation checkbox was not selected set validation to 0
       else {
@@ -166,7 +217,7 @@ export class TicketsTicketComponent implements OnInit, AfterViewChecked  {
     //Set ticket code
     msg['t_code'] = this.t_code
     //Set type of message
-    if(this.user_question == this.current_user.username){
+    if(this.ticket.user == this.current_user.username){
       msg['type'] = 'P'
     } else {
       msg['type'] = 'R'

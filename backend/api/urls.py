@@ -23,5 +23,8 @@ urlpatterns = [
     path('tickets/upload-file', views.upload_file),
     path('tickets/delete-file', views.delete_file),
     path('tickets/download-file', views.download_file),
-    path('tickets/change-ticket-manager', views.change_ticket_manager)
+    path('tickets/change-ticket-manager', views.change_ticket_manager),
+    path('tickets/change-ticket-priority', views.change_ticket_priority),
+    path('tickets/change-ticket-category', views.change_ticket_category),
+    path('powerbi/get-categories', views.get_powerbi_categories)
 ]

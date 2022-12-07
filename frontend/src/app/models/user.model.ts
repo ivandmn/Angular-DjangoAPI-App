@@ -4,4 +4,5 @@ export class User {
   name!: string | null; //User full name
   email!: string | null; //User email
   rol!: string | null; //User rol
+  powerbi_permissions!: string | null;
 }

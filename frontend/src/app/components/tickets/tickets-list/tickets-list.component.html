@@ -1,14 +1,18 @@
 <div class="main border border-dark">
     <form [formGroup]="ticketsListForm" method="post">
         <div class="row m-2">
-            <div class="col-lg-3 align-self-center mb-2">
-                <div class="text-underline">Resumen Tickets I.T</div>
+            <div class="col-lg-3 align-self-center mb-2 d-inline">
+                <div>
+                    <div><span class="text-underline mb-1 me-2">Resumen Tickets I.T</span><span class="border border-dark rounded"><span class="p-2">{{itemsCount}}</span></span></div>
+                    <label *ngIf="current_user.rol == 'admin'" ><input formControlName="userMode" type="checkbox"> Modo Usuario</label>
+                    <label *ngIf="ticketsListForm.controls['state'].value != 'C'" ><input formControlName="validation" type="checkbox"> Mostrar Pendientes</label>
+                </div>
             </div>
             <div class="col-lg-3 align-self-center mb-2">
                 <label for="gestor">Gestor</label>
-                <select class="form-select" formControlName="manager" title="gestor" name="gestor">
+                <select class="form-select" formControlName="manager" id='managerSelectTicketList'title="gestor" name="gestor">
                     <option value="">ALL</option>
-                    <option *ngFor="let manager of managers" value="{{manager.username}}">{{manager.name}}</option>
+                    <option *ngFor="let manager of managers"  value="{{manager.username}}">{{manager.name}}</option>
                 </select>
             </div>
             <div class="col-lg-3 align-self-center mb-2">
@@ -36,7 +40,7 @@
         </div>
     </form>
     <div class="row m-0" id="content-list-tickets">
-        <div class="col-md-3 p-0 ticket-background text-center border border-dark">
+        <div class="col-md-3 p-0 bg-ticket-blue text-center border border-dark">
             <div class="col-md tickets_options border-bottom border-dark" routerLink="/tickets/create"><h3>Alta Caso</h3></div>
             <div class="col-md tickets_options border-bottom border-dark"><h3>Búsqueda Casos</h3></div>
             <div class="col-md tickets_options border-bottom border-dark"><h3>Manuales</h3></div>
@@ -44,7 +48,7 @@
         <div class="col-md-9 p-0 mh-100 overflow-auto">
             <table class="table">
                 <thead>
-                    <tr class="ticket-background text-center">
+                    <tr class="bg-ticket-blue text-center">
                         <th scope="col" class="border border-dark">Caso</th>
                         <th scope="col" class="border border-dark">Fecha</th>
                         <th scope="col" class="border border-dark">Título</th>
@@ -57,28 +61,28 @@
                     </tr>
                     <ng-container *ngIf="current_user.rol == 'user'">
                         <tr *ngFor="let ticket of tickets | paginate : {itemsPerPage: itemsPerPage,currentPage: page,totalItems: itemsCount};" class="text-center border-bottom border-dark" role="button" (click)="getTicketL(ticket.code)">
-                            <td class='text-underline' [ngClass]="{'bg-ticket-blue': ticket.validation == -1, 'font-weight-bold': (ticket.viewed == 0 && ticket.validation == -1 && ticket.last_response_type == 'P') || (ticket.viewed == 0 && ticket.validation == 0 && ticket.last_response_type != 'P')}">{{ticket.code}}</td>
-                            <td [ngClass]="{'bg-ticket-blue': ticket.validation == -1, 'font-weight-bold': (ticket.viewed == 0 && ticket.validation == -1 && ticket.last_response_type != 'P') || (ticket.viewed == 0 && ticket.validation == 0 && ticket.last_response_type != 'P')}">{{ticket.date | ddMmYYYYDate}}</td>
-                            <td [ngClass]="{'bg-ticket-blue': ticket.validation == -1, 'font-weight-bold': (ticket.viewed == 0 && ticket.validation == -1 && ticket.last_response_type != 'P') || (ticket.viewed == 0 && ticket.validation == 0 && ticket.last_response_type != 'P')}">{{ticket.title}}</td>
-                            <td [ngClass]="{'bg-ticket-blue': ticket.validation == -1, 'font-weight-bold': (ticket.viewed == 0 && ticket.validation == -1 && ticket.last_response_type != 'P') || (ticket.viewed == 0 && ticket.validation == 0 && ticket.last_response_type != 'P')}">{{ticket.user}}</td>
-                            <td [ngClass]="{'bg-ticket-blue': ticket.validation == -1, 'font-weight-bold': (ticket.viewed == 0 && ticket.validation == -1 && ticket.last_response_type != 'P') || (ticket.viewed == 0 && ticket.validation == 0 && ticket.last_response_type != 'P')}">{{ticket.manager}}</td>
-                            <td [ngClass]="{'bg-ticket-blue': ticket.validation == -1, 'font-weight-bold': (ticket.viewed == 0 && ticket.validation == -1 && ticket.last_response_type != 'P') || (ticket.viewed == 0 && ticket.validation == 0 && ticket.last_response_type != 'P')}">{{ticket.category}}</td>
-                            <td [ngClass]="{'bg-ticket-blue': ticket.validation == -1, 'font-weight-bold': (ticket.viewed == 0 && ticket.validation == -1 && ticket.last_response_type != 'P') || (ticket.viewed == 0 && ticket.validation == 0 && ticket.last_response_type != 'P')}">{{ticket.priority}}</td>
-                            <td [ngClass]="{'bg-ticket-blue': ticket.validation == -1, 'font-weight-bold': (ticket.viewed == 0 && ticket.validation == -1 && ticket.last_response_type != 'P') || (ticket.viewed == 0 && ticket.validation == 0 && ticket.last_response_type != 'P')}">{{ticket.position}}</td>
-                            <td [ngClass]="{'bg-ticket-blue': ticket.validation == -1, 'font-weight-bold': (ticket.viewed == 0 && ticket.validation == -1 && ticket.last_response_type != 'P') || (ticket.viewed == 0 && ticket.validation == 0 && ticket.last_response_type != 'P')}">{{ticket.time}}</td>
+                            <td class='text-underline' [ngClass]="getTicketClasses(ticket)">{{ticket.code}}</td>
+                            <td [ngClass]="getTicketClasses(ticket)">{{ticket.date | ddMmYYYYDate}}</td>
+                            <td [ngClass]="getTicketClasses(ticket)">{{ticket.title}}</td>
+                            <td [ngClass]="getTicketClasses(ticket)">{{ticket.user}}</td>
+                            <td [ngClass]="getTicketClasses(ticket)">{{ticket.manager}}</td>
+                            <td [ngClass]="getTicketClasses(ticket)">{{ticket.category}}</td>
+                            <td [ngClass]="getTicketClasses(ticket)">{{ticket.priority}}</td>
+                            <td [ngClass]="getTicketClasses(ticket)">{{ticket.position}}</td>
+                            <td [ngClass]="getTicketClasses(ticket)">{{ticket.time}}</td>
                         </tr>
                     </ng-container>
                     <ng-container *ngIf="current_user.rol == 'admin'">
                         <tr *ngFor="let ticket of tickets | paginate : {itemsPerPage: itemsPerPage,currentPage: page,totalItems: itemsCount};" class="text-center border-bottom border-dark" role="button" (click)="getTicketL(ticket.code)">
-                            <td class='text-underline' [ngClass]="{'bg-ticket-blue': ticket.validation == 0, 'font-weight-bold': ticket.viewed == 0 && ticket.validation == 0 && ticket.last_response_type != 'R'}">{{ticket.code}}</td>
-                            <td [ngClass]="{'bg-ticket-blue': ticket.validation == 0, 'font-weight-bold': ticket.viewed == 0 && ticket.validation == 0 && ticket.last_response_type != 'R'}">{{ticket.date | ddMmYYYYDate}}</td>
-                            <td [ngClass]="{'bg-ticket-blue': ticket.validation == 0, 'font-weight-bold': ticket.viewed == 0 && ticket.validation == 0 && ticket.last_response_type != 'R'}">{{ticket.title}}</td>
-                            <td [ngClass]="{'bg-ticket-blue': ticket.validation == 0, 'font-weight-bold': ticket.viewed == 0 && ticket.validation == 0 && ticket.last_response_type != 'R'}">{{ticket.user}}</td>
-                            <td [ngClass]="{'bg-ticket-blue': ticket.validation == 0, 'font-weight-bold': ticket.viewed == 0 && ticket.validation == 0 && ticket.last_response_type != 'R'}">{{ticket.manager}}</td>
-                            <td [ngClass]="{'bg-ticket-blue': ticket.validation == 0, 'font-weight-bold': ticket.viewed == 0 && ticket.validation == 0 && ticket.last_response_type != 'R'}">{{ticket.category}}</td>
-                            <td [ngClass]="{'bg-ticket-blue': ticket.validation == 0, 'font-weight-bold': ticket.viewed == 0 && ticket.validation == 0 && ticket.last_response_type != 'R'}">{{ticket.priority}}</td>
-                            <td [ngClass]="{'bg-ticket-blue': ticket.validation == 0, 'font-weight-bold': ticket.viewed == 0 && ticket.validation == 0 && ticket.last_response_type != 'R'}">{{ticket.position}}</td>
-                            <td [ngClass]="{'bg-ticket-blue': ticket.validation == 0, 'font-weight-bold': ticket.viewed == 0 && ticket.validation == 0 && ticket.last_response_type != 'R'}">{{ticket.time}}</td>
+                            <td class='text-underline' [ngClass]="getTicketClasses(ticket)">{{ticket.code}}</td>
+                            <td [ngClass]="getTicketClasses(ticket)">{{ticket.date | ddMmYYYYDate}}</td>
+                            <td [ngClass]="getTicketClasses(ticket)">{{ticket.title}}</td>
+                            <td [ngClass]="getTicketClasses(ticket)">{{ticket.user}}</td>
+                            <td [ngClass]="getTicketClasses(ticket)">{{ticket.manager}}</td>
+                            <td [ngClass]="getTicketClasses(ticket)">{{ticket.category}}</td>
+                            <td [ngClass]="getTicketClasses(ticket)">{{ticket.priority}}</td>
+                            <td [ngClass]="getTicketClasses(ticket)">{{ticket.position}}</td>
+                            <td [ngClass]="getTicketClasses(ticket)">{{ticket.time}}</td>
                         </tr>
                     </ng-container>
                 </thead>

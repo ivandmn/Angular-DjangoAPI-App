@@ -25,6 +25,5 @@ urlpatterns = [
     path('tickets/create', TemplateView.as_view(template_name="index.html"), name="index"),
     path('tickets/ticket', TemplateView.as_view(template_name="index.html"), name="index"),
     path('pwbi/home', TemplateView.as_view(template_name="index.html"), name="index"),
-    # re_path(r'^(?!api).*$', TemplateView.as_view(template_name="index.html"), name="index"),
     path('api/', include('api.urls')),
 ]
