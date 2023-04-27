@@ -1,0 +1,63 @@
+<div class="p-0 text-center border border-dark" id="side-nav">
+    <div class="exit-option" (click)="toggleMenu()"><i class="fa-solid fa-xmark text-white fa-2xl"></i></div>
+    <div class="col-md tickets_options border-bottom border-dark text-white" routerLink="/tickets/list"><h3>Listar Casos</h3></div>
+    <div class="col-md tickets_options border-bottom border-dark text-white" routerLink="/tickets/create"><h3>Alta Caso</h3></div>
+    <div class="col-md tickets_options border-bottom border-dark text-white" routerLink="/tickets/search"><h3>Búsqueda Casos</h3></div>
+    <div class="col-md tickets_options border-bottom border-dark text-white" routerLink="/tickets/manual"><h3>Manuales</h3></div>
+</div>
+
+<div class="main border border-dark rounded" id="main">
+    <div class="row m-2">
+        <div class="col-md-12 align-self-center mb-2 ">
+            <span *ngIf="showMenu == false" class="btn p-0 me-3 mb-1" (click)="toggleMenu()">
+                <i class="fa-solid fa-bars fa-2xl p-0" ></i>
+            </span>
+            <span class="text-underline">Manuales</span>
+            <div class="col-xxl-3 align-self-center mb-2">
+                <form [formGroup]="manualsForm" method="post">
+                    <label for="m_category">Categoria</label>
+                    <select class="form-select" formControlName="m_category" title="m_category" name="m_category">
+                        <option value="">ALL</option>
+                        <option *ngFor="let manual_category of manuals_categories"  value="{{manual_category}}">{{manual_category}}</option>
+                    </select>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="border-dark border-bottom"></div>
+    <div class="row m-0">
+        <div class="col-md p-0 mh-100 overflow-auto">
+            <table class="table">
+                <thead>
+                    <tr class="bg-ticket-blue text-center">
+                        <th scope="col" class="border border-dark">Título</th>
+                        <th scope="col" class="border border-dark">Categoria</th>
+                        <th scope="col" class="border border-dark">Descripción</th>
+                        <th scope="col" class="border border-dark">Fichero</th>
+                    </tr>
+                    <ng-container>
+                        <tr *ngFor="let manual of manuals | paginate : {itemsPerPage: itemsPerPage,currentPage: page,totalItems: itemsCount};" class="text-center border-bottom border-dark">
+                            <td class="font-weight-bold">{{manual.titulo}}</td>
+                            <td>{{manual.clave}}</td>
+                            <td>{{manual.descripcion}}</td>
+                            <td><img class="manual-file" *ngIf="manual.fichero" src="../../assets/images/file.png" (click)="downloadManual(manual.fichero)"></td>
+                        </tr>
+                    </ng-container>
+                </thead>
+            </table>
+            <div class="d-flex justify-content-center">
+                <pagination-controls previousLabel="Prev" nextLabel="Next" (pageChange)="paginationChange($event)">
+                </pagination-controls>
+            </div>
+        </div>
+    </div> 
+</div>
+
+<div class="modal bd-example-modal-lg" id="awaitBackendModalTicketManual" data-backdrop="static" data-keyboard="false" tabindex="-1">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <span class="fa fa-spinner fa-spin fa-3x"></span>
+            <div *ngIf="modalMsg" class='text-center mt-1 text-white'>{{modalMsg}}</div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,122 @@
+.main{
+    min-height: 100%;
+    transition: margin-left .3s linear;
+    margin: 10px;
+    margin-left: 310px;
+}
+
+#content-list-tickets{
+    min-height: 650px !important;
+}
+
+.bg-ticket-blue{
+    background-color: #68c5ed;
+}
+
+.bg-ticket-usermode{
+    background-color: #5bfa57;
+}
+
+.bg-ticket-usermode-response{
+    background-color: #05d100;
+}
+
+.bg-ticket-closed {
+    background-color: #c4beab;
+}
+
+.bg-ticket-self {
+    background-color: #faac8c;
+}
+
+.bg-ticket-yellow{
+    background-color: #fae369;
+}
+
+.font-weight-bold{
+    font-weight: bold;
+}
+
+label{
+    margin-right: 5px;
+}
+
+th{
+    padding: 0;
+}
+
+td{
+    padding: 3px;
+}
+
+.search-title-img{
+    height: 35px;
+    width: auto;
+}
+
+.text-underline{
+    -moz-text-decoration-line: underline;
+    text-decoration-line: underline;
+    -moz-text-decoration-color: blue;
+    text-decoration-color: blue;
+    color:blue;
+    cursor: pointer;
+}
+
+.ticketsCount{
+    margin-left: 10px;
+}
+
+.bd-example-modal-lg .modal-dialog{
+    display: table;
+    position: relative;
+    margin: 0 auto;
+    top: calc(50% - 24px);
+}
+  
+.bd-example-modal-lg .modal-dialog .modal-content{
+    background-color: transparent;
+    border: none;
+}
+
+.tickets_options{
+    transition-duration: 0.4s;
+    padding: 20px;
+    cursor: pointer;
+}
+
+.tickets_options:hover{
+    background-color: red;
+}
+
+#side-nav{
+    min-height: 100%;
+    width: 300px;
+    position: fixed;
+    left: 0px;
+    z-index: 55;
+    background-color: #212529;
+}
+
+.exit-option{
+    transition-duration: 0.4s;
+    padding: 20px;
+    cursor: pointer;
+    position: absolute;
+    z-index: 10;
+    top: 0;
+    right: 0;
+}
+
+.exit-option:hover{
+    background-color: black !important;
+}
+
+@media screen and (max-width: 991px) {
+    #side-nav{
+        min-height: 100%;
+        width: 100%;
+        position: fixed;
+        left: 0px;
+    }
+}

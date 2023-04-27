@@ -1,0 +1,51 @@
+<div class="main border border-dark">
+    <div class="row m-0 text-center align-items-center titlepowerbi border-bottom border-dark" [style.background-color]="pwbiCategory.color">
+        <h2>{{pwbiCategory.name}}</h2>
+    </div>
+    <div class="row m-0 contentpowerbi">
+        <div class="col-12 p-0">
+            <div class="row m-2">
+                <div class="col-xl-12 text-end p-0">
+                    <button *ngIf="current_user.rol == 'admin'" class="col-md-3 m-2" routerLink="/pwbi/create">Añadir publicación +</button>
+                </div>
+                <div class="col-xl-9">
+                    <div>
+                        <span><img style="vertical-align:middle" [src]="pwbiCategory.img" style="float: left; width: 300px; height: auto;" class="me-2"></span>
+                        <span style="word-wrap: break-word; white-space: pre-wrap;">{{pwbiCategory.description}}</span>
+                    </div>
+                </div>
+                    <a class="col-xxl-3 border-dark border rounded-3 text-center h-75 mt-2" [href]="pwbiCategory.link" target="_blank" rel="noopener noreferrer">
+                        <img src="https://cdn.icon-icons.com/icons2/2699/PNG/512/microsoft_powerbi_logo_icon_169958.png" class="pwbiCategoryImage">
+                    </a>
+            </div>
+            <h4 *ngIf="pwbiPublicationsGuides.length > 0" class="pb-2 m-0 border border-black bg-gradient" [style.background-color]="pwbiCategory.color">Guías</h4>
+            <div *ngIf="pwbiPublicationsGuides.length > 0" class="row m-1 border border-dark rounded">
+                <div *ngFor="let publication_g of pwbiPublicationsGuides; let i = index" role="button"  [ngClass]="getPublicationClasses(i,pwbiPublicationsGuides.length)" class="border-bottom border-dark border-end border-dark" (click)="enterPowerBiPublication(publication_g.id)">
+                    <h4 class="p-2 m-0" style="word-break: break-word;">{{publication_g.title}}<span *ngIf="publication_g.newness == 1" class="ms-2 text-danger">(¡Novedad!)</span></h4>
+                    <p class="ps-2 m-0" style="font-size: 12px; font-style: italic;">{{publication_g.creation_date| ddMmYYYYDate}}</p>
+                        <div>
+                            <div style="overflow: auto;" class="pt-2" *ngIf="publication_g.video_link">
+                                <youtube-player [videoId]="publication_g.video_link" (stateChange)="onVideoStateChange($event, publication_g.id,publication_g.title)" [width]="600" [height]="320"></youtube-player>
+                                <!-- <iframe [id]="publication_n.video_link" [src]="getVideoUrl(publication_n.video_link) | safeUrl : 'resourceUrl'" (onCreate)="onCreateVideoElement(publication_n.video_link)" frameborder="0" align="left" allowFullScreen="true" webkitallowfullscreen="true" mozallowfullscreen="true" width="600" height="320" class="p-2"></iframe> -->
+                            </div>
+                            <div class="overflow-auto mb-1 mt-2 p-2" style="word-break: break-word; white-space: pre-wrap; vertical-align:top; max-height: 150px; overflow: auto;">{{publication_g.summary}}</div>
+                        </div>
+                </div>
+            </div>
+            <h4 *ngIf="pwbiPublicationsNews.length > 0" class="pb-2 m-0 border border-black bg-gradient" [style.background-color]="pwbiCategory.color">Notícias</h4>
+            <div *ngIf="pwbiPublicationsNews.length > 0" class="row m-1 border border-dark rounded">
+                <div *ngFor="let publication_n of pwbiPublicationsNews; let i = index" role="button"  [ngClass]="getPublicationClasses(i,pwbiPublicationsNews.length)" class="border-bottom border-dark border-end border-dark" (click)="enterPowerBiPublication(publication_n.id)">
+                    <h4 class="p-2 m-0" style="word-break: break-word;">{{publication_n.title}}<span *ngIf="publication_n.newness == 1" class="ms-2 text-danger">(¡Novedad!)</span></h4>
+                    <p class="ps-2 m-0" style="font-size: 12px; font-style: italic;">{{publication_n.creation_date| ddMmYYYYDate}}</p>
+                        <div>
+                            <div style="overflow: auto;" class="pt-2" *ngIf="publication_n.video_link">
+                                <youtube-player [videoId]="publication_n.video_link" (stateChange)="onVideoStateChange($event, publication_n.id,publication_n.title)" [width]="600" [height]="320"></youtube-player>
+                                <!-- <iframe [id]="publication_n.video_link" [src]="getVideoUrl(publication_n.video_link) | safeUrl : 'resourceUrl'" (onCreate)="onCreateVideoElement(publication_n.video_link)" frameborder="0" align="left" allowFullScreen="true" webkitallowfullscreen="true" mozallowfullscreen="true" width="600" height="320" class="p-2"></iframe> -->
+                            </div>
+                            <div class="overflow-auto mb-1 mt-2 p-2" style="word-break: break-word; white-space: pre-wrap; max-height: 150px; overflow: auto;">{{publication_n.summary}}</div>
+                        </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

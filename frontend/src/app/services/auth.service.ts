@@ -3,6 +3,8 @@ import { User } from '../models/user.model';
 import { HttpClient, HttpHeaders, HttpResponse} from '@angular/common/http';
 import { Router } from '@angular/router';
 import { CookieService } from 'ngx-cookie-service';
+import { FileService } from './file.service';
+import { ToastrService } from 'ngx-toastr';
 
 import jwt_decode from 'jwt-decode';
 import { Observable } from 'rxjs';
@@ -11,7 +13,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class AuthService {
-  //Backend base domain
+  //Backend base domain 
   ROOT_URL: string = 'http://localhost:8000/api';
   //Request Options
   request_options: Object = {headers: new HttpHeaders({'Content-Type':'application/json'}), withCredentials: true, responseType: "json" as const};
@@ -21,7 +23,7 @@ export class AuthService {
   //Variable for save logged user info
   currentUser: User = new User();
 
-  constructor(private http: HttpClient, private router: Router, private CookieService: CookieService) {}
+  constructor(private http: HttpClient, private router: Router, private CookieService: CookieService, private fileService: FileService, private toastrService: ToastrService) {}
   
   /**
    * **Sends an HTTP request to the backend to sign in**
@@ -68,13 +70,34 @@ export class AuthService {
         this.logged_user = false;
         this.currentUser = new User();
         this.deleteSessionCookies();
-        this.router.navigate(['home']); 
+        this.router.navigate(['home']).then(()=>{
+          this.fileService.downloadProfileImage(this.currentUser.image).subscribe({
+            next: (response: any) => {
+              let blob: Blob = response.body as Blob;
+              let objectURL = window.URL.createObjectURL(blob);
+              $(".navbar_icon").attr("src", objectURL);
+            }
+          });
+        });
       },
       error: () => {
         this.logged_user = false;
         this.currentUser = new User(); 
         this.deleteSessionCookies();
-        this.router.navigate(['home']);
+        this.router.navigate(['home']).then(()=>{
+          this.toastrService.toastrConfig.timeOut = 2000
+          this.toastrService.toastrConfig.positionClass = 'toast-top-center'
+          this.toastrService.toastrConfig.closeButton = true
+          this.toastrService.toastrConfig.maxOpened = 6
+          this.toastrService.error('Error al cerrar sessión')
+          this.fileService.downloadProfileImage(this.currentUser.image).subscribe({
+            next: (response: any) => {
+              let blob: Blob = response.body as Blob;
+              let objectURL = window.URL.createObjectURL(blob);
+              $(".navbar_icon").attr("src", objectURL);
+            }
+          });
+        });
       }
     });
   }
@@ -84,11 +107,24 @@ export class AuthService {
    * @return {User} User object
    */
   getUserInfo(): User{
-    if(this.currentUser){
+    let jwt_cookie_exist: boolean = this.CookieService.check('access_token');
+    try {
+      if (jwt_cookie_exist){
+        let access_token: string = this.CookieService.get('access_token');
+        this.logged_user = true;
+        this.currentUser = this.getDecodedAccessToken(access_token)['user'];
+      } else {
+        this.logged_user = false; 
+        this.currentUser = new User();
+        this.deleteSessionCookies();
+      }
       return this.currentUser
-    } else {
-      return new User()
-    } 
+    } catch(error) {
+      this.logged_user = false; 
+      this.currentUser = new User();
+      this.deleteSessionCookies();
+      return this.currentUser
+    }
   }
 
   /**
@@ -98,7 +134,7 @@ export class AuthService {
   get isLoggedIn(): boolean {
     let jwt_cookie_exist: boolean = this.CookieService.check('access_token');
     try {
-      if (jwt_cookie_exist == true){
+      if (jwt_cookie_exist){
         let access_token: string = this.CookieService.get('access_token');
         this.logged_user = true;
         this.currentUser = this.getDecodedAccessToken(access_token)['user'];
@@ -141,9 +177,7 @@ export class AuthService {
    * **Delete cookies related with logged user**
    */
   deleteSessionCookies(): void {
-    this.CookieService.delete('tickets_filter_options');
-    this.CookieService.delete('tickets_page');
-    this.CookieService.delete('ticket_code');
+    this.CookieService.deleteAll('/')
   }
   
 }

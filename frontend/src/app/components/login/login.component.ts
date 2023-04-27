@@ -4,6 +4,9 @@ import { AuthService } from 'src/app/services/auth.service';
 import { Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { ToastrService } from 'ngx-toastr';
+import { TicketService } from '../../services/ticket.service';
+import { FileService } from 'src/app/services/file.service';
+import { type } from 'jquery';
 
 @Component({
   selector: 'app-login',
@@ -33,6 +36,7 @@ export class LoginComponent implements OnInit{
     password: new FormControl('', [Validators.required,Validators.maxLength(100),])
   });
 
+  reset_password_expiration_date: Date | null = null
   //Variables to show error messages
   error_login_msg: string = "";
   error_email_msg: string = "";
@@ -46,10 +50,9 @@ export class LoginComponent implements OnInit{
   text_button: string = 'Login'
   disable_button: boolean = false;
 
-  constructor (private fb: FormBuilder, private authService: AuthService, private toastrService: ToastrService, private router: Router, public location: Location) {}
+  constructor (private authService: AuthService, private toastrService: ToastrService, private router: Router, public location: Location, private ticketService: TicketService, private fileService: FileService) {}
 
-  ngOnInit(): void { 
-  }
+  ngOnInit(): void {}
 
   login() {
     this.disable_button = true
@@ -58,22 +61,40 @@ export class LoginComponent implements OnInit{
       next: (response: any) => {
         this.authService.currentUser = this.authService.getDecodedAccessToken(response.access_token)['user'];
         this.authService.logged_user = true;
-        this.router.navigate(['home'])
+        this.ticketService.savePendingTicketsCount()
+        this.router.navigate(['home']).then(()=>{
+          if(this.authService.currentUser.image){
+            this.fileService.downloadProfileImage(this.authService.currentUser.image).subscribe({
+              next: (response: any) => {
+                let blob: Blob = response.body as Blob;
+                let objectURL = window.URL.createObjectURL(blob);
+                $(".navbar_icon").attr("src", objectURL);
+              }
+            });
+          }
+        }); 
       },
       error: (err: any) => {
         this.disable_button = false
         this.text_button = 'Login'
         switch(err.status){
+          case 400: {
+            this.error_login_msg = "Formato de datos incorrectos";
+            break;
+          }
           case 401: {
             this.error_login_msg = "Usuario/Contraseña incorrectos";
             break;
-          } 
+          }
+          case 403: {
+            this.error_login_msg = "Este usuario esta dado de baja";
+            break;
+          }  
           default: {
             this.error_login_msg = "Unknown server error"
           }   
         }
-      },
-      complete: () => {}
+      }
     });
   }
 
@@ -89,13 +110,19 @@ export class LoginComponent implements OnInit{
         this.disable_button = false
         this.text_button = 'Enviar email'
         switch(err.status){
+          case 400: {
+            this.error_email_msg = "Formato de email incorrectos";
+            this.button_reset_key = false
+            break;
+          }
           case 401: { 
             this.error_email_msg = "Email incorrecto"
             this.button_reset_key = false
             break;
           }
           case 423: {
-            this.error_email_msg = "El correo electrónico se envió anteriormente, verifique el correo electrónico por favor"
+            this.error_email_msg = "El correo electrónico se envió anteriormente, verifique el correo electrónico por favor, se podrá volver a enviar otro correo a las "
+            this.reset_password_expiration_date = new Date(err.error['time'])
             this.button_reset_key = true
             break;
           }
@@ -120,6 +147,10 @@ export class LoginComponent implements OnInit{
         this.disable_button = false
         this.text_button = 'Validar clave'
         switch(err.status){
+          case 400: { 
+            this.error_key_msg = "Formato de clave incorrecto"
+            break;
+          }
           case 401: { 
             this.error_key_msg = "Clave incorrecta"
             break;
@@ -128,8 +159,7 @@ export class LoginComponent implements OnInit{
             this.error_key_msg = "Unknown server error"
           }
         }
-      },
-      complete: () => {}
+      }
     });
   }
 
@@ -155,8 +185,7 @@ export class LoginComponent implements OnInit{
             this.error_newPassword_msg = "Unknown server error"
           }
         }
-      },
-      complete: () => {}
+      }
     });
   }
 
@@ -167,6 +196,7 @@ export class LoginComponent implements OnInit{
       this.error_key_msg = "";
       this.error_newPassword_msg = "";
       this.text_button = 'Login';
+      this.reset_password_expiration_date = null;
       this.disable_button = false
       var element = document.getElementById("formLogin")
       element?.classList.remove("animate")

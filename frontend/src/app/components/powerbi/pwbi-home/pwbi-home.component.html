@@ -1,18 +1,21 @@
 <div class="main border border-dark">
-    <div class="row m-2 text-center align-items-center titlepowerbi border border-dark bg-warning">
+    <div class="col-md-12 m-0 p-0 text-center align-items-center titlepowerbi border-bottom border-dark bg-dark text-white bg-gradient">
         <h2>Power BI Análisis de Datos</h2>
     </div>
-    <div class="row m-2 contentpowerbi border border-dark">
-        <div class="col-md-9 p-0 border border-dark">
-            <div class="row m-2 border border-dark">
-                <div class="col-md-12 p-0 bg-info" role="button" *ngFor="let pwbiCat of pwbiCategories">
-                    <h3 class="border-bottom border-dark m-0 p-1" *ngIf="current_user_pwbi_permissions.includes(pwbiCat.id)">- {{pwbiCat.name}}</h3>
+    <div class="row m-0">
+        <div class="col-md-9 p-0 contentpowerbi">
+            <div class="col-md-12 border-bottom border-dark pwbiCategory w-100" *ngFor="let pwbiCat of pwbiCategories">
+                <div role="button" (click)='enterPowerBiCategory(pwbiCat.id)' class="p-2 pt-3 ps-5">
+                    <span><img [src]="pwbiCat.img" class="pwbiCatImg rounded rounded-circle"></span>
+                    <span class="ps-3 powerbi-categories-title">{{pwbiCat.name}}</span>
                 </div>
             </div>
         </div>
-        <div class="col-md-3 p-0 border border-dark">
-            <div class="row m-2 text-center border border-dark">
-                <h4 class="col-md-12 m-0 pb-1 bg-warning">Novedades</h4>
+        <div class="col-md-3 p-0 border-bottom border-start border-dark overflow-auto contentpowerbi">
+            <h4 class="text-center border-bottom border-dark bg-dark text-white bg-gradient">Novedades</h4>
+            <div *ngFor="let newness of pwbiNewnessPublications" class="m-1 border-bottom border-dark p-2" role="button" (click)="enterPowerBiPublication(newness.id, newness.doc_entry)">
+                <div class="h4 text-primary text-uppercase" style="font-style:italic;" *ngIf="newness.type == 'guide'">GUÍA {{newness.category_pwbi_name}}</div><div class="h4 text-primary text-uppercase" style="font-style:italic;" *ngIf="newness.type == 'news'">NOTÍCIA {{newness.category_pwbi_name}}</div><span class="h4" style="word-wrap: break-word;">{{newness.title}}</span>
+                <div class="m-0 text-end" style="font-size: 12px; font-style: italic;">{{newness.creation_date| ddMmYYYYDate}}</div>
             </div>
         </div>
     </div>

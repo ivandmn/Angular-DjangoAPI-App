@@ -13,32 +13,51 @@
                 <span class="header-span header-text align-middle">Tiempo: </span>
                 <span class="header-text align-middle">{{ticket.time}}</span>
             </div>
-            <div class="col-xl-6">
+            <div class="col-xl-4">
                 <span class="header-span header-text align-middle">Título: </span>
                 <span class="header-text align-middle">{{ticket.title}}</span>
             </div>
+            <div class="col-xl-2 text-end buttons-ticket-inside" >
+                <button type="button" class="me-2" *ngIf="ticket.state == 'A'">
+                    <img title="cerrar_ticket" class="option-button" value="Cerrar Ticket" (click)="closeTicket()" src="assets/images/unlock.png">
+                </button>
+                <button type="button" class="me-2" *ngIf="ticket.state == 'C'">
+                    <img title="reabrir_ticket" class="option-button" value="Reabrir Ticket" (click)="openTicket()" src="assets/images/lock.png">
+                </button>
+                <button type="button" class="" routerLink="/tickets/list">
+                    <img title="back-button" class="option-button" src="assets/images/back_icon.svg">
+                </button>
+            </div>
         </div>
         <div class="row m-2">
-            <div class="col-xl-4 mb-1">
+            <div class="col-xl-3 mb-1 pe-0">
                 <form [formGroup]="managerSelect">
                     <label for="gestor">Gestor</label>
-                    <select class="form-select d-inline w-auto ms-2" [attr.disabled]="current_user.rol != 'admin'" formControlName="manager" title="gestor" name="gestor" (change)=changeTicketManager()>
+                    <select class="form-select d-inline w-auto ms-2" formControlName="manager" title="gestor" name="gestor" (change)=changeTicketManager()>
                         <option *ngFor="let manager of managers" [value]="manager.username" [selected]="ticket.manager == manager.username?true:false">{{manager.name}}</option>
                     </select>
                 </form>
             </div>
-            <div class="col-xl-3 mb-1">
+            <div class="col-xl-3 mb-1 pe-0">
+                <form [formGroup]="userSelect">
+                    <label for="usuario">Usuario</label>
+                    <select class="form-select d-inline w-auto ms-2" formControlName="user" title="usuario" name="usuario" (change)=changeTicketUser()>
+                        <option *ngFor="let user of users" [value]="user.username" [selected]="ticket.user == user.username?true:false">{{user.name}}</option>
+                    </select>
+                </form>
+            </div>
+            <div class="col-xl-3 mb-1 pe-0">
                 <form [formGroup]="categorySelect">
                     <label for="categoria">Categoria</label>
-                    <select class="form-select d-inline w-auto ms-2" [attr.disabled]="current_user.rol != 'admin'" formControlName="category" title="categoria" name="categoria" (change)=changeTicketCategory()>
+                    <select class="form-select d-inline w-auto ms-2" formControlName="category" title="categoria" name="categoria" (change)=changeTicketCategory()>
                         <option *ngFor="let category of ticket_categories" value="{{category.category}}">{{category.category_name}}</option>
                     </select>
                 </form>
             </div>
-            <div class="col-xl-3 mb-1">
+            <div class="col-xl-3 mb-1 pe-0">
                 <form [formGroup]="prioritySelect">
                     <label for="prioridad">Prioridad</label>
-                    <select class="form-select d-inline w-auto ms-2" [attr.disabled]="current_user.rol != 'admin'" formControlName="priority" title="prioridad" name="prioridad" (change)=changeTicketPriority()>
+                    <select class="form-select d-inline w-auto ms-2" formControlName="priority" title="prioridad" name="prioridad" (change)=changeTicketPriority()>
                         <option value="1" selected>BAJA</option>
                         <option value="2">MEDIA</option>
                         <option value="3">ALTA</option>
@@ -46,24 +65,13 @@
                     </select>
                 </form>
             </div>
-            <div class="col-xl-2 text-end ms-auto">
-                <button type="button" class="me-2 mt-2" *ngIf="ticket.state == 'A'">
-                    <img title="cerrar_ticket" class="option-button" value="Cerrar Ticket" (click)="closeTicket()" src="assets/images/unlock.png">
-                </button>
-                <button type="button" class="me-2 mt-2" *ngIf="ticket.state == 'C'">
-                    <img title="reabrir_ticket" class="option-button" value="Reabrir Ticket" (click)="openTicket()" src="assets/images/lock.png">
-                </button>
-                <button type="button" class="mt-2" routerLink="/tickets/list">
-                    <img title="back-button" class="option-button" src="assets/images/back_icon.svg">
-                </button>
-            </div>
         </div>
     </div>
 
     <div class="border border-dark m-2 overflow-auto" #scrollChat [scrollTop]="ticket_messages.length == 0 ? 0: scrollChat.scrollHeight" id="ticket-container">
         <div class="col-9" *ngFor="let message of ticket_messages" [ngClass]="{'right': message.type == 'P', 'left': message.type == 'R'}">
-            <p [ngClass]="{'user-msg-left': message.type == 'R'}" *ngIf="message.type == 'R'">{{ticket.manager}}</p>
-            <p [ngClass]="{'user-msg-right': message.type == 'P'}" *ngIf="message.type == 'P'">{{ticket.user}}</p>
+            <p [ngClass]="{'user-msg-left': message.type == 'R'}" *ngIf="message.type == 'R'" role="button" (click)="enterUserProfle(ticket.manager)">{{ticket.manager}}</p>
+            <p [ngClass]="{'user-msg-right': message.type == 'P'}" *ngIf="message.type == 'P'" role="button" (click)="enterUserProfle(ticket.user)">{{ticket.user}}</p>
             <p [ngClass]="{'msg-right': message.type == 'P', 'msg-left': message.type == 'R'}">{{message.text1 + message.text2 + message.text3}}</p>
             <a [ngClass]="{'time-msg-right': message.type == 'P', 'time-msg-left': message.type == 'R'}">{{message.date | ddMmYyyyHHMMDate}} <p *ngIf="message.time != '00:00:00'" [ngClass]="{'time-used-msg-right': message.type == 'P', 'time-used-msg-left': message.type == 'R'}">{{message.time}}</p></a>
             <img *ngIf="message.file" src="../../assets/images/file.png" [ngClass]="{'file-msg-right': message.type == 'P', 'file-msg-left': message.type == 'R'}" (click)="downloadFile(message.file)">
@@ -84,17 +92,49 @@
                     
                 <div class="col-md-12 m-2">
                     <label class="col-md-6 text-start" *ngIf="current_user.rol == 'admin'"><input formControlName="validation" type="checkbox"> Validación</label>
-                    <label class="col-md-6 ps-2 text-end" *ngIf="current_user.rol == 'admin'"><input formControlName="time" type=time> Tiempo (HH/MM)</label>
+                    <label class="col-md-6 ps-2 text-end" *ngIf="current_user.rol == 'admin'">
+                        <select class="form-select d-inline w-auto ms-auto" formControlName="time">
+                            <option value="00:00" selected>00:00</option>
+                            <option value="00:15">00:15</option>
+                            <option value="00:30">00:30</option>
+                            <option value="00:45">00:45</option>
+                            <option value="01:00">01:00</option>
+                            <option value="01:15">01:15</option>
+                            <option value="01:30">01:30</option>
+                            <option value="01:45">01:45</option>
+                            <option value="02:00">02:00</option>
+                            <option value="02:15">02:15</option>
+                            <option value="02:30">02:30</option>
+                            <option value="02:45">02:45</option>
+                            <option value="03:00">03:00</option>
+                            <option value="03:15">03:15</option>
+                            <option value="03:30">03:30</option>
+                            <option value="03:45">03:45</option>
+                            <option value="04:00">04:00</option>
+                            <option value="04:15">04:15</option>
+                            <option value="04:30">04:30</option>
+                            <option value="04:45">04:45</option>
+                            <option value="05:00">05:00</option>
+                            <option value="05:15">05:15</option>
+                            <option value="05:30">05:30</option>
+                            <option value="05:45">05:45</option>
+                            <option value="06:00">06:00</option>
+                        </select>Tiempo(HH:MM)</label>
                 </div> 
                 <div class="col-md-12 m-2">
-                    <input class="col-md-12" type="submit" value="Enviar" [disabled]="msgForm.invalid || msgForm.disabled">
+                    <input class="col-12" type="submit" value="Enviar" [disabled]="msgForm.invalid || msgForm.disabled">
                 </div>
             </div>
         </form>
     </div>
 </div>
 
-<div class="modal bd-example-modal-lg" id="awaitBackendModal" data-backdrop="static" data-keyboard="false" tabindex="-1">
+<div class="modal fade" id="confirmModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm" id="confirmModalContent"> 
+    </div>
+</div>
+
+<div class="modal bd-example-modal-lg" id="awaitBackendModalTicket" data-backdrop="static" data-keyboard="false" tabindex="-1">
     <div class="modal-dialog modal-sm">
         <div class="modal-content">
             <span class="fa fa-spinner fa-spin fa-3x"></span>

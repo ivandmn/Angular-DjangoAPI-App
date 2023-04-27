@@ -1,0 +1,142 @@
+<div class="p-0 text-center border border-dark" id="side-nav">
+    <div class="exit-option" (click)="toggleMenu()"><i class="fa-solid fa-xmark text-white fa-2xl"></i></div>
+    <div class="col-md tickets_options border-bottom border-dark text-white" routerLink="/tickets/list"><h3>Listar Casos</h3></div>
+    <div class="col-md tickets_options border-bottom border-dark text-white" routerLink="/tickets/create"><h3>Alta Caso</h3></div>
+    <div class="col-md tickets_options border-bottom border-dark text-white" routerLink="/tickets/search"><h3>Búsqueda Casos</h3></div>
+    <div class="col-md tickets_options border-bottom border-dark text-white" routerLink="/tickets/manual"><h3>Manuales</h3></div>
+</div>
+<div class="main border border-dark rounded" id="main">
+    <form [formGroup]="ticketsSearchForm" method="post" (ngSubmit)="submitForm()">
+        <div class="row m-2 mb-0">
+            <div class="col-lg-3 align-self-center mb-2 d-inline">
+                <div>
+                    <span *ngIf="showMenu == false" class="btn p-0 me-3 mb-1" (click)="toggleMenu()">
+                        <i class="fa-solid fa-bars fa-2xl p-0" ></i>
+                    </span>
+                    <span class="text-underline mb-1 me-2">Buscar Tickets I.T</span>
+                    <span class="border border-dark rounded">
+                        <span class="p-2">{{itemsCount}}</span>
+                    </span>
+                    <span role="button" (click)="resetTicketSearchOptions()"><i class="fa-solid fa-rotate-right fa-xl ms-1"></i></span>
+                    <div class="pt-1">
+                        <span><i class="fa-regular fa-clock fa-lg"></i></span><span class="border border-dark rounded ms-2">{{totalTimeTickets}}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 align-self-center mb-2">
+                <label for="gestor">Gestor</label>
+                <select class="form-select" formControlName="manager" id='managerSelectTicketList' title="gestor" name="gestor">
+                    <option value="">ALL</option>
+                    <option *ngFor="let manager of managers"  value="{{manager.username}}">{{manager.name}}</option>
+                </select>
+            </div>
+            <div class="col-lg-3 align-self-center mb-2">
+                <label for="user">Usuario</label>
+                <select class="form-select" formControlName="username" name="user">
+                    <option *ngIf="current_user.rol != 'admin'" value={{current_user.username}}>{{current_user.name}}</option> 
+                    <option *ngIf="current_user.rol == 'admin'" value="" selected>ALL</option>
+                    <option *ngFor="let user of users" value="{{user.username}}">{{user.name}}</option>
+                </select>
+            </div>
+            <div class="col-lg-1 align-self-center mb-2">
+                <label for="estado">Estado</label>
+                <select class="form-select" formControlName="state" title="estado" name="estado">
+                    <option value="">ALL</option>
+                    <option value="A">A</option>
+                    <option value="C">C</option>
+                </select>
+            </div>
+            <div class="col-lg-2 align-self-center mb-2">
+                <label for="categoria">Categoria</label>
+                <select class="form-select" formControlName="category" title="categoria" name="categoria">
+                    <option value="">ALL</option>
+                    <option *ngFor="let category of ticket_categories" value="{{category.category}}">{{category.category_name}}</option>
+                </select>
+            </div>
+        </div>
+        <div class="row m-2 mt-0">
+            <div class="col-xxl-9 align-self-center mb-2">
+                <label for="title">Título</label>
+                <input type="text" name="title" class="form-control" formControlName="title"> 
+            </div>
+
+            <div class="col-xxl-3 align-self-center mb-2 mt-4">
+                <mat-form-field>
+                    <mat-label>Rango de fecha</mat-label>
+                    <mat-date-range-input [rangePicker]="datepicker" [min]="minDateTickets" [max]="maxDateTickets">
+                        <input matStartDate placeholder="Fecha inicial" formControlName="fechaInicio">
+                        <input matEndDate placeholder="Fecha final" formControlName="fechaFin">
+                    </mat-date-range-input>
+                    <mat-datepicker-toggle matSuffix [for]="datepicker"></mat-datepicker-toggle>
+                    <mat-date-range-picker #datepicker></mat-date-range-picker>
+                </mat-form-field>
+                <span class="ms-2" role="button" (click)="resetDatePicker()"><i class="fa-solid fa-rotate-left fa-xl"></i></span>   
+                <input type="submit" hidden>
+            </div>
+        </div>
+    </form>
+    <div class="row m-0" id="content-list-tickets">
+        <div class="col-md p-0 mh-100 overflow-auto">
+            <table class="table">
+                <thead>
+                    <tr class="bg-ticket-blue text-center">
+                        <th scope="col" class="border border-dark">Caso</th>
+                        <th scope="col" class="border border-dark">Fecha</th>
+                        <th scope="col" class="border border-dark">Fecha último mensaje</th>
+                        <th scope="col" class="border border-dark">Fecha cierre ticket</th>
+                        <th scope="col" class="border border-dark">Título</th>
+                        <th scope="col" class="border border-dark">Usuario</th>
+                        <th scope="col" class="border border-dark">Gestor</th>
+                        <th scope="col" class="border border-dark">Categoria</th>
+                        <th scope="col" class="border border-dark">Prioridad</th>
+                        <th scope="col" class="border border-dark">Posición</th>
+                        <th scope="col" class="border border-dark">Tiempo</th>
+                    </tr>
+                    <ng-container *ngIf="current_user.rol == 'user'">
+                        <tr *ngFor="let ticket of tickets | paginate : {itemsPerPage: itemsPerPage,currentPage: page,totalItems: itemsCount};" class="text-center border-bottom border-dark" role="button" (click)="getTicketL(ticket.code)">
+                            <td class='text-underline' [ngClass]="getTicketClasses(ticket)">{{ticket.code}}</td>
+                            <td [ngClass]="getTicketClasses(ticket)">{{(ticket.date | ddMmYYYYDate) || 'NULL'}}</td>
+                            <td [ngClass]="getTicketClasses(ticket)">{{(ticket.last_msg_date | ddMmYyyyHHMMDate) || 'NULL'}}</td>
+                            <td [ngClass]="getTicketClasses(ticket)">{{(ticket.ticket_closed_date | ddMmYYYYDate) || 'NULL'}}</td>
+                            <td [ngClass]="getTicketClasses(ticket)">{{(ticket.title) || 'NULL'}}</td>
+                            <td [ngClass]="getTicketClasses(ticket)">{{(ticket.user) || 'NULL'}}</td>
+                            <td [ngClass]="getTicketClasses(ticket)">{{(ticket.manager) || 'NULL'}}</td>
+                            <td [ngClass]="getTicketClasses(ticket)">{{(ticket.category) || 'NULL'}}</td>
+                            <td [ngClass]="getTicketClasses(ticket)">{{(ticket.priority) || 'NULL'}}</td>
+                            <td [ngClass]="getTicketClasses(ticket)">{{(ticket.position) || 'NULL'}}</td>
+                            <td [ngClass]="getTicketClasses(ticket)">{{(ticket.time) || 'NULL'}}</td>
+                        </tr>
+                    </ng-container>
+                    <ng-container *ngIf="current_user.rol == 'admin'">
+                        <tr *ngFor="let ticket of tickets | paginate : {itemsPerPage: itemsPerPage,currentPage: page,totalItems: itemsCount};" class="text-center border-bottom border-dark" role="button" (click)="getTicketL(ticket.code)">
+                            <td class='text-underline' [ngClass]="getTicketClasses(ticket)">{{ticket.code}}</td>
+                            <td [ngClass]="getTicketClasses(ticket)">{{(ticket.date | ddMmYYYYDate) || 'NULL'}}</td>
+                            <td [ngClass]="getTicketClasses(ticket)">{{(ticket.last_msg_date | ddMmYyyyHHMMDate) || 'NULL'}}</td>
+                            <td [ngClass]="getTicketClasses(ticket)">{{(ticket.ticket_closed_date | ddMmYYYYDate) || 'NULL'}}</td>
+                            <td [ngClass]="getTicketClasses(ticket)">{{(ticket.title) || 'NULL'}}</td>
+                            <td [ngClass]="getTicketClasses(ticket)">{{(ticket.user) || 'NULL'}}</td>
+                            <td [ngClass]="getTicketClasses(ticket)">{{(ticket.manager) || 'NULL'}}</td>
+                            <td [ngClass]="getTicketClasses(ticket)">{{(ticket.category) || 'NULL'}}</td>
+                            <td [ngClass]="getTicketClasses(ticket)">{{(ticket.priority) || 'NULL'}}</td>
+                            <td [ngClass]="getTicketClasses(ticket)">{{(ticket.position) || 'NULL'}}</td>
+                            <td [ngClass]="getTicketClasses(ticket)">{{(ticket.time) || 'NULL'}}</td>
+                        </tr>
+                    </ng-container>
+                </thead>
+            </table>
+            <div class="d-flex justify-content-center">
+                <pagination-controls previousLabel="Prev" nextLabel="Next" (pageChange)="paginationChange($event)">
+                </pagination-controls>
+            </div>
+        </div>
+    </div>  
+</div>
+
+<div class="modal bd-example-modal-lg" id="awaitBackendModalTicketSearch" data-backdrop="static" data-keyboard="false" tabindex="-1">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <span class="fa fa-spinner fa-spin fa-3x"></span>
+            <div *ngIf="modalMsg" class='text-center mt-1 text-white'>{{modalMsg}}</div>
+        </div>
+    </div>
+</div>

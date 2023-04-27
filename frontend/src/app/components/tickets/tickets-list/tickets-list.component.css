@@ -1,9 +1,12 @@
 .main{
-    min-height: 815px;
+    min-height: 100%;
+    transition: margin-left .3s linear;
+    margin: 10px;
+    margin-left: 310px;
 }
 
 #content-list-tickets{
-    min-height: 727px !important;
+    min-height: 720px !important;
 }
 
 .font-weight-bold{
@@ -19,7 +22,25 @@ th{
 }
 
 td{
-    padding: 4px;
+    padding: 3px;
+}
+
+#legend{
+    display: none;
+}
+
+#legendbtn{
+    transition-duration: 0.5s;
+}
+
+.ticketsCount{
+    padding: 2px;
+    padding-left: 8px;
+    padding-right: 8px;
+}
+
+.bg-legend{
+    background-color: antiquewhite;
 }
 
 .bg-ticket-blue{
@@ -27,11 +48,11 @@ td{
 }
 
 .bg-ticket-usermode{
-    background-color: #93d16d;
+    background-color: #5bfa57;
 }
 
 .bg-ticket-usermode-response{
-    background-color: #51a62d;
+    background-color: #05d100;
 }
 
 .bg-ticket-closed {
@@ -42,14 +63,32 @@ td{
     background-color: #faac8c;
 }
 
+.bg-ticket-yellow{
+    background-color: #fae369;
+}
+
 .tickets_options{
     transition-duration: 0.4s;
     padding: 20px;
     cursor: pointer;
 }
 
+.exit-option{
+    transition-duration: 0.4s;
+    padding: 20px;
+    cursor: pointer;
+    position: absolute;
+    z-index: 10;
+    top: 0;
+    right: 0;
+}
+
+.exit-option:hover{
+    background-color: black !important;
+}
+
 .tickets_options:hover{
-    background-color: #1fbcff;
+    background-color: red;
 }
 
 .text-underline{
@@ -61,6 +100,36 @@ td{
     cursor: pointer;
 }
 
-.ticketsCount{
-    margin-left: 10px;
+#side-nav{
+    min-height: 100%;
+    width: 300px;
+    position: fixed;
+    left: 0px;
+    background-color: #212529;
 }
+
+.no-visible{
+    visibility: hidden;
+}
+
+.bd-example-modal-lg .modal-dialog{
+    display: table;
+    position: relative;
+    margin: 0 auto;
+    top: calc(50% - 24px);
+}
+  
+.bd-example-modal-lg .modal-dialog .modal-content{
+    background-color: transparent;
+    border: none;
+}
+
+@media screen and (max-width: 991px) {
+    #side-nav{
+        min-height: 100%;
+        width: 100%;
+        position: fixed;
+        left: 0px;
+    }
+}
+

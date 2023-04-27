@@ -1,36 +1,79 @@
-<div class="main border border-dark">
+<div class="p-0 text-center border border-dark" id="side-nav">
+    <div class="exit-option" (click)="toggleMenu()"><i class="fa-solid fa-xmark text-white fa-2xl"></i></div>
+    <div class="col-md tickets_options border-bottom border-dark text-white" routerLink="/tickets/list"><h3>Listar Casos</h3></div>
+    <div class="col-md tickets_options border-bottom border-dark text-white" routerLink="/tickets/create"><h3>Alta Caso</h3></div>
+    <div class="col-md tickets_options border-bottom border-dark text-white" routerLink="/tickets/search"><h3>Búsqueda Casos</h3></div>
+    <div class="col-md tickets_options border-bottom border-dark text-white" routerLink="/tickets/manual"><h3>Manuales</h3></div>
+</div>
+<div class="main border border-dark rounded" id="main">
     <form [formGroup]="ticketsListForm" method="post">
         <div class="row m-2">
-            <div class="col-lg-3 align-self-center mb-2 d-inline">
+            <div class="col-xxl-3 align-self-center mb-2 d-inline">
                 <div>
-                    <div><span class="text-underline mb-1 me-2">Resumen Tickets I.T</span><span class="border border-dark rounded"><span class="p-2">{{itemsCount}}</span></span></div>
-                    <label *ngIf="current_user.rol == 'admin'" ><input formControlName="userMode" type="checkbox"> Modo Usuario</label>
-                    <label *ngIf="ticketsListForm.controls['state'].value != 'C'" ><input formControlName="validation" type="checkbox"> Mostrar Pendientes</label>
+                    <div>
+                        <span *ngIf="showMenu == false" class="btn p-0 me-3 mb-1" (click)="toggleMenu()">
+                            <i class="fa-solid fa-bars fa-2xl p-0" ></i>
+                        </span>
+                        <span class="text-underline mb-1 me-2">Resumen Tickets I.T</span>
+                        <span class="border border-dark rounded ticketsCount">{{itemsCount}}</span>
+                        <span role="button" (click)="changeTicketOptions('default')"><i class="fa-solid fa-rotate-right fa-xl ms-1"></i></span>
+                        <div>
+                            <div class="border border-dark rounded-1 d-inline-block p-1" role="button" (click)="toggleLegend()" id="legendbtn"><i class="fa-regular fa-circle-question fa-xl"></i><span class="align-self-middle ms-1">Legend</span>
+                        </div>
+                        <span class="ms-1">
+                            <span *ngIf="current_user.rol == 'admin'"><input formControlName="userMode" type="checkbox"><span role="button" (click)="swapUserModeCheckOption()"><i class="ms-1 me-1 fa-solid fa-user fa-xl" title="Modo Usuario"></i></span><span *ngIf="ticketService.ticketsPending.RNVU != 0" class="border border-dark rounded-circle ticketsCount me-2 font-weight-bold" title="No vistos como usuario">{{ticketService.ticketsPending.RNVU}}</span></span>
+                            <span *ngIf="ticketsListForm.controls['state'].value != 'C'" ><input formControlName="validation" type="checkbox"><span role="button" (click)="swapValidationCheckOption()"><i class="fa-solid fa-pen-nib fa-xl ms-1 me-1" title="Mostrar tickets pendientes de validar"></i></span></span>
+                            <span *ngIf="ticketsListForm.controls['state'].value != 'C'" ><input formControlName="viewed" type="checkbox"><span role="button" (click)="swapNoViewedCheckOption()"><i class="fa-solid fa-glasses fa-xl ms-1 me-1" title="Mostrar tickets no vistos"></i></span><span *ngIf="ticketService.ticketsPending.RNVM != 0 && current_user.rol == 'admin'" class="border border-dark rounded-circle ticketsCount me-2 font-weight-bold" title="No vistos como gestor">{{ticketService.ticketsPending.RNVM}}</span></span>
+                        </span>
+                        </div>
+                        <div class="border border-dark bg-legend" id="legend">
+                            <div class="p-2 col-12">
+                                <div *ngIf="current_user.rol == 'admin'">
+                                    <span class="border border-dark rounded ticketsCount bg-ticket-blue" role="button" (click)="changeTicketOptions('adminTicketsPending')">{{ticketService.ticketsPending.RM}}</span><span> - Pendientes de responder como gestor</span>
+                                </div>
+                                <div class="mt-2" *ngIf="current_user.rol == 'admin'">
+                                    <span class="border border-dark rounded ticketsCount bg-white font-weight-bold" role="button" (click)="changeTicketOptions('adminTicketsNoViewed')">{{ticketService.ticketsPending.RNVM}}</span><span> - No vistos como gestor</span>
+                                </div>
+                                <div class="mt-2" *ngIf="current_user.rol == 'admin'">
+                                    <span class="border border-dark rounded ticketsCount bg-ticket-usermode-response" role="button" (click)="changeTicketOptions('adminTicketsPendingAsUser')">{{ticketService.ticketsPending.RU}}</span><span> - Pendientes de responder como usuario</span>
+                                </div>
+                                <div class="mt-2" *ngIf="current_user.rol == 'admin'">
+                                    <span class="border border-dark rounded ticketsCount bg-ticket-usermode font-weight-bold" role="button" (click)="changeTicketOptions('adminTicketsNoViewedAsUser')">{{ticketService.ticketsPending.RNVU}}</span><span> - No vistos como usuario</span>
+                                </div>
+                                <div class="mt-2" *ngIf="current_user.rol == 'user'">
+                                    <span class="border border-dark rounded ticketsCount bg-ticket-blue" role="button" (click)="changeTicketOptions('userTicketsPending')">{{ticketService.ticketsPending.RU}}</span><span> - Pendientes de responder</span>
+                                </div>
+                                <div class="mt-2" *ngIf="current_user.rol == 'user'">
+                                    <span class="border border-dark rounded ticketsCount bg-white font-weight-bold" role="button" (click)="changeTicketOptions('userTicketsNoViewed')">{{ticketService.ticketsPending.RNVU}}</span><span> - No vistos</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="col-lg-3 align-self-center mb-2">
+            <div class="col-xxl-3 align-self-center mb-2">
                 <label for="gestor">Gestor</label>
                 <select class="form-select" formControlName="manager" id='managerSelectTicketList'title="gestor" name="gestor">
                     <option value="">ALL</option>
-                    <option *ngFor="let manager of managers"  value="{{manager.username}}">{{manager.name}}</option>
+                    <option *ngFor="let manager of managers"  value="{{manager.username}}" [disabled]="ticketsListForm.controls['userMode'].value == true && manager.username == this.current_user.username">{{manager.name}}</option>
                 </select>
             </div>
-            <div class="col-lg-3 align-self-center mb-2">
+            <div class="col-xxl-3 align-self-center mb-2">
                 <label for="user">Usuario</label>
                 <select class="form-select" formControlName="username" name="user">
-                    <option *ngIf="current_user.rol != 'admin'" value={{current_user.username}}>{{current_user.name}}</option> 
+                    <option *ngIf="current_user.rol == 'user'" value={{current_user.username}}>{{current_user.name}}</option> 
                     <option *ngIf="current_user.rol == 'admin'" value="" selected>ALL</option>
                     <option *ngFor="let user of users" value="{{user.username}}">{{user.name}}</option>
                 </select>
             </div>
-            <div class="col-lg-1 align-self-center mb-2">
+            <div class="col-xxl-1 align-self-center mb-2">
                 <label for="estado">Estado</label>
                 <select class="form-select" formControlName="state" title="estado" name="estado">
                     <option value="A" selected>A</option>
                     <option value="C">C</option>
                 </select>
             </div>
-            <div class="col-lg-2 align-self-center mb-2">
+            <div class="col-xxl-2 align-self-center mb-2">
                 <label for="categoria">Categoria</label>
                 <select class="form-select" formControlName="category" title="categoria" name="categoria">
                     <option value="">ALL</option>
@@ -40,35 +83,34 @@
         </div>
     </form>
     <div class="row m-0" id="content-list-tickets">
-        <div class="col-md-3 p-0 bg-ticket-blue text-center border border-dark">
-            <div class="col-md tickets_options border-bottom border-dark" routerLink="/tickets/create"><h3>Alta Caso</h3></div>
-            <div class="col-md tickets_options border-bottom border-dark"><h3>Búsqueda Casos</h3></div>
-            <div class="col-md tickets_options border-bottom border-dark"><h3>Manuales</h3></div>
-        </div>
-        <div class="col-md-9 p-0 mh-100 overflow-auto">
+        <div class="col-md p-0 mh-100 overflow-auto">
             <table class="table">
                 <thead>
                     <tr class="bg-ticket-blue text-center">
                         <th scope="col" class="border border-dark">Caso</th>
                         <th scope="col" class="border border-dark">Fecha</th>
+                        <th *ngIf="closedTickets == false" scope="col" class="border border-dark">Fecha último mensaje</th>
+                        <th *ngIf="closedTickets == true" scope="col" class="border border-dark">Fecha cierre ticket</th>
                         <th scope="col" class="border border-dark">Título</th>
                         <th scope="col" class="border border-dark">Usuario</th>
                         <th scope="col" class="border border-dark">Gestor</th>
                         <th scope="col" class="border border-dark">Categoria</th>
-                        <th scope="col" class="border border-dark">Prioridad</th>
-                        <th scope="col" class="border border-dark">Posicion</th>
+                        <th *ngIf="closedTickets == false" scope="col" class="border border-dark">Prioridad</th>
+                        <th *ngIf="closedTickets == false" scope="col" class="border border-dark">Posición</th>
                         <th scope="col" class="border border-dark">Tiempo</th>
                     </tr>
                     <ng-container *ngIf="current_user.rol == 'user'">
                         <tr *ngFor="let ticket of tickets | paginate : {itemsPerPage: itemsPerPage,currentPage: page,totalItems: itemsCount};" class="text-center border-bottom border-dark" role="button" (click)="getTicketL(ticket.code)">
                             <td class='text-underline' [ngClass]="getTicketClasses(ticket)">{{ticket.code}}</td>
                             <td [ngClass]="getTicketClasses(ticket)">{{ticket.date | ddMmYYYYDate}}</td>
+                            <td *ngIf="closedTickets == false" [ngClass]="getTicketClasses(ticket)">{{ticket.last_msg_date | ddMmYyyyHHMMDate}}</td>
+                            <td *ngIf="closedTickets == true" [ngClass]="getTicketClasses(ticket)">{{ticket.ticket_closed_date | ddMmYYYYDate}}</td>
                             <td [ngClass]="getTicketClasses(ticket)">{{ticket.title}}</td>
                             <td [ngClass]="getTicketClasses(ticket)">{{ticket.user}}</td>
                             <td [ngClass]="getTicketClasses(ticket)">{{ticket.manager}}</td>
                             <td [ngClass]="getTicketClasses(ticket)">{{ticket.category}}</td>
-                            <td [ngClass]="getTicketClasses(ticket)">{{ticket.priority}}</td>
-                            <td [ngClass]="getTicketClasses(ticket)">{{ticket.position}}</td>
+                            <td *ngIf="closedTickets == false" [ngClass]="getTicketClasses(ticket)">{{ticket.priority}}</td>
+                            <td *ngIf="closedTickets == false" [ngClass]="getTicketClasses(ticket)">{{ticket.position}}</td>
                             <td [ngClass]="getTicketClasses(ticket)">{{ticket.time}}</td>
                         </tr>
                     </ng-container>
@@ -76,12 +118,14 @@
                         <tr *ngFor="let ticket of tickets | paginate : {itemsPerPage: itemsPerPage,currentPage: page,totalItems: itemsCount};" class="text-center border-bottom border-dark" role="button" (click)="getTicketL(ticket.code)">
                             <td class='text-underline' [ngClass]="getTicketClasses(ticket)">{{ticket.code}}</td>
                             <td [ngClass]="getTicketClasses(ticket)">{{ticket.date | ddMmYYYYDate}}</td>
+                            <td *ngIf="closedTickets == false" [ngClass]="getTicketClasses(ticket)">{{ticket.last_msg_date | ddMmYyyyHHMMDate}}</td>
+                            <td *ngIf="closedTickets == true" [ngClass]="getTicketClasses(ticket)">{{ticket.ticket_closed_date | ddMmYYYYDate}}</td>
                             <td [ngClass]="getTicketClasses(ticket)">{{ticket.title}}</td>
                             <td [ngClass]="getTicketClasses(ticket)">{{ticket.user}}</td>
                             <td [ngClass]="getTicketClasses(ticket)">{{ticket.manager}}</td>
                             <td [ngClass]="getTicketClasses(ticket)">{{ticket.category}}</td>
-                            <td [ngClass]="getTicketClasses(ticket)">{{ticket.priority}}</td>
-                            <td [ngClass]="getTicketClasses(ticket)">{{ticket.position}}</td>
+                            <td *ngIf="closedTickets == false" [ngClass]="getTicketClasses(ticket)">{{ticket.priority}}</td>
+                            <td *ngIf="closedTickets == false" [ngClass]="getTicketClasses(ticket)">{{ticket.position}}</td>
                             <td [ngClass]="getTicketClasses(ticket)">{{ticket.time}}</td>
                         </tr>
                     </ng-container>
@@ -93,4 +137,13 @@
             </div>
         </div>
     </div>  
+</div>
+
+<div class="modal bd-example-modal-lg" id="awaitBackendModalTicketList" data-backdrop="static" data-keyboard="false" tabindex="-1">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <span class="fa fa-spinner fa-spin fa-3x"></span>
+            <div *ngIf="modalMsg" class='text-center mt-1 text-white'>{{modalMsg}}</div>
+        </div>
+    </div>
 </div>

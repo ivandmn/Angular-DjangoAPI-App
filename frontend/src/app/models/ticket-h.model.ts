@@ -10,9 +10,11 @@ export class TicketH {
     priority!: string | null; //Ticket priority
     state!: string | null; //Ticket state (A, C)
     position!: number | null; //Ticket position
-    time!: Time | null; //Time spent by the manager on the ticket
+    time!: string | null; //Time spent by the manager on the ticket
     validation!: number | null; //Ticket validation, 0 if it is the manager's turn to respond 1 if the user's turn is to respond
     viewed!: number | null; //It is to know if the person has opened the message
     last_response_type!: string | null; //Variable to know who the last message is from
+    last_msg_date!: Date | null;
+    ticket_closed_date!: Date | null;
 }
 

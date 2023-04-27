@@ -3,9 +3,16 @@
   src: url('./assets/fonts/Quicksand/Quicksand-Regular.otf')
 } */
 
-html, body{
+@import "~@angular/material/prebuilt-themes/indigo-pink.css";
+
+html{
   height: 100%;
   width: 100%;
+  box-sizing: border-box;
+}
+
+*,*:before,*:after {
+  box-sizing: inherit;
 }
 
 .toast-top-center {

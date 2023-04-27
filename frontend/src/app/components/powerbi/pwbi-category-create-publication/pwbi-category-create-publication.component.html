@@ -1,0 +1,41 @@
+<div class="main border border-dark">
+    <div class="row m-2 text-center align-items-center titlepowerbi border border-dark rounded" [style.background-color]="pwbiCategory.color">
+        <h2>Crear publicacion - {{pwbiCategory.name}}</h2>
+    </div>
+    <div class="row m-2 contentpowerbi">
+        <div class="col-md-12 p-0">
+            <form [formGroup]="publicationPoweBi" method="post" (ngSubmit)="createPublication()">
+                <div class="col-md-3 align-self-center mb-2">
+                    <label for="type">Tipo</label>
+                    <select class="form-select" formControlName="type" name="type">
+                        <option value="news">Notícia</option>
+                        <option value="guide">Guía</option>
+                    </select>
+                </div>
+                <div class="col-md-10 align-self-center mb-2">
+                    <label for="title">Título</label>
+                    <input class="form-control" placeholder="Escribe el título de la publicación" formControlName="title" name="title">
+                </div>
+                <div class="col-md-10 align-self-center mb-2">
+                    <label for="video">Link Video</label>
+                    <input class="form-control" placeholder="Inserta el link de la publicación" formControlName="video" name="video">
+                </div>
+                <div class="col-md-10 align-self-center mb-2">
+                    <label for="newness">Novedad</label>
+                    <input class="form-check-inline ms-2" type="checkbox" formControlName="newness" name="newness">
+                </div>
+                <div class="col-md-12 align-self-center mb-2">
+                    <label for="summary">Resumen</label>
+                    <textarea name="summary" placeholder="Escribe un resumen sobre la publicación" class="form-control p-3 border-secondary" formControlName="summary" rows="3"></textarea>
+                </div>
+                <div class="col-md-12 align-self-center mb-2">
+                    <label for="description">Descripcion</label>
+                    <textarea name="description" placeholder="Escribe la descripcion completa sobre la publicación" class="form-control p-3 border-secondary" formControlName="description" rows="8"></textarea>
+                </div>
+                <div class="col-md-12 m-2">
+                    <input class="col-md-12" type="submit" value="Enviar" [disabled]="publicationPoweBi.invalid">
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

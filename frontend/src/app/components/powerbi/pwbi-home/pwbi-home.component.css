@@ -1,7 +1,33 @@
 .main{
-    min-height: 815px;
+    min-height: 600px;
 }
 
 .contentpowerbi{
-    min-height: 740px;
+    background-color: aliceblue;
+    min-height: 600px;
+}
+
+.pwbiCatImg{
+    height: 150px;
+    width: 150px;
+    transition: all .2s ease-in-out;
+}
+
+.pwbiCategory{
+    transition: all .2s ease-in-out; 
+}
+
+.powerbi-categories-title{
+    font-size: 30px;
+    font-weight: bold;
+    transition: all .2s ease-in-out; 
+}
+
+.pwbiCategory:hover .powerbi-categories-title{
+    font-size: 35px;
+    text-decoration: underline;
+}
+
+.pwbiCategory:hover .pwbiCatImg{
+    transform: scale(1.05);
 }

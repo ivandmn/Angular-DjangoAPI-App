@@ -1,0 +1,74 @@
+.main{
+    min-height: 810px;
+    transition: margin-left .3s linear;
+    margin: 10px;
+    margin-left: 310px;
+}
+
+.tickets_options{
+    transition-duration: 0.4s;
+    padding: 20px;
+    cursor: pointer;
+}
+
+.tickets_options:hover{
+    background-color: red;
+}
+
+#side-nav{
+    min-height: 100%;
+    width: 300px;
+    position: fixed;
+    left: 0px;
+    background-color: #212529;
+}
+
+.exit-option{
+    transition-duration: 0.4s;
+    padding: 20px;
+    cursor: pointer;
+    position: absolute;
+    z-index: 10;
+    top: 0;
+    right: 0;
+}
+
+.exit-option:hover{
+    background-color: black !important;
+}
+
+.manual-file{
+    height: 30px;
+    width: auto;
+    cursor: pointer;
+}
+
+.text-underline{
+    -moz-text-decoration-line: underline;
+    text-decoration-line: underline;
+    -moz-text-decoration-color: blue;
+    text-decoration-color: blue;
+    color:blue;
+    cursor: pointer;
+}
+
+.bd-example-modal-lg .modal-dialog{
+    display: table;
+    position: relative;
+    margin: 0 auto;
+    top: calc(50% - 24px);
+}
+  
+.bd-example-modal-lg .modal-dialog .modal-content{
+    background-color: transparent;
+    border: none;
+}
+
+@media screen and (max-width: 991px) {
+    #side-nav{
+        min-height: 100%;
+        width: 100%;
+        position: fixed;
+        left: 0px;
+    }
+}

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { User } from 'src/app/models/user.model';
 import { AuthService } from 'src/app/services/auth.service';
 import { FormBuilder, FormGroup, FormControl, Validators } from '@angular/forms';
@@ -12,16 +12,22 @@ import { FileService } from 'src/app/services/file.service';
   templateUrl: './ticket-create.component.html',
   styleUrls: ['./ticket-create.component.css']
 })
-export class TicketsCreateComponent implements OnInit {
-  constructor(private fb: FormBuilder, private authService: AuthService, private router: Router, private ticketService: TicketService, private toastrService: ToastrService, private fileService: FileService) { }
+export class TicketsCreateComponent implements OnInit, OnDestroy {
 
+  //Variable to save current user info
   current_user: User = this.authService.getUserInfo()
 
-  managers: Array<User> | null = [];
+  //Variable to save current managers
+  managers: Array<User> = [];
+  //Variable to save current users
   users: Array<User> = [];
+  //Variable to save current ticket categories
   ticket_categories: Array<any> = [];
 
+  //Variable to save message of confirm modal
   modalMsg: string = '';
+
+  showMenu = true;
 
   ticketForm: FormGroup = new FormGroup({
     manager: new FormControl('', [Validators.required, Validators.maxLength(10)]),
@@ -34,6 +40,8 @@ export class TicketsCreateComponent implements OnInit {
     description: new FormControl('', [Validators.maxLength(765)]),
   });
 
+  constructor(private fb: FormBuilder, private authService: AuthService, private router: Router, private ticketService: TicketService, private toastrService: ToastrService, private fileService: FileService) { }
+
   ngOnInit(): void {
     this.configurateToastr()
     this.getManagers()
@@ -43,6 +51,21 @@ export class TicketsCreateComponent implements OnInit {
       this.ticketForm.controls['username'].enable()
       this.getUsers()
     }
+
+    window.matchMedia("(max-width: 991px)").addEventListener('change', (mm) =>{
+      let menuwidth = document.getElementById('side-nav')?.offsetWidth
+      if(!mm.matches && this.showMenu == true && menuwidth){
+          document.getElementById("main")!.style.marginLeft = menuwidth + 10 + "px";
+      }
+      if(!mm.matches && this.showMenu == false && menuwidth){
+        document.getElementById("main")!.style.marginLeft = "10px";
+      }
+    })
+  }
+
+  ngOnDestroy(): void {
+    $('#awaitBackendModal').modal('hide');
+    this.modalMsg = ''
   }
 
   getManagers(): void {
@@ -82,7 +105,7 @@ export class TicketsCreateComponent implements OnInit {
 
     //Upload file if ticket msg have file and after upload send ticket
     if(ticket['fileSource']){
-      this.fileService.upload(ticket['fileSource']).subscribe({
+      this.fileService.uploadFile(ticket['fileSource']).subscribe({
         next: (response: any) => {
           //Change filename message to backend filename
           ticket['file'] = response['file_name'];
@@ -95,6 +118,8 @@ export class TicketsCreateComponent implements OnInit {
               this.ticketForm.enable()
               this.toastrService.success('Ticket Enviado')
               this.resetTicketForm()
+              this.ticketService.savePendingTicketsCount()
+              this.ticketService.updateTicketsPosition()
             }, 
             error: () => {
               this.requestFinished()
@@ -121,6 +146,8 @@ export class TicketsCreateComponent implements OnInit {
           this.ticketForm.enable()
           this.toastrService.success('Ticket Enviado')
           this.resetTicketForm()
+          this.ticketService.savePendingTicketsCount()
+          this.ticketService.updateTicketsPosition()
         }, 
         error: () => {
           this.requestFinished()
@@ -201,6 +228,38 @@ export class TicketsCreateComponent implements OnInit {
     this.toastrService.toastrConfig.positionClass = 'toast-top-center'
     this.toastrService.toastrConfig.closeButton = true
     this.toastrService.toastrConfig.maxOpened = 6
+  }
+
+  toggleMenu(){
+    let menuwidth = document.getElementById('side-nav')?.offsetWidth
+    if(this.showMenu == true && menuwidth){
+      $("#side-nav").animate({left:-menuwidth?.toString()}, {
+        duration: 300,
+        complete: () => {
+          $("#side-nav").css('visibility', 'hidden')
+          this.showMenu = false
+        }, 
+        easing: "linear"
+      }, );
+      document.getElementById("main")!.style.marginLeft = "10px";
+    } else {
+      $("#side-nav").css('visibility', 'visible')
+      this.showMenu = true
+      $("#side-nav").animate({left:"0px"}, {
+        duration: 300,
+        complete: () => {
+        },
+        easing: "linear"
+      });
+      if(menuwidth){
+        let documentWidth = $(document).width()
+        if(documentWidth){
+          if(documentWidth > 991){
+            document.getElementById("main")!.style.marginLeft = menuwidth + 10 + "px";
+          }
+        }     
+      }
+    }
   }
 }
 

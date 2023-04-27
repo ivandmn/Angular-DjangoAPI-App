@@ -1,18 +1,17 @@
 from decouple import config
 from django.http import HttpRequest
-from django.core.mail import send_mail
 
 from typing import Any
 from random import randint
 import jwt
 
-
 import datetime
 import pytz
 
 from .. import models as db
-from . import utils_templates_email as email_templates
+from . import utils_email
 
+import pathlib
 
 def is_authenticated(request: HttpRequest) -> bool:
     """
@@ -65,6 +64,7 @@ def login_user(request: HttpRequest, user: dict[str, Any]) -> None:
     request.session['username'] = user.get('username')
     request.session['name'] = user.get('name')
     request.session['email'] = user.get('email')
+    request.session['powerbi_permissions'] = user.get('powerbi_permissions')
     request.session['rol'] = user.get('rol')
     request.session['logged'] = True
 
@@ -78,33 +78,9 @@ def logout_user(request: HttpRequest) -> None:
     del request.session['username']
     del request.session['name']
     del request.session['email']
+    del request.session['powerbi_permissions']
     del request.session['rol']
     request.session['logged'] = False
-
-
-def send_reset_password_email(email: str) -> str | None:
-    """
-    Send Reset Password Email - Send email to user with reset key
-    
-    Args:
-        email (str): User email
-
-    Returns:
-        reset_key (str | None): Returns reset key
-    """
-    try:
-        reset_key = generate_random_password_reset_key()
-        send_mail(
-            subject=f'Silver Sanz - Password Reset Code',
-            message="",
-            html_message= email_templates.reset_password_template.format(reset_key),
-            from_email= config('EMAIL_USER'),
-            recipient_list= [email]
-        )
-        return reset_key
-    except Exception as e:
-        print("An exception occurred - " + format(e))
-        return None 
 
 def generate_random_password_reset_key() -> str | None:
     """

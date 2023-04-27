@@ -27,7 +27,7 @@ SECRET_KEY = config('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', cast=bool)
 
-ALLOWED_HOSTS = ['10.3.97.197', 'gestion.silversanz.com' , 'localhost']
+ALLOWED_HOSTS = json.loads(config('ALLOWED_HOSTS'))
 
 REST_FRAMEWORK = {
     'UNAUTHENTICATED_USER': None,
@@ -35,7 +35,7 @@ REST_FRAMEWORK = {
         'rest_framework.throttling.AnonRateThrottle',
     ],
     'DEFAULT_THROTTLE_RATES': {
-        'anon': '60/second',
+        'anon': '180/second',
     }
 }
 
@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.staticfiles',
+    'django.contrib.postgres',
     'api',
     'corsheaders',
     'rest_framework',
@@ -62,6 +63,7 @@ SESSION_COOKIE_AGE = int(config('SESSION_COOKIE_AGE')) * 60 * 60
 SESSION_COOKIE_NAME = config('SESSION_COOKIE_NAME')
 SESSION_SAVE_EVERY_REQUEST = config('SESSION_SAVE_EVERY_REQUEST', cast=bool)
 SESSION_COOKIE_HTTPONLY = config('SESSION_COOKIE_HTTPONLY', cast=bool)
+SESSION_COOKIE_SECURE = config('SESSION_COOKIE_SECURE', cast=bool)
 
 CORS_ALLOW_CREDENTIALS = config('CORS_ALLOW_CREDENTIALS', cast=bool)
 CORS_ALLOWED_ORIGINS = json.loads(config('CORS_ALLOWED_ORIGINS'))
@@ -113,12 +115,12 @@ DATABASES = {
     },
 }
 
-EMAIL_HOST_USER = config('EMAIL_USER')
 EMAIL_BACKEND = config('EMAIL_BACKEND')
-EMAIL_HOST_PASSWORD = config('EMAIL_PASSWORD')
 EMAIL_USE_TLS = config('EMAIL_USE_TLS', cast=bool)
 EMAIL_HOST = config('EMAIL_HOST')
 EMAIL_PORT = config('EMAIL_PORT', cast=int)
+EMAIL_HOST_USER = config('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.0/topics/i18n/
@@ -133,8 +135,11 @@ USE_TZ = config('USE_TZ', cast=bool)
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+#STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATIC_URL = 'static/'
+STATICFILES_DIRS = (
+  os.path.join(BASE_DIR, 'static'),
+)
 
 MEDIA_ROOT = config('MEDIA_ROOT')
 

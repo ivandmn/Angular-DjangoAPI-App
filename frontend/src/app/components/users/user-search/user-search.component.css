@@ -1,0 +1,44 @@
+.main{
+    min-height: 810px;
+    transition: margin-left .3s linear;
+    margin: 10px;
+}
+
+.search-title-img{
+    height: 35px;
+    width: auto;
+}
+
+.userDisabled {
+    background-color: #c4beab;
+}
+
+.text-underline{
+    -moz-text-decoration-line: underline;
+    text-decoration-line: underline;
+    -moz-text-decoration-color: blue;
+    text-decoration-color: blue;
+    color:blue;
+    cursor: pointer;
+}
+
+.bd-example-modal-lg .modal-dialog{
+    display: table;
+    position: relative;
+    margin: 0 auto;
+    top: calc(50% - 24px);
+}
+  
+.bd-example-modal-lg .modal-dialog .modal-content{
+    background-color: transparent;
+    border: none;
+}
+
+@media screen and (max-width: 991px) {
+    #side-nav{
+        min-height: 100%;
+        width: 100%;
+        position: fixed;
+        left: 0px;
+    }
+}

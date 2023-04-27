@@ -1,0 +1,43 @@
+<div class="main m-2 border border-dark rounded">
+    <div class="row m-0 text-center align-items-center titlepowerbi border-bottom border-dark bg-dark text-white">
+        <h2>Crear Usuario</h2>
+    </div>
+    <div class="row m-2">
+        <div class="col-md-12 p-0">
+            <form [formGroup]="createUserForm">
+                <div class="col-md-12 align-self-center mb-2">
+                    <label for="name">Usuario</label>
+                    <input class="form-control" formControlName="name" name="name">
+                </div>
+                <div class="col-md-12 align-self-center mb-2">
+                    <label for="pasword">Contraseña</label>
+                    <input type="password" class="form-control" formControlName="pasword" name="pasword">
+                </div>
+                <div class="col-md-12 align-self-center mb-2">
+                    <label for="usrname">Nombre completo</label>
+                    <input class="form-control" formControlName="usrname" name="usrname">
+                </div>
+                <div class="col-md-12 align-self-center mb-2">
+                    <label for="privilegios">Rol</label>
+                    <select class="form-select" formControlName="privilegios" name="privilegios">
+                        <option value='user'>Usuario</option>
+                        <option value='admin'>Administrador</option>
+                    </select>
+                </div>
+                <div class="col-md-12 align-self-center mb-2">
+                    <label for="email">Email</label>
+                    <input class="form-control" formControlName="email" name="email">
+                </div>
+            </form>
+            <div class="col-md-12 mb-3" *ngIf="this.current_user.rol == 'admin'">
+                <label class="labels">Permisos PowerBi</label>
+                <ng-multiselect-dropdown id='pwbipermissionsmultidropdown' [placeholder]="'Selecciona los permisos del PowerBi'" [settings]="pwbidropdownSettings" [data]="pwbidropdownList" [(ngModel)]="pwbiselectedItems"
+                (onSelect)="onPowerbiItemSelectChange()" (onDeSelect)="onPowerbiItemSelectChange()" [disabled]="current_user.rol != 'admin'">
+                </ng-multiselect-dropdown>
+            </div>
+            <div class="col-12 m-0 text-center">
+                <input class="col-12" type="submit" (click)="createUser()" value="Crear usuario" [disabled]="createUserForm.invalid">
+            </div>
+        </div>
+    </div>
+</div>

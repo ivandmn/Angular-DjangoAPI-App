@@ -1,0 +1,75 @@
+<div class="main border border-dark rounded" id="main">
+    <div class="row m-2">
+        <div class="col-md-6 align-self-center mb-2 ">
+            <span class="text-underline">Usuarios</span>
+        </div>
+        <div class="col-xl-6 align-self-end text-end mb-2 ">
+            <form [formGroup]="usersEnabledForm" class="w-auto d-inline col-xl-6" method="post">
+                <select class="form-select w-auto d-inline" formControlName="mode">
+                    <option value="enabled" selected>Usuarios activos</option>
+                    <option value="disabled">Usuarios dados de baja</option>
+                </select>
+            </form>
+            <button class="ms-2 col-xl-3 mt-2" *ngIf="current_user.rol == 'admin'" routerLink="/users/create">Crear usuario</button>
+        </div>
+    </div>
+    <form [formGroup]="searchUserForm" (ngSubmit)="getUsers()" method="post">
+        <div class="row m-2 mt-0">
+            <div class="col-lg-12 align-self-center mb-2">
+                <input type="text" name="title" class="form-control" formControlName="username"> 
+            </div>
+        </div>
+    </form>
+    <div class="border-dark border-bottom"></div>
+    <div class="row m-0">
+        <div class="col-md p-0 mh-100 overflow-auto">
+            <table class="table">
+                <thead>
+                    <tr class="text-center bg-dark text-white">
+                        <th scope="col" class="border border-dark">Usuario</th>
+                        <th scope="col" class="border border-dark">Nombre completo</th>
+                        <th scope="col" class="border border-dark">Email</th>
+                        <th scope="col" class="border border-dark">Rol</th>
+                        <th *ngIf="this.usersEnabledForm.controls['mode'].value =='disabled'" scope="col" class="border border-dark">Fecha baja</th>
+                        <th *ngIf="current_user.rol == 'admin'" scope="col" class="border border-dark"></th>
+                    </tr>
+                        <ng-container *ngFor="let user of usersFilterArray | paginate : {itemsPerPage: itemsPerPage ,currentPage: page, totalItems: itemsCount};">
+                            <tr *ngIf="!user.f_baja" class="text-center border-bottom border-dark">
+                                <td role="button" (click)="enterUserProfle(user.username)">{{user.username}}</td>
+                                <td role="button" (click)="enterUserProfle(user.username)">{{user.name}}</td>
+                                <td role="button" (click)="enterUserProfle(user.username)">{{user.email}}</td>
+                                <td role="button" (click)="enterUserProfle(user.username)">{{user.rol}}</td>
+                                <td *ngIf="current_user.rol == 'admin'"><button class="rounded p-2" style="z-index: 15;" (click)="showConfirmModal('Estás seguro de que quieres realizar esta acción?', 'bajaUsuario', user.username)">Dar de baja</button></td>
+                            </tr>
+                            <tr *ngIf="user.f_baja" class="text-center border-bottom border-dark userDisabled">
+                                <td role="button" (click)="enterUserProfle(user.username)">{{user.username}}</td>
+                                <td role="button" (click)="enterUserProfle(user.username)">{{user.name}}</td>
+                                <td role="button" (click)="enterUserProfle(user.username)">{{user.email}}</td>
+                                <td role="button" (click)="enterUserProfle(user.username)">{{user.rol}}</td>
+                                <td role="button" (click)="enterUserProfle(user.username)">{{user.f_baja | ddMmYYYYDate}}</td>
+                                <td *ngIf="current_user.rol == 'admin'"><button class="rounded p-2" style="z-index: 15;" (click)="showConfirmModal('Estás seguro de que quieres realizar esta acción?', 'altaUsuario', user.username)">Dar de alta</button></td>
+                            </tr>
+                        </ng-container>
+                </thead>
+            </table>
+            <div class="d-flex justify-content-center">
+                <pagination-controls previousLabel="Prev" nextLabel="Next" (pageChange)="paginationChange($event)">
+                </pagination-controls>
+            </div>
+        </div>
+    </div> 
+</div>
+
+<div class="modal fade" id="confirmModalSearchUser" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm" id="confirmModalContentSearchUser"> 
+    </div>
+</div>
+
+<div class="modal bd-example-modal-lg" id="awaitBackendModalTicketManual" data-backdrop="static" data-keyboard="false" tabindex="-1">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <span class="fa fa-spinner fa-spin fa-3x"></span>
+            <div *ngIf="modalMsg" class='text-center mt-1 text-white'>{{modalMsg}}</div>
+        </div>
+    </div>
+</div>

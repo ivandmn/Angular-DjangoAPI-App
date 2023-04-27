@@ -1,22 +1,53 @@
-<div class="container rounded bg-white mt-5 mb-5">
+<div class="container rounded bg-white mt-5 mb-5 border border-dark rounded-4 border-opacity-50">
     <div class="row">
-        <div class="col-md-3 border-right">
-            <div class="d-flex flex-column align-items-center text-center p-3 py-5"><img title="usr_img" class="rounded-circle mt-5" width="150px" src="https://www.pngall.com/wp-content/uploads/5/User-Profile-PNG-High-Quality-Image.png"><span class="font-weight-bold">{{user.name}}</span><span class="text-black-50">{{user.email}}</span><span> </span></div>
+        <div class="col-md-4">
+            <div class="d-flex flex-column align-items-center text-center p-3 py-5">
+                <input type="file" name="my_file" id="my-file" style="visibility: hidden;" accept="image/png, image/jpeg" (change)="onChangeFile($event)">
+                <img title="usr_img" class="rounded-circle mt-3 mb-2" width="200px" height="200px" id='user-img' src="../../../assets/images/user_icon.png">
+                <span class="font-weight-bold">{{current_user.name}}</span>
+                <span class="text-black-50">{{current_user.email}}</span>
+                <span><button class="border rounded border-dark mt-1" (click)="selectProfileImage()">Actualizar imagen</button></span>
+                <span class="opacity-50" style="font-size: 15px;">200px x 200px</span>
+                <span *ngIf="userImgError" class="text-danger">{{userImgError}}</span>
+            
+            </div>
         </div>
-        <div class="col-md-5 border-right">
+        <div class="col-md border-right">
             <div class="p-3 py-5">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h4 class="text-right">Perfil</h4>
+                    <div><button (click)="showChangePasswordModal()">Cambiar contraseña</button></div>
                 </div>
                 <div class="row mt-2">
-                    <div class="col-md-12"><label class="labels">Nombre de usuario</label><input type="text" class="form-control" value={{user.username}} disabled></div>
+                    <div class="col-md-12"><label class="labels">Nombre de usuario</label><input type="text" class="form-control" value={{current_user.username}} disabled></div>
                 </div>
                 <div class="row mt-3">
-                    <div class="col-md-12"><label class="labels">Nombre completo</label><input type="text" class="form-control" value={{user.name}} disabled></div>
-                    <div class="col-md-12"><label class="labels">Email</label><input type="text" class="form-control" value={{user.email}} disabled></div>
-                    <div class="col-md-12"><label class="labels">Rol</label><input type="text" class="form-control" value={{user.rol}} disabled></div>
+                    <div class="col-md-12"><label class="labels">Nombre completo</label><input type="text" class="form-control" value={{current_user.name}} disabled></div>
+                    <div class="col-md-12"><label class="labels">Email</label><input type="text" class="form-control" value={{current_user.email}} disabled></div>
+                    <div class="col-md-12"><label class="labels">Rol</label><input type="text" class="form-control" value={{current_user.rol}} disabled></div>
                 </div>
             </div>
         </div>
     </div>
+</div>
+
+
+<div class="modal bd-example-modal-lg" id="showChangePasswordModal" data-backdrop="static" data-keyboard="false" tabindex="-1">
+    <div class="modal-dialog">   
+    <div class="modal-content">
+            <form [formGroup]="changePasswordForm" (ngSubmit)="changePassword()" method="post">
+                <div class="container">
+                    <div class="text-end"><span role="button" (click)="hideChangePasswordModal()"><i class="fa-solid fa-xmark fa-xl"></i></span></div>
+                    <label for="password"><b>Nueva Contraseña</b></label>
+                    <input type="password" class="form-control" class="inputsForm" formControlName="password" placeholder="Escribe una contraseña nueva" name="password">
+                    <label for="password"><b>Repita la Nueva Contraseña</b></label>
+                    <input type="password" class="form-control" class="inputsForm" formControlName="password_repeat" placeholder="Repita la contraseña nueva" name="password">
+                    <div *ngIf="error_newPassword_msg">
+                        <p class="text-danger">{{error_newPassword_msg}}</p>
+                    </div>
+                    <button type="submit" class="mt-1" [disabled]="disable_button" [ngClass]="{'submitButtonDisabled': disable_button, 'button-no-clickable': disable_button, 'cancelbtn': !disable_button}"><span class="text-white">Cambiar contraseña</span></button>
+                </div> 
+            </form>
+        </div>
+    </div> 
 </div>
